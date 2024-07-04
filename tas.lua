@@ -1,6 +1,8 @@
 local Running = false
 local Frames = {}
 local TimeStart = tick()
+local CurrentFrame = 1
+local Slots = {}
 
 local Player = game:GetService("Players").LocalPlayer
 local getChar = function()
@@ -36,7 +38,6 @@ local PlayTAS = function()
     local Character = getChar()
     local TimePlay = tick()
     local FrameCount = #Frames
-    local NewFrames = FrameCount
     local OldFrame = 1
     local TASLoop
     TASLoop = game:GetService("RunService").Heartbeat:Connect(function()
@@ -56,8 +57,6 @@ local PlayTAS = function()
     end)
 end
 
-local CurrentFrame = 1
-
 local ShowFrame = function(FrameIndex)
     local Character = getChar()
     local Frame = Frames[FrameIndex]
@@ -67,12 +66,12 @@ end
 
 local OnKeyPress = function(input, gameProcessedEvent)
     if gameProcessedEvent then return end
-    if input.KeyCode == Enum.KeyCode.Left then
+    if input.KeyCode == Enum.KeyCode.F then
         if CurrentFrame > 1 then
             CurrentFrame = CurrentFrame - 1
             ShowFrame(CurrentFrame)
         end
-    elseif input.KeyCode == Enum.KeyCode.Right then
+    elseif input.KeyCode == Enum.KeyCode.G then
         if CurrentFrame < #Frames then
             CurrentFrame = CurrentFrame + 1
             ShowFrame(CurrentFrame)
@@ -82,11 +81,43 @@ end
 
 game:GetService("UserInputService").InputBegan:Connect(OnKeyPress)
 
+local SaveSlot = function(slot)
+    Slots[slot] = Frames
+end
+
+local LoadSlot = function(slot)
+    Frames = Slots[slot] or {}
+    CurrentFrame = 1
+    if #Frames > 0 then
+        ShowFrame(CurrentFrame)
+    end
+end
+
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 local Window = Rayfield:CreateWindow({
-   Name = "Global TAS",LoadingTitle = "\"its not working pls fix\"",LoadingSubtitle = "by tomato.txt",
-   ConfigurationSaving = {Enabled = true,FolderName="tomato.txt",FileName="Global TAS by tomato.txt"},
-   Discord = {Enabled = true,Invite="8N2M9fHJqa",RememberJoins=true},KeySystem = false,KeySettings = {Title="",Subtitle="",Note="",FileName="",SaveKey=true,GrabKeyFromSite=false,Key={""}}
+   Name = "JSEM DENY",
+   LoadingTitle = "\"its not working pls fix\"",
+   LoadingSubtitle = "by tomato.txt",
+   ConfigurationSaving = {
+       Enabled = true,
+       FolderName = "tomato.txt",
+       FileName = "Global TAS by tomato.txt"
+   },
+   Discord = {
+       Enabled = true,
+       Invite = "7XT74GwVnj",
+       RememberJoins = true
+   },
+   KeySystem = false,
+   KeySettings = {
+       Title = "",
+       Subtitle = "",
+       Note = "",
+       FileName = "",
+       SaveKey = true,
+       GrabKeyFromSite = false,
+       Key = {""}
+   }
 })
 local Tab = Window:CreateTab("Control", 4483362458)
 local Section = Tab:CreateSection("Save")
@@ -98,12 +129,10 @@ local Button = Tab:CreateButton({
    Name = "Stop recording.",
    Callback = StopRecord,
 })
-
 local Button = Tab:CreateButton({
    Name = "Play",
    Callback = PlayTAS,
 })
-
 
 local Keybind = Tab:CreateKeybind({
    Name = "Start Recording BIND",
@@ -128,4 +157,21 @@ local Keybind = Tab:CreateKeybind({
    Flag = "PlayTAS",
    Callback = PlayTAS,
 })
+
+local SaveButtons = {}
+local LoadButtons = {}
+for i = 1, 5 do
+    table.insert(SaveButtons, Tab:CreateButton({
+        Name = "Save to Slot " .. i,
+        Callback = function()
+            SaveSlot(i)
+        end
+    }))
+    table.insert(LoadButtons, Tab:CreateButton({
+        Name = "Load from Slot " .. i,
+        Callback = function()
+            LoadSlot(i)
+        end
+    }))
+end
 
