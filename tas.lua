@@ -13,7 +13,6 @@ local getChar = function()
     end
 end
 
-
 local StartRecord = function()
     Frames = {}
     Running = true
@@ -56,6 +55,32 @@ local PlayTAS = function()
         end
     end)
 end
+
+local CurrentFrame = 1
+
+local ShowFrame = function(FrameIndex)
+    local Character = getChar()
+    local Frame = Frames[FrameIndex]
+    Character.HumanoidRootPart.CFrame = Frame[1]
+    Character.Humanoid:ChangeState(Frame[2])
+end
+
+local OnKeyPress = function(input, gameProcessedEvent)
+    if gameProcessedEvent then return end
+    if input.KeyCode == Enum.KeyCode.Left then
+        if CurrentFrame > 1 then
+            CurrentFrame = CurrentFrame - 1
+            ShowFrame(CurrentFrame)
+        end
+    elseif input.KeyCode == Enum.KeyCode.Right then
+        if CurrentFrame < #Frames then
+            CurrentFrame = CurrentFrame + 1
+            ShowFrame(CurrentFrame)
+        end
+    end
+end
+
+game:GetService("UserInputService").InputBegan:Connect(OnKeyPress)
 
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 local Window = Rayfield:CreateWindow({
@@ -103,3 +128,4 @@ local Keybind = Tab:CreateKeybind({
    Flag = "PlayTAS",
    Callback = PlayTAS,
 })
+
