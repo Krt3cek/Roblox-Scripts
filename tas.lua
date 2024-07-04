@@ -67,8 +67,8 @@ local FrameFor = function()
         local Character = getChar()
         local Frame = Frames[CurrentFrameIndex]
         if Frame then
-            Character.HumanoidRootPart.CFrame = Frame[1]
-            Character.Humanoid:ChangeState(Frame[2])
+            Character.HumanoidRootPart.CFrame = Frame[CurrentFrameIndex]
+            Character.Humanoid:ChangeState(Frame[CurrentFrameIndex])
         end
     end
 end
@@ -79,8 +79,8 @@ local FrameBack = function()
         local Character = getChar()
         local Frame = Frames[CurrentFrameIndex]
         if Frame then
-            Character.HumanoidRootPart.CFrame = Frame[1]
-            Character.Humanoid:ChangeState(Frame[2])
+            Character.HumanoidRootPart.CFrame = Frame[CurrentFrameIndex]
+            Character.Humanoid:ChangeState(Frame[CurrentFrameIndex])
         end
     end
 end
