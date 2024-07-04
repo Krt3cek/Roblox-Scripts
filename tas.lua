@@ -3,9 +3,9 @@ local Frames = {}
 local TimeStart = tick()
 local CanFrame = false
 local CurrentFrameIndex = 1
-local Playing = false
 
 local Player = game:GetService("Players").LocalPlayer
+
 local getChar = function()
     local Character = Player.Character
     if Character then
@@ -20,20 +20,23 @@ local StartRecord = function()
     Frames = {}
     Running = true
     TimeStart = tick()
+    CurrentFrameIndex = 1
     while Running do
         game:GetService("RunService").Heartbeat:Wait()
         local Character = getChar()
-        table.insert(Frames, {
-            Character.HumanoidRootPart.CFrame,
-            Character.Humanoid:GetState().Value,
-            tick() - TimeStart
-        })
+        if CanFrame then
+            table.insert(Frames, {
+                Character.HumanoidRootPart.CFrame,
+                Character.Humanoid:GetState().Value,
+                tick() - TimeStart
+            })
+            CanFrame = false
+        end
     end
 end
 
 local StopRecord = function()
     Running = false
-    CanFrame = false
 end
 
 local PlayTAS = function()
@@ -41,61 +44,44 @@ local PlayTAS = function()
     local TimePlay = tick()
     local FrameCount = #Frames
     local OldFrame = 1
-    Playing = true
     local TASLoop
     TASLoop = game:GetService("RunService").Heartbeat:Connect(function()
-        if Playing then
-            local CurrentTime = tick()
-            if CurrentTime - TimePlay >= Frames[FrameCount][3] then
-                Playing = false
-                TASLoop:Disconnect()
-                return
-            end
-            
-            -- Move through frames based on CurrentFrameIndex
-            local Frame = Frames[CurrentFrameIndex]
-            if Frame and Frame[3] <= CurrentTime - TimePlay then
-                Character.HumanoidRootPart.CFrame = Frame[1]
-                Character.Humanoid:ChangeState(Frame[2])
-                CurrentFrameIndex = CurrentFrameIndex + 1
-            end
+        local CurrentTime = tick()
+        if CurrentTime - TimePlay >= Frames[FrameCount][3] then
+            TASLoop:Disconnect()
+            return
+        end
+        
+        local Frame = Frames[CurrentFrameIndex]
+        if Frame and Frame[3] <= CurrentTime - TimePlay then
+            Character.HumanoidRootPart.CFrame = Frame[1]
+            Character.Humanoid:ChangeState(Frame[2])
+            CurrentFrameIndex = CurrentFrameIndex + 1
         end
     end)
 end
 
 local FrameFor = function()
-    if Playing then
-        return
-    end
-    
-    CurrentFrameIndex = CurrentFrameIndex + 1
-    if CurrentFrameIndex > #Frames then
-        CurrentFrameIndex = #Frames
-    end
-    
-    local Character = getChar()
-    local Frame = Frames[CurrentFrameIndex]
-    if Frame then
-        Character.HumanoidRootPart.CFrame = Frame[1]
-        Character.Humanoid:ChangeState(Frame[2])
+    if CurrentFrameIndex < #Frames then
+        CurrentFrameIndex = CurrentFrameIndex + 1
+        local Character = getChar()
+        local Frame = Frames[CurrentFrameIndex]
+        if Frame then
+            Character.HumanoidRootPart.CFrame = Frame[1]
+            Character.Humanoid:ChangeState(Frame[2])
+        end
     end
 end
 
 local FrameBack = function()
-    if Playing then
-        return
-    end
-    
-    CurrentFrameIndex = CurrentFrameIndex - 1
-    if CurrentFrameIndex < 1 then
-        CurrentFrameIndex = 1
-    end
-    
-    local Character = getChar()
-    local Frame = Frames[CurrentFrameIndex]
-    if Frame then
-        Character.HumanoidRootPart.CFrame = Frame[1]
-        Character.Humanoid:ChangeState(Frame[2])
+    if CurrentFrameIndex > 1 then
+        CurrentFrameIndex = CurrentFrameIndex - 1
+        local Character = getChar()
+        local Frame = Frames[CurrentFrameIndex]
+        if Frame then
+            Character.HumanoidRootPart.CFrame = Frame[1]
+            Character.Humanoid:ChangeState(Frame[2])
+        end
     end
 end
 
