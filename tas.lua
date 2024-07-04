@@ -1,6 +1,9 @@
 local Running = false
 local Frames = {}
 local TimeStart = tick()
+local CanFrame = false
+local CurrentFrameIndex = 1
+local Playing = false
 
 local Player = game:GetService("Players").LocalPlayer
 local getChar = function()
@@ -13,13 +16,12 @@ local getChar = function()
     end
 end
 
-
 local StartRecord = function()
     Frames = {}
     Running = true
     TimeStart = tick()
-    while Running == true do
-        game:GetService("RunService").Heartbeat:wait()
+    while Running do
+        game:GetService("RunService").Heartbeat:Wait()
         local Character = getChar()
         table.insert(Frames, {
             Character.HumanoidRootPart.CFrame,
@@ -31,49 +33,70 @@ end
 
 local StopRecord = function()
     Running = false
+    CanFrame = false
 end
 
 local PlayTAS = function()
     local Character = getChar()
     local TimePlay = tick()
     local FrameCount = #Frames
-    local NewFrames = FrameCount
     local OldFrame = 1
+    Playing = true
     local TASLoop
     TASLoop = game:GetService("RunService").Heartbeat:Connect(function()
-        local NewFrames = OldFrame + 60
-        local CurrentTime = tick()
-        if (CurrentTime - TimePlay) >= Frames[FrameCount][3] then
-            TASLoop:Disconnect()
-        end
-        for i = OldFrame, NewFrames do
-            local Frame = Frames[i]
-            if Frame[3] <= CurrentTime - TimePlay then
-                OldFrame = i
+        if Playing then
+            local CurrentTime = tick()
+            if CurrentTime - TimePlay >= Frames[FrameCount][3] then
+                Playing = false
+                TASLoop:Disconnect()
+                return
+            end
+            
+            -- Move through frames based on CurrentFrameIndex
+            local Frame = Frames[CurrentFrameIndex]
+            if Frame and Frame[3] <= CurrentTime - TimePlay then
                 Character.HumanoidRootPart.CFrame = Frame[1]
                 Character.Humanoid:ChangeState(Frame[2])
+                CurrentFrameIndex = CurrentFrameIndex + 1
             end
         end
     end)
 end
 
 local FrameFor = function()
-    Frames = {}
-    Running = true
-    TimeStart = tick()
-    while Running == true do
-        game:GetService("RunService").Heartbeat:wait()
-        local Character = getChar()
-        table.insert(Frames, {
-            Character.HumanoidRootPart.CFrame,
-            Character.Humanoid:GetState().Value,
-            tick() - TimeStart
-        })
+    if Playing then
+        return
+    end
+    
+    CurrentFrameIndex = CurrentFrameIndex + 1
+    if CurrentFrameIndex > #Frames then
+        CurrentFrameIndex = #Frames
+    end
+    
+    local Character = getChar()
+    local Frame = Frames[CurrentFrameIndex]
+    if Frame then
+        Character.HumanoidRootPart.CFrame = Frame[1]
+        Character.Humanoid:ChangeState(Frame[2])
     end
 end
 
 local FrameBack = function()
-    Running = false
+    if Playing then
+        return
+    end
+    
+    CurrentFrameIndex = CurrentFrameIndex - 1
+    if CurrentFrameIndex < 1 then
+        CurrentFrameIndex = 1
+    end
+    
+    local Character = getChar()
+    local Frame = Frames[CurrentFrameIndex]
+    if Frame then
+        Character.HumanoidRootPart.CFrame = Frame[1]
+        Character.Humanoid:ChangeState(Frame[2])
+    end
 end
 
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
