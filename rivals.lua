@@ -310,7 +310,7 @@ VisualsTab:AddToggle({
 })
 
 AimTab:AddToggle({
-    Name = "Bind Aimbot to Key",
+    Name = "Aimbot",
     Default = false,
     Callback = function(Value)
         isAimbotActive = Value
