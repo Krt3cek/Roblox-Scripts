@@ -11,6 +11,7 @@ local LocalPlayer = Players.LocalPlayer
 local ESPEnabled = true -- Start with ESP enabled
 local highlightColor = Color3.fromRGB(255, 48, 51) -- Default highlight color
 local skeletonColor = Color3.fromRGB(0, 255, 0) -- Default skeleton color
+local viewLineColor = Color3.fromRGB(0, 0, 255) -- Default view line color
 local toggleKey = Enum.KeyCode.M -- Key to toggle the menu
 local aimKey = Enum.KeyCode.E -- Key to activate aimbot
 local isAimbotActive = false -- Aimbot toggle state
@@ -96,21 +97,46 @@ local function CreateSkeleton(Player)
     end
 end
 
+-- Function to create view line
+local function CreateViewLine(fromPosition, toPosition)
+    local line = Instance.new("Part")
+    line.Size = Vector3.new(0.05, 0.05, (fromPosition - toPosition).Magnitude)
+    line.Anchored = true
+    line.CanCollide = false
+    line.Color = viewLineColor
+    line.Material = Enum.Material.Neon
+    line.Parent = workspace
+
+    -- Position the line correctly
+    line.CFrame = CFrame.new((fromPosition + toPosition) / 2, toPosition)
+
+    return line
+end
+
 -- GUI for toggling ESP and Aimbot
 local function createToggleGUI()
     local ScreenGui = Instance.new("ScreenGui", LocalPlayer.PlayerGui)
     local Frame = Instance.new("Frame", ScreenGui)
-    Frame.Size = UDim2.new(0, 250, 0, 250)
-    Frame.Position = UDim2.new(0.5, -125, 0.5, -125)
+    Frame.Size = UDim2.new(0, 250, 0, 300)
+    Frame.Position = UDim2.new(0.5, -125, 0.5, -150)
     Frame.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
     Frame.BorderSizePixel = 0
-    Frame.Visible = true
     Frame.BackgroundTransparency = 0.5
     Frame.Active = true
     Frame.Draggable = true
 
+    local TitleLabel = Instance.new("TextLabel", Frame)
+    TitleLabel.Size = UDim2.new(1, 0, 0, 50)
+    TitleLabel.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+    TitleLabel.Text = "ESP & Aimbot Menu"
+    TitleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+    TitleLabel.TextScaled = true
+    TitleLabel.BorderSizePixel = 0
+    TitleLabel.TextStrokeTransparency = 0.5
+
     local TabButtons = Instance.new("Frame", Frame)
     TabButtons.Size = UDim2.new(1, 0, 0, 50)
+    TabButtons.Position = UDim2.new(0, 0, 0.2, 0)
     TabButtons.BackgroundColor3 = Color3.fromRGB(75, 75, 75)
 
     local VisualsTab = Instance.new("TextButton", TabButtons)
@@ -168,30 +194,23 @@ local function createToggleGUI()
         ESPEnabled = not ESPEnabled -- Toggle the ESP variable
         ToggleButton.Text = ESPEnabled and "ESP: ON" or "ESP: OFF" -- Update button text
 
-        -- Enable or disable highlights based on the toggle state
         for _, Player in pairs(Players:GetPlayers()) do
-            if Player ~= LocalPlayer then
-                local character = Player.Character
-                if character then
-                    local highlight = character:FindFirstChildOfClass("Highlight")
-                    if highlight then
-                        highlight.Enabled = ESPEnabled
-                    end
+            if Player ~= LocalPlayer and Player.Character then
+                local highlight = Player.Character:FindFirstChildOfClass("Highlight")
+                if highlight then
+                    highlight.Enabled = ESPEnabled -- Enable or disable highlights
                 end
             end
         end
     end)
 
     ColorPicker.MouseButton1Click:Connect(function()
-        highlightColor = Color3.new(math.random(), math.random(), math.random()) -- Random color
+        highlightColor = Color3.new(math.random(), math.random(), math.random()) -- Random color for demonstration
         for _, Player in pairs(Players:GetPlayers()) do
-            if Player ~= LocalPlayer then
-                local character = Player.Character
-                if character then
-                    local highlight = character:FindFirstChildOfClass("Highlight")
-                    if highlight then
-                        highlight.FillColor = highlightColor -- Change existing highlight color
-                    end
+            if Player ~= LocalPlayer and Player.Character then
+                local highlight = Player.Character:FindFirstChildOfClass("Highlight")
+                if highlight then
+                    highlight.FillColor = highlightColor
                 end
             end
         end
@@ -199,18 +218,17 @@ local function createToggleGUI()
 
     SkeletonToggle.MouseButton1Click:Connect(function()
         skeletonEnabled = not skeletonEnabled -- Toggle skeleton state
-        SkeletonToggle.Text = skeletonEnabled and "Skeleton: ON" or "Skeleton: OFF" -- Update button text
+        SkeletonToggle.Text = skeletonEnabled and "Skeleton: ON" or "Skeleton: OFF"
 
         for _, Player in pairs(Players:GetPlayers()) do
             if Player ~= LocalPlayer and Player.Character then
                 if skeletonEnabled then
                     CreateSkeleton(Player)
                 else
-                    -- Remove the skeleton
-                    local character = Player.Character
-                    for _, skeletonPart in pairs(workspace:GetChildren()) do
-                        if skeletonPart:IsA("Part") and skeletonPart.Color == skeletonColor then
-                            skeletonPart:Destroy()
+                    -- Remove skeleton parts if they were enabled
+                    for _, part in pairs(workspace:GetChildren()) do
+                        if part:IsA("Part") and part.Color == skeletonColor then
+                            part:Destroy()
                         end
                     end
                 end
@@ -226,12 +244,10 @@ local function createToggleGUI()
     -- Tab switching
     VisualsTab.MouseButton1Click:Connect(function()
         ContentFrame.Visible = true
-        AimbotToggle.Visible = false
     end)
 
     AimbotTab.MouseButton1Click:Connect(function()
         ContentFrame.Visible = false
-        AimbotToggle.Visible = true
     end)
 end
 
@@ -257,6 +273,20 @@ RunService.RenderStepped:Connect(function()
             aimTarget = closestPlayer.Character.Head
             -- Aim at the target head (you may want to smooth this out)
             LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(aimTarget.Position) * CFrame.Angles(0, math.rad(90), 0) -- Adjusting the aim
+        end
+    end
+end)
+
+-- Create the view lines for players
+RunService.RenderStepped:Connect(function()
+    if ESPEnabled then
+        for _, Player in pairs(Players:GetPlayers()) do
+            if Player ~= LocalPlayer and Player.Character and Player.Character:FindFirstChild("Head") and Player.Character:FindFirstChild("Humanoid") and Player.Character.Humanoid.Health > 0 then
+                local head = Player.Character.Head
+                local viewLine = CreateViewLine(LocalPlayer.Character.HumanoidRootPart.Position, head.Position)
+                wait(0.1) -- Prevent too many lines being created; adjust as necessary
+                viewLine:Destroy() -- Destroy the line after a short delay
+            end
         end
     end
 end)
@@ -296,3 +326,14 @@ for _, Player in pairs(Players:GetPlayers()) do
         end
     end
 end
+
+-- Key bindings for menu toggling
+UserInputService.InputBegan:Connect(function(input)
+    if input.KeyCode == toggleKey then
+        for _, obj in ipairs(Frame:GetChildren()) do
+            if obj:IsA("Frame") then
+                obj.Visible = not obj.Visible
+            end
+        end
+    end
+end)
