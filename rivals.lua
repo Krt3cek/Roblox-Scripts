@@ -183,7 +183,7 @@ local function AimAtNearestEnemy()
         if smoothAiming then
             local mousePosition = Vector2.new(mouse.X, mouse.Y)
             local step = aimSmoothness
-            mousePosition = mousePosition:Lerp(newMousePosition, step) -- Smoothly interpolate to the new position
+            mousePosition = mousePosition:Lerp(newMousePosition, step)
             UserInputService:SetMouseLocation(mousePosition.X, mousePosition.Y)
         else
             UserInputService:SetMouseLocation(newMousePosition.X, newMousePosition.Y)
@@ -210,11 +210,8 @@ while true do
     end
 
     if aimLock then
-        -- Update position of FOV circle to be around the mouse cursor
         local mouse = LocalPlayer:GetMouse()
     end
-
-    wait(0.1) -- Adjust the frequency of updates as necessary
 end
 
 function EnableNoClip()
