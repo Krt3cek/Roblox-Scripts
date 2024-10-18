@@ -33,6 +33,10 @@ local espBoxes = {}
 local chamsHighlights = {}
 local espThread, chamsThread
 local noclipEnabled = false
+local aimbotKey = Enum.KeyCode.RALT  -- Example: Aimbot will activate when holding "E"
+local isAimbotActive = false
+local holdingKey = false
+
 
 -- Function to create a highlight for a player (Chams)
 local function ApplyChams(Player)
@@ -168,7 +172,7 @@ local function AimAtNearestEnemy()
             end
         end
     end
-
+if holdingKey then
     if closestPlayer then
         -- Move the mouse to the closest enemy's head smoothly
         local targetPosition = workspace.CurrentCamera:WorldToScreenPoint(closestPlayer.Position)
@@ -182,6 +186,7 @@ local function AimAtNearestEnemy()
         else
             UserInputService:SetMouseLocation(newMousePosition.X, newMousePosition.Y)
         end
+    end
     end
 end
 
@@ -212,6 +217,32 @@ function DisableNoClip()
             end
         end
     end
+end
+
+
+-- Function to bind the key for aimbot activation
+function BindAimbotKey()
+    -- Detect key press and release for enabling/disabling aimbot
+    UserInputService.InputBegan:Connect(function(input, gameProcessed)
+        if input.KeyCode == aimbotKey and not gameProcessed then
+            holdingKey = true
+            EnableAimbot()  -- Enable aimbot when holding the key
+        end
+    end)
+
+    UserInputService.InputEnded:Connect(function(input, gameProcessed)
+        if input.KeyCode == aimbotKey and not gameProcessed then
+            holdingKey = false
+            DisableAimbot()  -- Disable aimbot when the key is released
+        end
+    end)
+end
+
+-- Function to unbind the aimbot key (cleanup)
+function UnbindAimbotKey()
+    -- Stop aimbot when disabled
+    holdingKey = false
+    DisableAimbot()
 end
 
 -- Correctly creating the Visual, Aim, Misc, and Teleport tabs
@@ -280,6 +311,19 @@ AimTab:AddToggle({
     Default = false,
     Callback = function(Value)
         isAimbotActive = Value
+    end,
+})
+
+AimTab:AddToggle({
+    Name = "Bind Aimbot to Key",
+    Default = false,
+    Callback = function(Value)
+        isAimbotActive = Value
+        if isAimbotActive then
+            BindAimbotKey()  -- Set up the keybind when aimbot is toggled on
+        else
+            UnbindAimbotKey()  -- Clean up when aimbot is toggled off
+        end
     end,
 })
 
