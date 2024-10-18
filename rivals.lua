@@ -147,76 +147,9 @@ local function StartESPThread()
         end
     end)
 end
-
--- Aimbot function to aim at the nearest enemy
-local function AimAtNearestEnemy()
-    local mouse = LocalPlayer:GetMouse()
-    local closestPlayer = nil
-    local closestDistance = math.huge
-
-    -- Iterate through all players to find the closest enemy
-    for _, Player in pairs(Players:GetPlayers()) do
-        if Player ~= LocalPlayer and Player.Character and Player.Character:FindFirstChild("Humanoid") and Player.Character.Humanoid.Health > 0 then
-            local head = Player.Character:FindFirstChild("Head")
-            if head then
-                local distance = (LocalPlayer.Character.HumanoidRootPart.Position - head.Position).magnitude
-                if distance <= aimFOV and distance < closestDistance then
-                    closestDistance = distance
-                    closestPlayer = head
-                end
-            end
-        end
-    end
-
-    -- If a closest player was found, move the mouse
-    if closestPlayer then
-        local targetPosition = workspace.CurrentCamera:WorldToScreenPoint(closestPlayer.Position)
-        local newMousePosition = Vector2.new(targetPosition.X, targetPosition.Y)
-
-        if smoothAiming then
-            local mousePosition = Vector2.new(mouse.X, mouse.Y)
-            local step = aimSmoothness
-            mousePosition = mousePosition:Lerp(newMousePosition, step)
-            UserInputService:SetMouseLocation(mousePosition.X, mousePosition.Y)
-        else
-            UserInputService:SetMouseLocation(newMousePosition.X, newMousePosition.Y)
-        end
-    end
-end
-
--- Function to calculate predicted position of a target
-local function PredictPosition(target, deltaTime)
-    if target and target.Character and target.Character:FindFirstChild("Humanoid") then
-        local velocity = target.Character.HumanoidRootPart.Velocity
-        return target.Character.HumanoidRootPart.Position + (velocity * aimPredictionFactor)
-    end
-    return nil
-end
-
--- Function to find the nearest enemy within FOV
-local function GetNearestEnemy()
-    local closestEnemy = nil
-    local closestDistance = math.huge
-
-    for _, player in pairs(Players:GetPlayers()) do
-        if player ~= LocalPlayer and player.Character and player.Character:FindFirstChild("Humanoid") and player.Character.Humanoid.Health > 0 then
-            local head = player.Character:FindFirstChild("Head")
-            if head then
-                local distance = (LocalPlayer.Character.HumanoidRootPart.Position - head.Position).magnitude
-                if distance <= aimFOV and distance < closestDistance then
-                    closestDistance = distance
-                    closestEnemy = player
-                end
-            end
-        end
-    end
-
-    return closestEnemy
-end
-
 -- Aimbot aiming function
 local function AimAt(target)
-    local camera = workspace.CurrentCamera
+    local camera = Workspace.CurrentCamera
     local targetPosition = PredictPosition(target)
 
     if targetPosition then
@@ -231,6 +164,30 @@ local function AimAt(target)
             UserInputService:SetMouseLocation(screenPosition.X, screenPosition.Y)
         end
     end
+end
+
+-- RunService for continuous aiming
+RunService.RenderStepped:Connect(function()
+    if isAimbotActive then
+        currentTarget = GetNearestEnemy()
+        if currentTarget then
+            AimAt(currentTarget)
+        end
+    end
+end)
+
+
+local function ToggleAimbot()
+    isAimbotActive = not isAimbotActive
+    fovCircle.Visible = isAimbotActive  -- Show/Hide FOV circle
+
+    local notificationMessage = isAimbotActive and "Aimbot Activated!" or "Aimbot Deactivated!"
+    OrionLib:MakeNotification({
+        Name = "Aimbot Status",
+        Content = notificationMessage,
+        Duration = 3,
+        Image = "rbxassetid://10472045394"
+    })
 end
 
 -- RunService for continuous aiming
@@ -265,16 +222,16 @@ UserInputService.InputBegan:Connect(function(input, gameProcessed)
     end
 end)
 
-UserInputService.InputEnded:Connect(function(input, gameProcessed)
-    if not gameProcessed and input.KeyCode == aimbotKey then
-        isAimbotActive = false
+UserInputService.InputBegan:Connect(function(input, gameProcessed)
+    if not gameProcessed and input.KeyCode == aimKey then
+        ToggleAimbot()
     end
 end)
 
--- Continuous aiming when aimbot is active
+-- Update FOV Circle based on aimFOV
 RunService.RenderStepped:Connect(function()
-    if isAimbotActive then
-        AimAtNearestEnemy()
+    if fovCircleVisible then
+        fovCircle.Size = UDim2.new(0, aimFOV * 2, 0, aimFOV * 2)
     end
 end)
 
@@ -376,6 +333,13 @@ AimTab:AddToggle({
     Callback = function(value)
         isAimbotActive = value
         fovCircle.Visible = value
+        local notificationMessage = value and "Aimbot Activated!" or "Aimbot Deactivated!"
+        OrionLib:MakeNotification({
+            Name = "Aimbot Status",
+            Content = notificationMessage,
+            Duration = 3,
+            Image = "rbxassetid://10472045394"
+        })
     end,
 })
 
@@ -417,6 +381,15 @@ AimTab:AddSlider({
     Increment = 0.01,
     Callback = function(value)
         aimPredictionFactor = value
+    end,
+})
+
+AimTab:AddDropdown({
+    Name = "Aimbot Key",
+    Default = aimKey.Name,
+    Options = {"E", "Q", "F", "G", "H", "J", "K"},
+    Callback = function(value)
+        aimKey = Enum.KeyCode[value]
     end,
 })
 
