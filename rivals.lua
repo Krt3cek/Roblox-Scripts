@@ -147,6 +147,17 @@ local function StartESPThread()
     end)
 end
 
+-- Function to populate the Teleport dropdown
+local function UpdateTeleportOptions()
+    local options = {}
+    for _, player in pairs(Players:GetPlayers()) do
+        if player ~= LocalPlayer then  -- Exclude local player
+            table.insert(options, player.Name)
+        end
+    end
+    return options
+end
+
 -- Aimbot aiming function
 local function AimAt(target)
     local camera = Workspace.CurrentCamera
@@ -239,17 +250,6 @@ local function DisableNoClip()
     end
 end
 
-local function UpdateTeleportOptions()
-    local options = {}
-    for _, player in pairs(Players:GetPlayers()) do
-        if player ~= LocalPlayer then  -- Exclude local player
-            table.insert(options, player.Name)
-        end
-    end
-    return options
-end
-
--- Update the dropdown when players join or leave
 Players.PlayerAdded:Connect(function(player)
     player.CharacterAdded:Wait()  -- Wait for character to load
     teleportDropdown:UpdateOptions(UpdateTeleportOptions())  -- Update the options
