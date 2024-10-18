@@ -1,14 +1,1416 @@
 --[[
-  ____   _____ _____    _____ _    _ _____ 
- |  _ \ / ____/ ____|  / ____| |  | |_   _|
- | |_) | (___| (___   | |  __| |  | | | |  
- |  _ < \___ \\___ \  | | |_ | |  | | | |  
- | |_) |____) |___) | | |__| | |__| |_| |_ 
- |____/|_____/_____/   \_____|\____/|_____|
-											
-								by Alex & Fede
---]]
+	WARNING: Heads up! This script has not been verified by ScriptBlox. Use at your own risk!
+]]
+local vu = game:GetService("VirtualUser")
+game:GetService("Players").LocalPlayer.Idled:connect(function()
+   vu:Button2Down(Vector2.new(0,0),workspace.CurrentCamera.CFrame)
+   wait(1)
+   vu:Button2Up(Vector2.new(0,0),workspace.CurrentCamera.CFrame)
+end)
+hives = game.Workspace.Honeycombs:GetChildren() for i = #hives, 1, -1 do  v = game.Workspace.Honeycombs:GetChildren()[i] if v.Owner.Value == nil then game.ReplicatedStorage.Events.ClaimHive:FireServer(v.HiveID.Value) end end
+OrionLib = loadstring(game:HttpGet(('https://raw.githubusercontent.com/shlexware/Orion/main/source')))()
+local Window = OrionLib:MakeWindow({Name = "89 Hub", HidePremium = false, SaveConfig = true, ConfigFolder = "89 Hub", IntroEnabled = true, IntroText = "89 Hub|Loader",IntroIcon = "rbxassetid://10472045394", Icon = "rbxassetid://10472045394" })
+local Main = Window:MakeTab({
+	Name = "Main",
+	Icon = "",
+	PremiumOnly = false
+})
+getgenv().api = loadstring(game:HttpGet("https://raw.githubusercontent.com/Boxking776/kocmoc/main/api.lua"))()
+for _,v in next, game.workspace.Collectibles:GetChildren() do
+    if string.find(v.Name,"") then
+        v:Destroy()
+    end
+end 
+local Dispenser = Window:MakeTab({
+	Name = "Dispensers",
+	Icon = "",
+	PremiumOnly = false
+})
+local Use = Window:MakeTab({
+	Name = "Dices",
+	Icon = "",
+	PremiumOnly = false
+})
+local Boosts = Window:MakeTab({
+	Name = "Boosts",
+	Icon = "",
+	PremiumOnly = false
+})
+local Use2 = Window:MakeTab({
+	Name = "Use Buffs",
+	Icon = "",
+	PremiumOnly = false
+})
+local Tp12 = Window:MakeTab({
+	Name = "Teleports",
+	Icon = "",
+	PremiumOnly = false
+})
+local Mobs = Window:MakeTab({
+	Name = "Combat",
+	Icon = "",
+	PremiumOnly = false
+})
+local Mask = Window:MakeTab({
+    Name = "Masks",
+    Icon = "",
+    PremiumOnly = false
+})
+local Visuanal = Window:MakeTab({
+	Name = "Visuals",
+	Icon = "",
+	PremiumOnly = false
+})
+Dispenser:AddButton({
+	Name = "Use All Dispensers",
+	Callback = function()
+      local A_1 = "Glue Dispenser"
+                  Event = game:GetService("ReplicatedStorage").Events.ToyEvent
+                  Event:FireServer(A_1)
+                  A_1 = "Wealth Clock"
+                  Event = game:GetService("ReplicatedStorage").Events.ToyEvent
+                  Event:FireServer(A_1)
+                  A_1 = "Coconut Dispenser"
+                  Event = game:GetService("ReplicatedStorage").Events.ToyEvent
+                  Event:FireServer(A_1)
+                  A_1 = "Strawberry Dispenser"
+                  Event = game:GetService("ReplicatedStorage").Events.ToyEvent
+                  Event:FireServer(A_1)
+                  A_1 = "Treat Dispenser"
+                  Event = game:GetService("ReplicatedStorage").Events.ToyEvent
+                  Event:FireServer(A_1)
+                  A_1 = "Free Ant Pass Dispenser"
+                  Event = game:GetService("ReplicatedStorage").Events.ToyEvent
+                  Event:FireServer(A_1)
+                  A_1 = "Blueberry Dispenser"
+                  Event = game:GetService("ReplicatedStorage").Events.ToyEvent
+                  Event:FireServer(A_1)
+                  A_1 = "Honey Dispenser"
+                  Event = game:GetService("ReplicatedStorage").Events.ToyEvent
+                  Event:FireServer(A_1)
+                  A_1 = "Free Royal Jelly Dispenser"
+                  Event = game:GetService("ReplicatedStorage").Events.ToyEvent
+                  Event:FireServer(A_1)
+                  end
+})
+Use:AddButton({
+	Name = "Use Field Dice",
+	Callback = function()
+local Dice1 = {["Name"] = "Field Dice"}
+local Event = game:GetService("ReplicatedStorage").Events.PlayerActivesCommand
+Event:FireServer(Dice1)
+  	end    
+})
+Use:AddToggle({
+    Name = "Auto Use Field Dice",
+    Default = false,
+    Callback = function(cointr)
+         getgenv().turnoff4 = cointr
+         while turnoff4 == true do 
+local Dice1 = {["Name"] = "Field Dice"}
+local Event = game:GetService("ReplicatedStorage").Events.PlayerActivesCommand
+Event:FireServer(Dice1)
+            wait(3) end
+    end    
+})
+Use:AddButton({
+	Name = "Use Smooth Dice",
+	Callback = function()
+local Dice2 = {["Name"] = "Smooth Dice"}
+Event = game:GetService("ReplicatedStorage").Events.PlayerActivesCommand
+Event:FireServer(Dice2)  
+end    
+})
+Use:AddToggle({
+    Name = "Auto Use Smooth Dice",
+    Default = false,
+    Callback = function(cointr)
+         getgenv().turnoff4 = cointr
+         while turnoff4 == true do 
+local Dice2 = {["Name"] = "Smooth Dice"}
+Event = game:GetService("ReplicatedStorage").Events.PlayerActivesCommand
+Event:FireServer(Dice2)  
 
--- V3rmillion Thread: https://v3rmillion.net/showthread.php?tid=834667
+            wait(3) end
+    end    
+}) 
+Use:AddButton({
+	Name = "Use Loaded Dice",
+	Callback = function()
+local Dice3 = {["Name"] = "Loaded Dice"}
+Event = game:GetService("ReplicatedStorage").Events.PlayerActivesCommand
+Event:FireServer(Dice3)
+  	end    
+})
+Use:AddToggle({
+    Name = "Auto Use Loaded Dice",
+    Default = false,
+    Callback = function(cointr)
+         getgenv().turnoff4 = cointr
+         while turnoff4 == true do 
+local Dice3 = {["Name"] = "Loaded Dice"}
+Event = game:GetService("ReplicatedStorage").Events.PlayerActivesCommand
+Event:FireServer(Dice3)
+            wait(3) end
+    end    
+}) 
+Boosts:AddButton({
+	Name = "Use All Boosters",
+	Callback = function()
+local red = "Red Field Booster"
+local Event = game:GetService("ReplicatedStorage").Events.ToyEvent
+Event:FireServer(red)
+local blue = "Blue Field Booster"
+Event = game:GetService("ReplicatedStorage").Events.ToyEvent
+Event:FireServer(blue)
+local mountain = "Field Booster"
+Event = game:GetService("ReplicatedStorage").Events.ToyEvent
+Event:FireServer(mountain)
+	end
+})
+Boosts:AddToggle({
+    Name = "Auto Use All Field Booster",
+    Default = false,
+    Callback = function(cointr)
+         getgenv().turnoff4 = cointr
+         while turnoff4 == true do 
+local red = "Red Field Booster"
+local Event = game:GetService("ReplicatedStorage").Events.ToyEvent
+Event:FireServer(red)
+local blue = "Blue Field Booster"
+Event = game:GetService("ReplicatedStorage").Events.ToyEvent
+Event:FireServer(blue)
+local mountain = "Field Booster"
+Event = game:GetService("ReplicatedStorage").Events.ToyEvent
+Event:FireServer(mountain)
+wait(5) end    
+end
+})
+Boosts:AddButton({
+	Name = "Use Red Field Booster",
+	Callback = function()
+local red = "Red Field Booster"
+local Event = game:GetService("ReplicatedStorage").Events.ToyEvent
+Event:FireServer(red)
+	end
+})
+Boosts:AddToggle({
+    Name = "Auto Use Red Field Booster",
+    Default = false,
+    Callback = function(cointr)
+         getgenv().turnoff4 = cointr
+         while turnoff4 == true do 
+local red = "Red Field Booster"
+local Event = game:GetService("ReplicatedStorage").Events.ToyEvent
+Event:FireServer(red)
+wait(5) end    
+end
+})
+Boosts:AddButton({
+	Name = "Use Blue Field Booster",
+	Callback = function()
+local blue = "Blue Field Booster"
+Event = game:GetService("ReplicatedStorage").Events.ToyEvent
+Event:FireServer(blue)
+	end
+})
+Boosts:AddToggle({
+    Name = "Auto Use Blue Field Booster",
+    Default = false,
+    Callback = function(cointr)
+         getgenv().turnoff4 = cointr
+         while turnoff4 == true do 
+local blue = "Blue Field Booster"
+Event = game:GetService("ReplicatedStorage").Events.ToyEvent
+Event:FireServer(blue)
+wait(5)       end    
+end
+})
+Boosts:AddButton({
+	Name = "Use Field Booster",
+	Callback = function()
+local mountain = "Field Booster"
+Event = game:GetService("ReplicatedStorage").Events.ToyEvent
+Event:FireServer(mountain)
+	end
+})
+Boosts:AddToggle({
+    Name = "Auto Use Field Booster",
+    Default = false,
+    Callback = function(cointr)
+         getgenv().turnoff4 = cointr
+         while turnoff4 == true do 
+local mountain = "Field Booster"
+Event = game:GetService("ReplicatedStorage").Events.ToyEvent
+Event:FireServer(mountain)
+ wait(5)        end    
+end
+})
+Use2:AddButton({
+	Name = "Use All Buffs [no potions and Marshmallow Bee]",
+	Callback = function()
+local RedEx = {["Name"] = "Red Extract"}
+Event = game:GetService("ReplicatedStorage").Events.PlayerActivesCommand
+Event:FireServer(RedEx)
+      
+local BlueEx = {["Name"] = "Blue Extract"}
+Event = game:GetService("ReplicatedStorage").Events.PlayerActivesCommand
+Event:FireServer(BlueEx)
+      
+local Glitter = {["Name"] = "Glitter"}
+Event = game:GetService("ReplicatedStorage").Events.PlayerActivesCommand
+Event:FireServer(Glitter)
 
-if not getrawmetatable then local a=Instance.new("BlurEffect",game.Lighting)local b=Instance.new("ScreenGui")local c=Instance.new("TextLabel")b.Parent=game.Players.LocalPlayer:WaitForChild("PlayerGui")b.ZIndexBehavior=Enum.ZIndexBehavior.Global;c.Parent=b;c.AnchorPoint=Vector2.new(0.5,0.5)c.BackgroundColor3=Color3.new(0,0,0)c.BackgroundTransparency=0.69999998807907;c.Position=UDim2.new(0.5,0,0.5,0)c.Size=UDim2.new(0.5,0,0.5,0)c.Font=Enum.Font.GothamBlack;c.Text="Incompatible Script Executor!"c.TextColor3=Color3.new(1,0,0)c.TextSize=50;c.TextStrokeTransparency=0.69999998807907;c.TextWrapped=true;wait(5)a:Destroy()c:Destroy()b:Destroy()return end;print("----------------------------------------------------")print("BBSGui v0.9a")print("Credits: Alex & Fede")print("Last Update: 04/25/2019")print("Loaded!")print("----------------------------------------------------")local d=Instance.new("ScreenGui")local e=Instance.new("Frame")local f=Instance.new("ImageLabel")local g=Instance.new("ImageLabel")local h=Instance.new("ImageLabel")local i=Instance.new("ImageLabel")local j=Instance.new("ImageLabel")local k=Instance.new("ImageLabel")local l=Instance.new("ImageLabel")local m=Instance.new("ImageLabel")local n=Instance.new("TextLabel")local o=Instance.new("TextLabel")local p=Instance.new("TextBox")local q=Instance.new("TextBox")local r=Instance.new("TextButton")local s=Instance.new("TextButton")local t=Instance.new("TextButton")local u=Instance.new("TextButton")local v=Instance.new("TextButton")local w=Instance.new("TextButton")local x=Instance.new("Frame")local y=Instance.new("TextButton")local z=Instance.new("TextButton")local A=Instance.new("TextButton")local B=Instance.new("TextLabel")local C=Instance.new("Frame")local D=Instance.new("TextButton")local E=Instance.new("ScrollingFrame")local F=Instance.new("TextLabel")local G=Instance.new("TextLabel")local H=Instance.new("TextLabel")local I=Instance.new("TextLabel")local J=Instance.new("TextLabel")local K=Instance.new("TextLabel")local L=Instance.new("TextLabel")local M=Instance.new("TextLabel")local N=Instance.new("TextButton")local O=Instance.new("TextButton")local c=Instance.new("TextLabel")local P=Instance.new("ScrollingFrame")local Q=Instance.new("TextButton")local R=Instance.new("TextButton")local S=Instance.new("TextButton")local T=Instance.new("TextButton")local U=Instance.new("TextButton")local V=Instance.new("TextButton")local W=Instance.new("TextButton")local X=Instance.new("TextButton")local Y=Instance.new("TextButton")local Z=Instance.new("TextButton")local _=Instance.new("TextButton")local a0=Instance.new("TextButton")local a1=Instance.new("TextButton")local a2=Instance.new("TextButton")local a3=Instance.new("TextButton")local a4=3909;local a5=4580;local a6=game.Players.LocalPlayer.Character.HumanoidRootPart;local a7=math.random(a4,a5)local a8=game.Players.LocalPlayer;local a9=true;local aa=1;local ab=a8.CoreStats.Honey.Value;local ac,ad,ae=Color3.fromRGB(0,125,0),Color3.fromRGB(230,0,0),Color3.fromRGB(255,176,0)local af=game:GetService("VirtualUser")local ag=game.Players.LocalPlayer:GetMouse()local ah=game:GetService("UserInputService")local ai={enabled=true,honeyProduced=0}local aj=false;if readfile then pcall(function()local ak=game:GetService("HttpService"):JSONDecode(readfile("BSSGuiSTATS.txt"))local al=false;for am,an in pairs(ak)do if ai[am]==nil then al=true;ak[am]=nil end end;for am,an in pairs(ai)do if ak[am]==nil then al=true;ak[am]=an end end;if al then aj=true;writefile("BSSGuiSTATS.txt",game:GetService("HttpService"):JSONEncode(ak))end;ai=ak end)end;game.Players.PlayerRemoving:Connect(function()if ai.enabled==true then local ao=a8.CoreStats.Honey.Value-ab;ai.honeyProduced=ai.honeyProduced+ao;writefile("BSSGuiSTATS.txt",game:GetService("HttpService"):JSONEncode(ai))else writefile("BSSGuiSTATS.txt",game:GetService("HttpService"):JSONEncode(ai))end end)spawn(function()while ai.enabled==true do wait(150)local ao=a8.CoreStats.Honey.Value-ab;ab=a8.CoreStats.Honey.Value;ai.honeyProduced=ai.honeyProduced+ao;print("Saving Stats: "..ai.honeyProduced.." Honey")writefile("BSSGuiSTATS.txt",game:GetService("HttpService"):JSONEncode(ai))end end)d.Name="BSSGui"d.Parent=game.CoreGui;d.ResetOnSpawn=false;e.Name="Main"e.Parent=d;e.Active=true;e.BackgroundColor3=Color3.new(1,0.843137,0)e.BorderSizePixel=0;e.Position=UDim2.new(0.5,-225,0.5,-75)e.Size=UDim2.new(0,450,0,190)e.Visible=true;f.Name="Border"f.Parent=e;f.Active=true;f.BackgroundColor3=Color3.new(1,0.843137,0)f.BackgroundTransparency=1;f.BorderSizePixel=0;f.Position=UDim2.new(0,-12,0,0)f.Size=UDim2.new(0,12,1,0)f.Image="http://www.roblox.com/asset/?id=238725003"f.ImageColor3=Color3.new(1,0.843137,0)f.ImageRectOffset=Vector2.new(0,12)f.ImageRectSize=Vector2.new(12,12)g.Name="Border"g.Parent=e;g.Active=true;g.BackgroundColor3=Color3.new(1,0.843137,0)g.BackgroundTransparency=1;g.BorderSizePixel=0;g.Position=UDim2.new(0,-12,1,0)g.Size=UDim2.new(0,12,0,12)g.Image="http://www.roblox.com/asset/?id=238725003"g.ImageColor3=Color3.new(1,0.843137,0)g.ImageRectOffset=Vector2.new(0,24)g.ImageRectSize=Vector2.new(12,12)h.Name="Border"h.Parent=e;h.Active=true;h.BackgroundColor3=Color3.new(1,0.843137,0)h.BackgroundTransparency=1;h.BorderSizePixel=0;h.Position=UDim2.new(1,0,1,0)h.Size=UDim2.new(0,12,0,12)h.Image="http://www.roblox.com/asset/?id=238725003"h.ImageColor3=Color3.new(1,0.843137,0)h.ImageRectOffset=Vector2.new(24,24)h.ImageRectSize=Vector2.new(12,12)i.Name="Border"i.Parent=e;i.Active=true;i.BackgroundColor3=Color3.new(1,0.843137,0)i.BackgroundTransparency=1;i.BorderSizePixel=0;i.Position=UDim2.new(1,0,0,0)i.Size=UDim2.new(0,12,1,0)i.Image="http://www.roblox.com/asset/?id=238725003"i.ImageColor3=Color3.new(1,0.843137,0)i.ImageRectOffset=Vector2.new(24,12)i.ImageRectSize=Vector2.new(12,12)j.Name="Border"j.Parent=e;j.Active=true;j.BackgroundColor3=Color3.new(1,0.843137,0)j.BackgroundTransparency=1;j.BorderSizePixel=0;j.Position=UDim2.new(1,0,0,-12)j.Size=UDim2.new(0,12,0,12)j.Image="http://www.roblox.com/asset/?id=238725003"j.ImageColor3=Color3.new(1,0.843137,0)j.ImageRectOffset=Vector2.new(24,0)j.ImageRectSize=Vector2.new(12,12)k.Name="Border"k.Parent=e;k.Active=true;k.BackgroundColor3=Color3.new(1,0.843137,0)k.BackgroundTransparency=1;k.BorderSizePixel=0;k.Position=UDim2.new(0,0,1,0)k.Size=UDim2.new(1,0,0,12)k.Image="http://www.roblox.com/asset/?id=238725003"k.ImageColor3=Color3.new(1,0.843137,0)k.ImageRectOffset=Vector2.new(12,24)k.ImageRectSize=Vector2.new(12,12)l.Name="Border"l.Parent=e;l.Active=true;l.BackgroundColor3=Color3.new(1,0.843137,0)l.BackgroundTransparency=1;l.BorderSizePixel=0;l.Position=UDim2.new(0,-12,0,-12)l.Size=UDim2.new(0,12,0,12)l.Image="http://www.roblox.com/asset/?id=238725003"l.ImageColor3=Color3.new(1,0.843137,0)l.ImageRectSize=Vector2.new(12,12)m.Name="Border"m.Parent=e;m.Active=true;m.BackgroundColor3=Color3.new(1,0.843137,0)m.BackgroundTransparency=1;m.BorderSizePixel=0;m.Position=UDim2.new(0,0,0,-12)m.Size=UDim2.new(1,0,0,12)m.Image="http://www.roblox.com/asset/?id=238725003"m.ImageColor3=Color3.new(1,0.843137,0)m.ImageRectOffset=Vector2.new(12,0)m.ImageRectSize=Vector2.new(12,12)n.Name="Holder"n.Parent=e;n.Active=true;n.BackgroundColor3=Color3.new(1,1,1)n.BackgroundTransparency=1;n.Size=UDim2.new(1,0,0,25)n.ZIndex=4;n.Font=Enum.Font.GothamBlack;n.Text="Bee Swarm Simulator GUI"n.TextColor3=Color3.new(1,1,1)n.TextScaled=true;n.TextSize=14;n.TextStrokeTransparency=0.69999998807907;n.TextWrapped=true;o.Name="Hotkey"o.Parent=e;o.BackgroundColor3=Color3.new(1,1,1)o.BackgroundTransparency=1;o.Position=UDim2.new(0,-12,1,-25)o.Size=UDim2.new(0,200,0,30)o.ZIndex=1;o.Font=Enum.Font.GothamBold;o.Text="Press        to hide the GUI"o.TextColor3=Color3.new(1,1,1)o.TextSize=14;o.TextStrokeTransparency=0.69999998807907;p.Name="ToolBox"p.Parent=e;p.Active=false;p.BackgroundColor3=Color3.new(0.686275,0.572549,0)p.BorderSizePixel=0;p.Position=UDim2.new(0,0,0,30)p.Size=UDim2.new(0,275,0,40)p.Font=Enum.Font.GothamBold;p.PlaceholderColor3=Color3.new(1,1,1)p.Text="Tool name here..."p.TextColor3=Color3.new(1,1,1)p.TextSize=20;p.TextStrokeTransparency=0.69999998807907;p.TextWrapped=true;q.Name="HotkeyBox"q.Parent=e;q.Active=false;q.BackgroundColor3=Color3.new(0.686275,0.572549,0)q.BorderSizePixel=0;q.Position=UDim2.new(0,43,1,-25)q.Size=UDim2.new(0,25,0,25)q.Font=Enum.Font.GothamBold;q.PlaceholderColor3=Color3.new(1,1,1)q.Text="q"q.TextColor3=Color3.new(1,1,1)q.TextSize=25;q.TextStrokeTransparency=0.69999998807907;q.TextWrapped=true;r.Name="StartDuplication"r.Parent=e;r.Active=false;r.BackgroundColor3=Color3.new(0.686275,0.572549,0)r.BorderSizePixel=0;r.Position=UDim2.new(0,0,0,75)r.Size=UDim2.new(0,134,0,40)r.Font=Enum.Font.GothamBold;r.Text="Start Duplication"r.TextColor3=Color3.new(1,1,1)r.TextSize=18;r.TextStrokeTransparency=0.69999998807907;r.TextWrapped=true;s.Name="StopDuplication"s.Parent=e;s.Active=false;s.BackgroundColor3=Color3.new(0.686275,0.572549,0)s.BorderSizePixel=0;s.Position=UDim2.new(0,0,0,75)s.Size=UDim2.new(0,134,0,40)s.Visible=false;s.Font=Enum.Font.GothamBold;s.Text="Stop Duplication"s.TextColor3=Color3.new(1,1,1)s.TextSize=18;s.TextStrokeTransparency=0.69999998807907;s.TextWrapped=true;t.Name="Release"t.Parent=e;t.Active=false;t.BackgroundColor3=Color3.new(0.686275,0.572549,0)t.BorderSizePixel=0;t.Position=UDim2.new(0,0,0,120)t.Size=UDim2.new(0,134,0,40)t.Font=Enum.Font.GothamBold;t.Text="Release Tools"t.TextColor3=Color3.new(1,1,1)t.TextSize=18;t.TextStrokeTransparency=0.69999998807907;t.TextWrapped=true;u.Name="StartFarming"u.Parent=e;u.Active=false;u.BackgroundColor3=Color3.new(0.686275,0.572549,0)u.BorderSizePixel=0;u.Position=UDim2.new(0,141,0,120)u.Size=UDim2.new(0,134,0,40)u.Font=Enum.Font.GothamBold;u.Text="Start Auto Farm"u.TextColor3=Color3.new(1,1,1)u.TextSize=18;u.TextStrokeTransparency=0.69999998807907;u.TextWrapped=true;v.Name="Help"v.Parent=e;v.Active=false;v.BackgroundColor3=Color3.new(0.686275,0.572549,0)v.BorderSizePixel=0;v.Position=UDim2.new(1,-25,1,-25)v.Size=UDim2.new(0,25,0,25)v.ZIndex=3;v.Font=Enum.Font.GothamBold;v.Text="?"v.TextColor3=Color3.new(1,1,1)v.TextSize=18;v.TextStrokeTransparency=0.69999998807907;v.TextWrapped=true;w.Name="Extra"w.Parent=e;w.Active=false;w.BackgroundColor3=Color3.new(0.686275,0.572549,0)w.BorderSizePixel=0;w.Position=UDim2.new(1,-55,1,-25)w.Size=UDim2.new(0,25,0,25)w.Font=Enum.Font.GothamBold;w.Text="+"w.TextColor3=Color3.new(1,1,1)w.TextSize=18;w.TextStrokeTransparency=0.69999998807907;w.TextWrapped=true;x.Name="ExtraPanel"x.Parent=e;x.BackgroundColor3=Color3.new(1,0.843137,0)x.BorderSizePixel=0;x.Size=UDim2.new(1,0,1,0)x.Visible=false;x.ZIndex=2;y.Name="CollectTreasures"y.Parent=x;y.BackgroundColor3=Color3.new(0.686275,0.572549,0)y.BorderSizePixel=0;y.Position=UDim2.new(0,0,0,30)y.Size=UDim2.new(1,0,0,40)y.ZIndex=2;y.Font=Enum.Font.GothamBold;y.Text="Collect all Treasures"y.TextColor3=Color3.new(1,1,1)y.TextSize=18;y.TextStrokeTransparency=0.69999998807907;y.TextWrapped=true;z.Name="ReturnToHive"z.Parent=x;z.BackgroundColor3=Color3.new(0.686275,0.572549,0)z.BorderSizePixel=0;z.Position=UDim2.new(0,0,0,75)z.Size=UDim2.new(1,0,0,40)z.ZIndex=2;z.Font=Enum.Font.GothamBold;z.Text="Return To Hive"z.TextColor3=Color3.new(1,1,1)z.TextSize=18;z.TextStrokeTransparency=0.69999998807907;z.TextWrapped=true;A.Name="Back1"A.Parent=x;A.BackgroundColor3=Color3.new(0.686275,0.572549,0)A.BorderSizePixel=0;A.Position=UDim2.new(1,-55,1,-25)A.Size=UDim2.new(0,25,0,25)A.ZIndex=2;A.Font=Enum.Font.GothamBold;A.Text="<"A.TextColor3=Color3.new(1,1,1)A.TextSize=18;A.TextStrokeTransparency=0.69999998807907;A.TextWrapped=true;B.Name="Time"B.Parent=x;B.BackgroundColor3=Color3.new(0.686275,0.572549,0)B.BorderSizePixel=0;B.Position=UDim2.new(0,0,1,-25)B.Size=UDim2.new(0,75,0,25)B.ZIndex=2;B.Font=Enum.Font.GothamBold;B.Text="TIME"B.TextColor3=Color3.new(1,1,1)B.TextSize=18;B.TextStrokeTransparency=0.69999998807907;B.TextWrapped=true;C.Name="HelpPanel"C.Parent=e;C.BackgroundColor3=Color3.new(1,0.843137,0)C.BorderSizePixel=0;C.Size=UDim2.new(1,0,1,0)C.Visible=false;C.ZIndex=3;D.Name="Back2"D.Parent=C;D.BackgroundColor3=Color3.new(0.686275,0.572549,0)D.BorderSizePixel=0;D.Position=UDim2.new(1,-25,1,-25)D.Size=UDim2.new(0,25,0,25)D.ZIndex=3;D.Font=Enum.Font.GothamBold;D.Text="<"D.TextColor3=Color3.new(1,1,1)D.TextSize=18;D.TextStrokeTransparency=0.69999998807907;D.TextWrapped=true;E.Name="MainHelp"E.Parent=C;E.BackgroundColor3=Color3.new(0.686275,0.572549,0)E.BorderSizePixel=0;E.Position=UDim2.new(0,0,0,65)E.Size=UDim2.new(1,0,1,-95)E.ZIndex=3;E.CanvasSize=UDim2.new(0,0,1.13,0)E.ScrollBarThickness=10;E.ScrollBarImageColor3=Color3.fromRGB(255,215,0)F.Name="TextLabel2"F.Parent=E;F.BackgroundColor3=Color3.new(0.545098,0.443137,0)F.BorderSizePixel=0;F.Position=UDim2.new(0,0,0,5)F.Size=UDim2.new(1,-10,0,30)F.ZIndex=3;F.Font=Enum.Font.GothamBold;F.Text="1) Insert the tool name in the Text Box."F.TextColor3=Color3.new(1,1,1)F.TextSize=15;F.TextStrokeTransparency=0.69999998807907;F.TextWrapped=true;F.TextXAlignment=Enum.TextXAlignment.Left;G.Name="TextLabel3"G.Parent=E;G.BackgroundColor3=Color3.new(0.545098,0.443137,0)G.BorderSizePixel=0;G.Position=UDim2.new(0,0,0,40)G.Size=UDim2.new(1,-10,0,30)G.ZIndex=3;G.Font=Enum.Font.GothamBold;G.Text="2) Click 'Start Duplication'."G.TextColor3=Color3.new(1,1,1)G.TextSize=15;G.TextStrokeTransparency=0.69999998807907;G.TextWrapped=true;G.TextXAlignment=Enum.TextXAlignment.Left;H.Name="TextLabel4"H.Parent=E;H.BackgroundColor3=Color3.new(0.545098,0.443137,0)H.BorderSizePixel=0;H.Position=UDim2.new(0,0,0,75)H.Size=UDim2.new(1,-10,0,30)H.ZIndex=3;H.Font=Enum.Font.GothamBold;H.Text="3) Click 'Dupe Tool'."H.TextColor3=Color3.new(1,1,1)H.TextSize=15;H.TextStrokeTransparency=0.69999998807907;H.TextWrapped=true;H.TextXAlignment=Enum.TextXAlignment.Left;I.Name="TextLabel5"I.Parent=E;I.BackgroundColor3=Color3.new(0.545098,0.443137,0)I.BorderSizePixel=0;I.Position=UDim2.new(0,0,0,110)I.Size=UDim2.new(1,-10,0,30)I.ZIndex=3;I.Font=Enum.Font.GothamBold;I.Text="4) Do the step 3 as many times as you want."I.TextColor3=Color3.new(1,1,1)I.TextSize=15;I.TextStrokeTransparency=0.69999998807907;I.TextWrapped=true;I.TextXAlignment=Enum.TextXAlignment.Left;J.Name="TextLabel6"J.Parent=E;J.BackgroundColor3=Color3.new(0.545098,0.443137,0)J.BorderSizePixel=0;J.Position=UDim2.new(0,0,0,145)J.Size=UDim2.new(1,-10,0,30)J.ZIndex=3;J.Font=Enum.Font.GothamBold;J.Text="5) Click 'Stop Duplication' and then 'Release Tools'."J.TextColor3=Color3.new(1,1,1)J.TextSize=15;J.TextStrokeTransparency=0.69999998807907;J.TextWrapped=true;J.TextXAlignment=Enum.TextXAlignment.Left;K.Name="TextLabel7"K.Parent=E;K.BackgroundColor3=Color3.new(0.545098,0.443137,0)K.BorderSizePixel=0;K.Position=UDim2.new(0,0,0,180)K.Size=UDim2.new(1,-10,0,30)K.ZIndex=3;K.Font=Enum.Font.GothamBold;K.Text="6) Select the field and click 'Start Auto Farm'. Enjoy!"K.TextColor3=Color3.new(1,1,1)K.TextSize=15;K.TextStrokeTransparency=0.69999998807907;K.TextWrapped=true;K.TextXAlignment=Enum.TextXAlignment.Left;L.Name="Info"L.Parent=C;L.BackgroundColor3=Color3.new(1,1,1)L.BackgroundTransparency=1;L.BorderSizePixel=0;L.Position=UDim2.new(0,0,1,-25)L.Size=UDim2.new(0,35,0,25)L.ZIndex=3;L.Font=Enum.Font.GothamBold;L.Text="v0.9a"L.TextColor3=Color3.new(0,0,0)L.TextScaled=true;L.TextSize=14;L.TextWrapped=true;M.Name="TextLabel1"M.Parent=C;M.BackgroundColor3=Color3.new(0.686275,0.572549,0)M.BorderSizePixel=0;M.Position=UDim2.new(0,0,0,30)M.Size=UDim2.new(1,0,0,30)M.ZIndex=3;M.Font=Enum.Font.GothamBold;M.Text="Tool Dupe Help"M.TextColor3=Color3.new(1,1,1)M.TextSize=18;M.TextStrokeTransparency=0.69999998807907;M.TextWrapped=true;N.Name="Dupe"N.Parent=e;N.Active=false;N.BackgroundColor3=Color3.new(0.686275,0.572549,0)N.BorderSizePixel=0;N.Position=UDim2.new(0,141,0,75)N.Size=UDim2.new(0,134,0,40)N.Font=Enum.Font.GothamBold;N.Text="Dupe Tool"N.TextColor3=Color3.new(1,1,1)N.TextSize=18;N.TextStrokeTransparency=0.69999998807907;N.TextWrapped=true;O.Name="StopFarming"O.Parent=e;O.Active=false;O.BackgroundColor3=Color3.new(0.686275,0.572549,0)O.BorderSizePixel=0;O.Position=UDim2.new(0,141,0,120)O.Size=UDim2.new(0,134,0,40)O.Visible=false;O.Font=Enum.Font.GothamBold;O.Text="Stop Auto Farm"O.TextColor3=Color3.new(1,1,1)O.TextSize=18;O.TextStrokeTransparency=0.69999998807907;O.TextWrapped=true;c.Parent=e;c.Active=true;c.BackgroundColor3=Color3.new(1,1,1)c.BorderSizePixel=0;c.Position=UDim2.new(0,280,0,30)c.Size=UDim2.new(0,5,1,-60)c.Font=Enum.Font.SourceSans;c.Text=""c.TextColor3=Color3.new(0,0,0)c.TextSize=14;P.Name="SelectField"P.Parent=e;P.BackgroundColor3=Color3.new(0.686275,0.572549,0)P.BorderSizePixel=0;P.Position=UDim2.new(0,290,0,30)P.Size=UDim2.new(0.5,-65,1,-60)P.CanvasSize=UDim2.new(0,0,2.7999999,0)P.ScrollBarThickness=10;P.ScrollBarImageColor3=Color3.fromRGB(255,215,0)Q.Name="Field1"Q.Parent=P;Q.BackgroundColor3=Color3.new(0.545098,0.443137,0)Q.BorderSizePixel=0;Q.Position=UDim2.new(0,0,0,5)Q.Size=UDim2.new(1,-10,0,30)Q.Font=Enum.Font.GothamBold;Q.Text="Sunflower Field"Q.TextColor3=Color3.new(1,1,1)Q.TextSize=18;Q.TextStrokeTransparency=0.69999998807907;R.Name="Field2"R.Parent=P;R.BackgroundColor3=Color3.new(0.545098,0.443137,0)R.BorderSizePixel=0;R.Position=UDim2.new(0,0,0,40)R.Size=UDim2.new(1,-10,0,30)R.Font=Enum.Font.GothamBold;R.Text="Dandelion Field"R.TextColor3=Color3.new(1,1,1)R.TextSize=18;R.TextStrokeTransparency=0.69999998807907;S.Name="Field3"S.Parent=P;S.BackgroundColor3=Color3.new(0.545098,0.443137,0)S.BorderSizePixel=0;S.Position=UDim2.new(0,0,0,75)S.Size=UDim2.new(1,-10,0,30)S.Font=Enum.Font.GothamBold;S.Text="Mushroom Field"S.TextColor3=Color3.new(1,1,1)S.TextSize=18;S.TextStrokeTransparency=0.69999998807907;T.Name="Field4"T.Parent=P;T.BackgroundColor3=Color3.new(0.545098,0.443137,0)T.BorderSizePixel=0;T.Position=UDim2.new(0,0,0,110)T.Size=UDim2.new(1,-10,0,30)T.Font=Enum.Font.GothamBold;T.Text="Blue Flower Field"T.TextColor3=Color3.new(1,1,1)T.TextSize=18;T.TextStrokeTransparency=0.69999998807907;U.Name="Field5"U.Parent=P;U.BackgroundColor3=Color3.new(0.545098,0.443137,0)U.BorderSizePixel=0;U.Position=UDim2.new(0,0,0,145)U.Size=UDim2.new(1,-10,0,30)U.Font=Enum.Font.GothamBold;U.Text="Clover Field"U.TextColor3=Color3.new(1,1,1)U.TextSize=18;U.TextStrokeTransparency=0.69999998807907;V.Name="Field6"V.Parent=P;V.BackgroundColor3=Color3.new(0.545098,0.443137,0)V.BorderSizePixel=0;V.Position=UDim2.new(0,0,0,180)V.Size=UDim2.new(1,-10,0,30)V.Font=Enum.Font.GothamBold;V.Text="Spider Field"V.TextColor3=Color3.new(1,1,1)V.TextSize=18;V.TextStrokeTransparency=0.69999998807907;W.Name="Field7"W.Parent=P;W.BackgroundColor3=Color3.new(0.545098,0.443137,0)W.BorderSizePixel=0;W.Position=UDim2.new(0,0,0,215)W.Size=UDim2.new(1,-10,0,30)W.Font=Enum.Font.GothamBold;W.Text="Strawberry Field"W.TextColor3=Color3.new(1,1,1)W.TextSize=18;W.TextStrokeTransparency=0.69999998807907;X.Name="Field8"X.Parent=P;X.BackgroundColor3=Color3.new(0.545098,0.443137,0)X.BorderSizePixel=0;X.Position=UDim2.new(0,0,0,250)X.Size=UDim2.new(1,-10,0,30)X.Font=Enum.Font.GothamBold;X.Text="Bamboo Field"X.TextColor3=Color3.new(1,1,1)X.TextSize=18;X.TextStrokeTransparency=0.69999998807907;Y.Name="Field9"Y.Parent=P;Y.BackgroundColor3=Color3.new(0.545098,0.443137,0)Y.BorderSizePixel=0;Y.Position=UDim2.new(0,0,0,285)Y.Size=UDim2.new(1,-10,0,30)Y.Font=Enum.Font.GothamBold;Y.Text="Pineapple Field"Y.TextColor3=Color3.new(1,1,1)Y.TextSize=18;Y.TextStrokeTransparency=0.69999998807907;Z.Name="Field10"Z.Parent=P;Z.BackgroundColor3=Color3.new(0.545098,0.443137,0)Z.BorderSizePixel=0;Z.Position=UDim2.new(0,0,0,320)Z.Size=UDim2.new(1,-10,0,30)Z.Font=Enum.Font.GothamBold;Z.Text="Pumpkin Field"Z.TextColor3=Color3.new(1,1,1)Z.TextSize=18;Z.TextStrokeTransparency=0.69999998807907;_.Name="Field11"_.Parent=P;_.BackgroundColor3=Color3.new(0.545098,0.443137,0)_.BorderSizePixel=0;_.Position=UDim2.new(0,0,0,355)_.Size=UDim2.new(1,-10,0,30)_.Font=Enum.Font.GothamBold;_.Text="Cactus Field"_.TextColor3=Color3.new(1,1,1)_.TextSize=18;_.TextStrokeTransparency=0.69999998807907;a0.Name="Field12"a0.Parent=P;a0.BackgroundColor3=Color3.new(0.545098,0.443137,0)a0.BorderSizePixel=0;a0.Position=UDim2.new(0,0,0,390)a0.Size=UDim2.new(1,-10,0,30)a0.Font=Enum.Font.GothamBold;a0.Text="Rose Field"a0.TextColor3=Color3.new(1,1,1)a0.TextSize=18;a0.TextStrokeTransparency=0.69999998807907;a1.Name="Field13"a1.Parent=P;a1.BackgroundColor3=Color3.new(0.545098,0.443137,0)a1.BorderSizePixel=0;a1.Position=UDim2.new(0,0,0,425)a1.Size=UDim2.new(1,-10,0,30)a1.Font=Enum.Font.GothamBold;a1.Text="Pine Tree Field"a1.TextColor3=Color3.new(1,1,1)a1.TextSize=18;a1.TextStrokeTransparency=0.69999998807907;a2.Name="Field14"a2.Parent=P;a2.BackgroundColor3=Color3.new(0.545098,0.443137,0)a2.BorderSizePixel=0;a2.Position=UDim2.new(0,0,0,460)a2.Size=UDim2.new(1,-10,0,30)a2.Font=Enum.Font.GothamBold;a2.Text="Stump Field"a2.TextColor3=Color3.new(1,1,1)a2.TextSize=18;a2.TextStrokeTransparency=0.69999998807907;a3.Name="Field15"a3.Parent=P;a3.BackgroundColor3=Color3.new(0.545098,0.443137,0)a3.BorderSizePixel=0;a3.Position=UDim2.new(0,0,0,495)a3.Size=UDim2.new(1,-10,0,30)a3.Font=Enum.Font.GothamBold;a3.Text="Mountain Top Field"a3.TextColor3=Color3.new(1,1,1)a3.TextSize=16;a3.TextStrokeTransparency=0.69999998807907;game:GetService("Players").LocalPlayer.Idled:Connect(function()af:CaptureController()af:ClickButton2(Vector2.new())end)e.Draggable=true;function notify(ap)game.StarterGui:SetCore("SendNotification",{Title="BSS-GUI Alex & Fede",Text=ap,Duration=5})end;notify("Loaded! Thank you for trying the GUI!")function systemchat(ap,aq)game.StarterGui:SetCore("ChatMakeSystemMessage",{Text=ap,Color=aq,Font=Enum.Font.SourceSansBold,FontSize=Enum.FontSize.Size24})end;systemchat("[BSSGui] Welcome "..a8.Name..". Do /e cmds for the commands list.",ae)local ar=false;a8.Chatted:Connect(function(as)if not ar then if string.sub(as,1,9):lower()=="/e tptool"then systemchat("You have been given a Teleport Tool! Equip the item and click on the place where you want to be teleported.",ac)local at=Instance.new("Tool",game.Players.LocalPlayer.Backpack)at.RequiresHandle=false;at.RobloxLocked=true;at.Name="TPTool"at.ToolTip="Teleport Tool"at.Equipped:Connect(function(au)au.Button1Down:Connect(function()if au.Target then game.Workspace:FindFirstChild(game.Players.LocalPlayer.Name).HumanoidRootPart.CFrame=CFrame.new(au.Hit.x,au.Hit.y+5,au.Hit.z)end end)end)elseif string.sub(as,1,13):lower()=="/e stats view"then if ai.enabled==true then systemchat("You made "..ai.honeyProduced.." honey using this GUI.",ac)else systemchat("The Save-Stats function is disabled! Do '/e stats enable' to enable it.",ad)end elseif string.sub(as,1,15):lower()=="/e stats enable"then ai.enabled=true;systemchat("The Save-Stats function is enabled!",ac)elseif string.sub(as,1,16):lower()=="/e stats disable"then ai.enabled=false;systemchat("The Save-Stats function is disabled!",ac)elseif string.sub(as,1,14):lower()=="/e stats reset"then systemchat("You are about to do a reset of your stats saved in the GUI! Continue? Yes, do '/e y', No, do '/e n'.",ad)print("Invoked about to reset")ar=true elseif string.sub(as,1,7):lower()=="/e cmds"then systemchat("Commands available:",ae)systemchat("\n/e tptool: Gives you a Teleport Tool.",ae)systemchat("[BETA] /e stats view: It shows you the stats of how much honey you have made using this GUI.",ae)systemchat("[BETA] /e stats enable: It enables the Save-Stats function.",ae)systemchat("[BETA] /e stats disable: It disables the Save-Stats function.",ae)systemchat("[BETA] /e stats reset: It will reset the stats saved in the GUI.",ae)end else if string.sub(as,1,4):lower()=="/e y"then ai.enabled=true;ai.honeyProduced=0;writefile("BSSGuiSTATS.txt",game:GetService("HttpService"):JSONEncode(ai))systemchat("Reset successful!",ac)print("Reset Stats successful")ar=false elseif string.sub(as,1,4):lower()=="/e n"then systemchat("Reset canceled!",ac)print("Reset Stats canceled")ar=false end end end)spawn(function()while true do if tostring(game.Lighting.TimeOfDay)=="13:39:00"or tostring(game.Lighting.TimeOfDay)=="13:51:36"then B.Text="Day"else B.Text="Night"end;wait(1)end end)v.MouseButton1Click:Connect(function()C.Visible=true;x.Visible=false end)D.MouseButton1Click:Connect(function()C.Visible=false end)w.MouseButton1Click:Connect(function()x.Visible=true;C.Visible=false end)A.MouseButton1Click:Connect(function()x.Visible=false end)z.MouseButton1Down:Connect(function()local a8=game:GetService("Players").LocalPlayer;a8.Character:MoveTo(a8.SpawnPos.Value.p)notify("Teleporting to Hive")end)t.MouseButton1Click:Connect(function()notify("Release Tools done. "..aa.." Tools in total!")aa=1;_G.take=true;while _G.take do wait()for av,an in pairs(game.Players.LocalPlayer:GetChildren())do if an.Name==p.Text then an.Parent=game.Players.LocalPlayer.Backpack end end end end)s.MouseButton1Click:Connect(function()r.Visible=true;s.Visible=false;_G.dupe=false;_G.take=false;notify("Stopping the Duplication")end)r.MouseButton1Click:Connect(function()notify("Starting Duplication")s.Visible=true;r.Visible=false;_G.dupe=true;_G.take=false;while _G.dupe do wait()for av,an in pairs(game.Players.LocalPlayer.Character:GetChildren())do if an.Name==p.Text then an.Parent=game.Players.LocalPlayer end end;for av,an in pairs(game.Players.LocalPlayer.Backpack:GetChildren())do if an.Name==p.Text then an.Parent=game.Players.LocalPlayer end end end end)O.MouseButton1Click:Connect(function()u.Visible=true;O.Visible=false;_G.farm=false;notify("Stopping Auto Farm")end)a8.Character:WaitForChild("Humanoid").Died:Connect(function()notify("Dead... Rejoin the server to fix the GUI or execute again!")end)u.MouseButton1Click:Connect(function()notify("Starting Auto Farm")O.Visible=true;u.Visible=false;_G.farm=true;local aw=game.Players.LocalPlayer.Character:FindFirstChild("ProgressLabel",true)local ax=tonumber(aw.Text:match("%d+$"))while _G.farm do wait(0.1)for av,an in pairs(game.Workspace.Flowers:GetDescendants())do if string.find(an.Name,"FlowerPatch")and _G.farm and an.FlowerID.Value==a7 then for av,ay in pairs(game.Players.LocalPlayer.Backpack:GetDescendants())do if string.find(ay.Name,p.Text)then a6.CFrame=an.CFrame;local az=a6.CFrame;for am,aA in pairs(workspace.Collectibles:GetChildren())do if aA.Name==a8.Name and not aA:FindFirstChild("BSSValue")or tonumber((aA.Position-a6.Position).magnitude)<=50 and not aA:FindFirstChild("BSSValue")then a6.CFrame=aA.CFrame;local aB=Instance.new("IntValue",aA)aB.Name="BSSValue"wait(.08)end end;a6.CFrame=az;ay.Parent=game.Players.LocalPlayer.Character;workspace[game.Players.LocalPlayer.Name][p.Text].ClickEvent:FireServer()game.Players.LocalPlayer.Character[p.Text].Parent=game.Players.LocalPlayer.Backpack;if tonumber(a8.CoreStats.Pollen.Value+1)>tonumber(ax)then a8.Character:MoveTo(a8.SpawnPos.Value.p)wait(1)game:GetService("ReplicatedStorage").Events.PlayerHiveCommand:FireServer("ToggleHoneyMaking")repeat wait(1)until game:GetService("Players").LocalPlayer.CoreStats.Pollen.Value<1;wait(5)end;wait()end end;a7=math.random(a4,a5)end end end end)N.MouseButton1Click:Connect(function()aa=aa+1;game:GetService("ReplicatedStorage").Events.ItemPackageEvent:InvokeServer("Equip",{["Mute"]=false,["Type"]=p.Text,["Category"]="Collector"})end)ag.KeyDown:Connect(function(aC)if aC==string.lower(q.Text)then if a9 then a9=false;e.Visible=false;notify("Hidden GUI, press "..q.Text.." to revert")else a9=true;e.Visible=true;notify("Shown GUI, press "..q.Text.." to hide it")end end end)y.MouseButton1Down:Connect(function()notify("Collect all Treasures started")local a8=game:GetService("Players").LocalPlayer;local function aD(aE)for av,an in ipairs(aE:GetChildren())do if an.Parent then a8.Character:MoveTo(an.Position)end;wait(1)end end;aD(workspace.Collectibles)wait(1)a8.Character:MoveTo(a8.SpawnPos.Value.p)notify("Collect all Treasures done")end)Q.MouseButton1Click:Connect(function()notify("Selected Sunflower Field")a4=1870;a5=2529 end)R.MouseButton1Click:Connect(function()notify("Selected Dandelion Field")a4=3261;a5=3908 end)S.MouseButton1Click:Connect(function()notify("Selected Mushroom Field")a4=1;a5=736 end)T.MouseButton1Click:Connect(function()notify("Selected Blue Flower Field")a4=2530;a5=3260 end)U.MouseButton1Click:Connect(function()notify("Selected Clover Field")a4=9596;a5=10407 end)V.MouseButton1Click:Connect(function()notify("Selected Spider Field")a4=5284;a5=6010 end)W.MouseButton1Click:Connect(function()notify("Selected Strawberry Field")a4=737;a5=1308 end)X.MouseButton1Click:Connect(function()notify("Selected Bamboo Field")a4=4581;a5=5282 end)Y.MouseButton1Click:Connect(function()notify("Selected Pineapple Field")a4=6011;a5=6815 end)Z.MouseButton1Click:Connect(function()notify("Selected Pumpkin Field")a4=1309;a5=1869 end)_.MouseButton1Click:Connect(function()notify("Selected Cactus Field")a4=8149;a5=8742 end)a0.MouseButton1Click:Connect(function()notify("Selected Rose Field")a4=7529;a5=8148 end)a1.MouseButton1Click:Connect(function()notify("Selected Pine Tree Field")a4=6816;a5=7528 end)a2.MouseButton1Click:Connect(function()notify("Selected Stump Field")a4=9159;a5=9595 end)a3.MouseButton1Click:Connect(function()notify("Selected Mountain Top Field")a4=3909;a5=4580 end)
+local Glue = {["Name"] = "Glue"}
+Event = game:GetService("ReplicatedStorage").Events.PlayerActivesCommand
+Event:FireServer(Glue)
+
+local Oil = {["Name"] = "Oil"}
+Event = game:GetService("ReplicatedStorage").Events.PlayerActivesCommand
+Event:FireServer(Oil)
+
+local Enzymes = {["Name"] = "Enzymes"}
+Event = game:GetService("ReplicatedStorage").Events.PlayerActivesCommand
+Event:FireServer(Enzymes)
+
+local TDrink = {["Name"] = "Tropical TDrink"}
+Event = game:GetService("ReplicatedStorage").Events.PlayerActivesCommand
+Event:FireServer(TDrink)
+  	end    
+})
+Use2:AddButton({
+	Name = "Use Red Extract",
+	Callback = function()
+local Red = {["Name"] = "Red Extract"}
+Event = game:GetService("ReplicatedStorage").Events.PlayerActivesCommand
+Event:FireServer(RedEx)
+	end
+})
+Use2:AddButton({
+	Name = "Use Blue Extract",
+	Callback = function()
+local BlueEx = {["Name"] = "Blue Extract"}
+Event = game:GetService("ReplicatedStorage").Events.PlayerActivesCommand
+Event:FireServer(BlueEx)
+  	end 
+})
+Use2:AddButton({
+	Name = "Use Glitter",
+	Callback = function()
+local Glitter = {["Name"] = "Glitter"}
+Event = game:GetService("ReplicatedStorage").Events.PlayerActivesCommand
+Event:FireServer(Glitter)
+  	end    
+})
+Use2:AddButton({
+	Name = "Use Glue",
+	Callback = function()
+local Glue = {["Name"] = "Glue"}
+Event = game:GetService("ReplicatedStorage").Events.PlayerActivesCommand
+Event:FireServer(Glue)
+  	end    
+})
+Use2:AddButton({
+	Name = "Use Oil",
+	Callback = function()
+local Oil = {["Name"] = "Oil"}
+Event = game:GetService("ReplicatedStorage").Events.PlayerActivesCommand
+Event:FireServer(Oil)
+  	end    
+})
+Use2:AddButton({
+	Name = "Use Enzymes",
+	Callback = function()
+local Enzymes = {["Name"] = "Enzymes"}
+Event = game:GetService("ReplicatedStorage").Events.PlayerActivesCommand
+Event:FireServer(Enzymes)
+  	end    
+})
+Use2:AddButton({
+	Name = "Use Tropical Drink",
+	Callback = function()
+local TDrink = {["Name"] = "Tropical Drink"}
+Event = game:GetService("ReplicatedStorage").Events.PlayerActivesCommand
+Event:FireServer(TDrink)
+  	end    
+})
+Use2:AddButton({
+	Name = "Use Purple Potion",
+	Callback = function()
+local PP = {["Name"] = "Purple Potion"}
+Event = game:GetService("ReplicatedStorage").Events.PlayerActivesCommand
+Event:FireServer(PP)
+  	end    
+})
+Use2:AddButton({
+	Name = "Use Super Smoothie",
+	Callback = function()
+local SS = {["Name"] = "Super Smoothie"}
+Event = game:GetService("ReplicatedStorage").Events.PlayerActivesCommand
+Event:FireServer(SS)
+  	end    
+})
+Use2:AddButton({
+	Name = "Use Marshmallow Bee",
+	Callback = function()
+local Mbee = {["Name"] = "Marshmallow Bee"}
+Event = game:GetService("ReplicatedStorage").Events.PlayerActivesCommand
+Event:FireServer(Mbee)
+  	end    
+})
+Main:AddToggle({
+    Name = "Auto Dig",
+    Default = false,
+    Callback = function(cointr)
+         getgenv().turnoff4 = cointr
+         while turnoff4 == true do
+             wait(0.1)
+local function collectorSteal()
+        for i,v in pairs(game.Players:GetChildren()) do
+            if v.Name ~= game.Players.LocalPlayer.Name then
+                if v then
+                    if v.Character then
+                        if v.Character:FindFirstChildWhichIsA("Tool") then
+                            if v.Character:FindFirstChildWhichIsA("Tool"):FindFirstChild("ClickEvent") then
+                    v.Character:FindFirstChildWhichIsA("Tool").ClickEvent:FireServer()
+                end
+            end
+        end
+        end
+        end
+        end
+    end
+	if game.Players.LocalPlayer then 
+		if game.Players.LocalPlayer.Character then 
+			if game.Players.LocalPlayer.Character:FindFirstChildOfClass("Tool") then 
+				if game.Players.LocalPlayer.Character:FindFirstChildOfClass("Tool"):FindFirstChild("ClickEvent", true) then 
+				tool = game.Players.LocalPlayer.Character:FindFirstChildOfClass("Tool") or nil 
+				end 
+			end 
+		end 
+	if tool then getsenv(tool.ClientScriptMouse).collectStart(game:GetService("Players").LocalPlayer:GetMouse()) end collectorSteal() workspace.NPCs.Onett.Onett["Porcelain Dipper"].ClickEvent:FireServer() end
+end end
+})
+Dispenser:AddToggle({
+    Name = "Auto Use All Dispensers",
+    Default = false,
+    Callback = function(cointr)
+         getgenv().turnoff5 = cointr
+         while turnoff5 == true do 
+ local A_1 = "Glue Dispenser"
+                  Event = game:GetService("ReplicatedStorage").Events.ToyEvent
+                  Event:FireServer(A_1)
+                  A_1 = "Wealth Clock"
+                  Event = game:GetService("ReplicatedStorage").Events.ToyEvent
+                  Event:FireServer(A_1)
+                  A_1 = "Coconut Dispenser"
+                  Event = game:GetService("ReplicatedStorage").Events.ToyEvent
+                  Event:FireServer(A_1)
+                  A_1 = "Strawberry Dispenser"
+                  Event = game:GetService("ReplicatedStorage").Events.ToyEvent
+                  Event:FireServer(A_1)
+                  A_1 = "Treat Dispenser"
+                  Event = game:GetService("ReplicatedStorage").Events.ToyEvent
+                  Event:FireServer(A_1)
+                  A_1 = "Free Ant Pass Dispenser"
+                  Event = game:GetService("ReplicatedStorage").Events.ToyEvent
+                  Event:FireServer(A_1)
+                  A_1 = "Blueberry Dispenser"
+                  Event = game:GetService("ReplicatedStorage").Events.ToyEvent
+                  Event:FireServer(A_1)
+                  A_1 = "Honey Dispenser"
+                  Event = game:GetService("ReplicatedStorage").Events.ToyEvent
+                  Event:FireServer(A_1)
+                  A_1 = "Free Royal Jelly Dispenser"
+                  Event = game:GetService("ReplicatedStorage").Events.ToyEvent
+                  Event:FireServer(A_1)
+                  wait(10)
+            end
+            end
+})
+Dispenser:AddButton({
+	Name = "Use Glue Dispenser",
+	Callback = function()
+            local A_1 = "Glue Dispenser"
+                  Event = game:GetService("ReplicatedStorage").Events.ToyEvent
+                  Event:FireServer(A_1)
+  	end    
+})
+Dispenser:AddToggle({
+    Name = "Auto Use Glue Dispenser",
+    Default = false,
+    Callback = function(cointr)
+         getgenv().turnoff4 = cointr
+         while turnoff4 == true do 
+local A_1 = "Glue Dispenser"
+local Event = game:GetService("ReplicatedStorage").Events.ToyEvent
+Event:FireServer(A_1)
+            wait(10) end
+    end    
+})
+Dispenser:AddButton({
+	Name = "Use Wealth Clock",
+	Callback = function()
+   A_1 = "Wealth Clock"
+Event = game:GetService("ReplicatedStorage").Events.ToyEvent
+Event:FireServer(A_1)
+  	end    
+})
+Dispenser:AddToggle({
+    Name = "Auto Use Wealth Clock",
+    Default = false,
+    Callback = function(cointr)
+         getgenv().turnoff4 = cointr
+         while turnoff4 == true do 
+A_1 = "Wealth Clock"
+Event = game:GetService("ReplicatedStorage").Events.ToyEvent
+Event:FireServer(A_1)
+            wait(10) end
+    end    
+})
+Dispenser:AddButton({
+	Name = "Use Coconut Dispenser",
+	Callback = function()
+                  A_1 = "Coconut Dispenser"
+                  Event = game:GetService("ReplicatedStorage").Events.ToyEvent
+                  Event:FireServer(A_1)
+  	end    
+})
+Dispenser:AddToggle({
+    Name = "Auto Use Coconut Dispenser",
+    Default = false,
+    Callback = function(cointr)
+         getgenv().turnoff4 = cointr
+         while turnoff4 == true do 
+A_1 = "Coconut Dispenser"
+Event = game:GetService("ReplicatedStorage").Events.ToyEvent
+Event:FireServer(A_1)
+            wait(10) end
+    end    
+})
+Dispenser:AddButton({
+	Name = "Use Strawberry Dispenser",
+	Callback = function()
+                  A_1 = "Strawberry Dispenser"
+                  Event = game:GetService("ReplicatedStorage").Events.ToyEvent
+                  Event:FireServer(A_1)
+  	end    
+})
+Dispenser:AddToggle({
+    Name = "Auto Use Strawberry Dispenser",
+    Default = false,
+    Callback = function(cointr)
+         getgenv().turnoff4 = cointr
+         while turnoff4 == true do 
+A_1 = "Strawberry Dispenser"
+Event = game:GetService("ReplicatedStorage").Events.ToyEvent
+Event:FireServer(A_1)
+            wait(10) end
+    end    
+})
+Dispenser:AddButton({
+	Name = "Use Treat Dispenser",
+	Callback = function()
+                  A_1 = "Treat Dispenser"
+                  Event = game:GetService("ReplicatedStorage").Events.ToyEvent
+                  Event:FireServer(A_1)
+  	end    
+})
+Dispenser:AddToggle({
+    Name = "Auto Use Treat Dispenser",
+    Default = false,
+    Callback = function(cointr)
+         getgenv().turnoff4 = cointr
+         while turnoff4 == true do 
+A_1 = "Treat Dispenser"
+Event = game:GetService("ReplicatedStorage").Events.ToyEvent
+Event:FireServer(A_1)
+            wait(10) end
+    end    
+})
+Dispenser:AddButton({
+	Name = "Use Free Ant Pass Dispenser",
+	Callback = function()
+                  A_1 = "Free Ant Pass Dispenser"
+                  Event = game:GetService("ReplicatedStorage").Events.ToyEvent
+                  Event:FireServer(A_1)
+  	end    
+})
+Dispenser:AddToggle({
+    Name = "Auto Use Free Ant Pass Dispenser",
+    Default = false,
+    Callback = function(cointr)
+         getgenv().turnoff4 = cointr
+         while turnoff4 == true do 
+A_1 = "Free Ant Pass Dispenser"
+Event = game:GetService("ReplicatedStorage").Events.ToyEvent
+Event:FireServer(A_1)
+            wait(10) end
+    end    
+})
+Dispenser:AddButton({
+	Name = "Use Blueberry Dispenser",
+	Callback = function()
+                  A_1 = "Blueberry Dispenser"
+                  Event = game:GetService("ReplicatedStorage").Events.ToyEvent
+                  Event:FireServer(A_1)
+  	end    
+})
+Dispenser:AddToggle({
+    Name = "Auto Use Blueberry Dispenser",
+    Default = false,
+    Callback = function(cointr)
+         getgenv().turnoff4 = cointr
+         while turnoff4 == true do 
+A_1 = "Blueberry Dispenser"
+Event = game:GetService("ReplicatedStorage").Events.ToyEvent
+Event:FireServer(A_1)
+            wait(10) end
+    end    
+})
+Dispenser:AddButton({
+	Name = "Use Honey Dispenser",
+	Callback = function()
+                  A_1 = "Honey Dispenser"
+                  Event = game:GetService("ReplicatedStorage").Events.ToyEvent
+                  Event:FireServer(A_1)
+  	end    
+})
+Dispenser:AddToggle({
+    Name = "Auto Use Honey Dispenser",
+    Default = false,
+    Callback = function(cointr)
+         getgenv().turnoff4 = cointr
+         while turnoff4 == true do 
+A_1 = "Honey Dispenser"
+Event = game:GetService("ReplicatedStorage").Events.ToyEvent
+Event:FireServer(A_1)
+            wait(10) end
+    end    
+})
+Dispenser:AddButton({
+	Name = "Use Free Royal Jelly Dispenser",
+	Callback = function()
+                  A_1 = "Free Royal Jelly Dispenser"
+                  Event = game:GetService("ReplicatedStorage").Events.ToyEvent
+                  Event:FireServer(A_1)
+  	end    
+})
+Dispenser:AddToggle({
+    Name = "Auto Use Free Royal Jelly Dispenser",
+    Default = false,
+    Callback = function(cointr)
+         getgenv().turnoff4 = cointr
+         while turnoff4 == true do 
+A_1 = "Free Royal Jelly Dispenser"
+Event = game:GetService("ReplicatedStorage").Events.ToyEvent
+Event:FireServer(A_1)
+            wait(10) end
+    end    
+})
+Use2:AddButton({
+	Name = "Use Coconut",
+	Callback = function()
+local Coconut = {["Name"] = "Coconut"}
+Event = game:GetService("ReplicatedStorage").Events.PlayerActivesCommand
+Event:FireServer(Coconut)
+  	end    
+})
+Main:AddDropdown({
+    Name = "Field",
+    Default = "Sunflower Field",
+    Options = {"Sunflower Field", "Dandelion Field","Blue Flower Field","Clover Field","Spider Field","Bamboo Field","Strawberry Field","Pineapple Patch","Stump Field","Cactus Field","Pumpkin Patch","Pine Tree Forest","Rose Field","Mountain Top Field","Mushroom Field","Coconut Field","Pepper Patch"},
+    Callback = function(archos)
+    _G.area = archos
+  _G.cords = game:GetService("Workspace").FlowerZones[_G.area].CFrame
+    end
+})
+Main:AddToggle({
+    Name = "Auto Farm [slow]",
+    Default = false,
+    Callback = function(cointr)
+         getgenv().turnoff4 = cointr
+         if turnoff4 == true then
+game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = _G.cords
+wait(1)
+local A = {["Name"] = "Sprinkler Builder"}
+local Event = game:GetService("ReplicatedStorage").Events.PlayerActivesCommand
+Event:FireServer(A)
+end
+         while turnoff4 == true do 
+local player = game:GetService("Players").LocalPlayer
+local pollenLbl = player.Character:FindFirstChild("ProgressLabel",true)
+local maxpollen = tonumber(pollenLbl.Text:match("%d+$"))
+while player.CoreStats.Pollen.Value>=maxpollen do 
+
+    player.Character:MoveTo(player.SpawnPos.Value.p)
+                wait(0.5)
+game:GetService("ReplicatedStorage").Events.PlayerHiveCommand:FireServer("ToggleHoneyMaking")
+                    repeat wait(0.5) until player.leaderstats.Pollen.Value < 1 wait(5)            
+game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = _G.cords
+end
+ local function collectorSteal()
+        for i,v in pairs(game.Players:GetChildren()) do
+            if v.Name ~= game.Players.LocalPlayer.Name then
+                if v then
+                    if v.Character then
+                        if v.Character:FindFirstChildWhichIsA("Tool") then
+                            if v.Character:FindFirstChildWhichIsA("Tool"):FindFirstChild("ClickEvent") then
+                    v.Character:FindFirstChildWhichIsA("Tool").ClickEvent:FireServer()
+                end
+            end
+        end
+        end
+        end
+        end
+    end
+	if game.Players.LocalPlayer then 
+		if game.Players.LocalPlayer.Character then 
+			if game.Players.LocalPlayer.Character:FindFirstChildOfClass("Tool") then 
+				if game.Players.LocalPlayer.Character:FindFirstChildOfClass("Tool"):FindFirstChild("ClickEvent", true) then 
+				tool = game.Players.LocalPlayer.Character:FindFirstChildOfClass("Tool") or nil 
+				end 
+			end 
+		end 
+	if tool then getsenv(tool.ClientScriptMouse).collectStart(game:GetService("Players").LocalPlayer:GetMouse()) end collectorSteal() workspace.NPCs.Onett.Onett["Porcelain Dipper"].ClickEvent:FireServer() end
+	wait(.1)
+      end
+test = "C"
+tweenservice = game:GetService("TweenService")
+plr = game.Players.LocalPlayer
+info = TweenInfo.new(1.7)
+item = {}
+for i,v in pairs(game.workspace.Flowers:GetDescendants()) do
+end
+for k,v in pairs(workspace.Collectibles:GetChildren()) do
+ if tostring(v) == tostring(game.Players.LocalPlayer.Name) or tostring(v) == test then
+                        if (v.Position-plr.Character.HumanoidRootPart.Position).magnitude <= 25 then
+item.CFrame = CFrame.new(v.Position.x,plr.Character.HumanoidRootPart.Position.y,v.Position.z)
+Tween = tweenservice:Create(plr.Character.HumanoidRootPart, info, item)
+Tween:Play()
+end
+end
+end
+wait(0.2) end
+  
+  
+})
+Main:AddToggle({
+    Name = "Auto Farm [fast]",
+    Default = false,
+    Callback = function(cointr)
+         getgenv().turnoff4 = cointr
+         if turnoff4 == true then
+game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = _G.cords
+wait(1)
+local A = {["Name"] = "Sprinkler Builder"}
+local Event = game:GetService("ReplicatedStorage").Events.PlayerActivesCommand
+Event:FireServer(A)
+end
+         while turnoff4 == true do 
+player = game:GetService("Players").LocalPlayer
+pollenLbl = player.Character:FindFirstChild("ProgressLabel",true)
+maxpollen = tonumber(pollenLbl.Text:match("%d+$"))
+while player.CoreStats.Pollen.Value>=maxpollen do 
+
+    player.Character:MoveTo(player.SpawnPos.Value.p)
+                wait(0.5)
+                    repeat wait(0.5) 
+                        if player.CoreStats.Pollen.Value < 99   then wait(5)
+wait(0.1)
+                            game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = _G.cords 
+wait(0.1)
+                            end until player.CoreStats.Pollen.Value < 99     
+end
+ local function collectorSteal()
+        for i,v in pairs(game.Players:GetChildren()) do
+            if v.Name ~= game.Players.LocalPlayer.Name then
+                if v then
+                    if v.Character then
+                        if v.Character:FindFirstChildWhichIsA("Tool") then
+                            if v.Character:FindFirstChildWhichIsA("Tool"):FindFirstChild("ClickEvent") then
+                    v.Character:FindFirstChildWhichIsA("Tool").ClickEvent:FireServer()
+                end
+            end
+        end
+        end
+        end
+        end
+    end
+	if game.Players.LocalPlayer then 
+		if game.Players.LocalPlayer.Character then 
+			if game.Players.LocalPlayer.Character:FindFirstChildOfClass("Tool") then 
+				if game.Players.LocalPlayer.Character:FindFirstChildOfClass("Tool"):FindFirstChild("ClickEvent", true) then 
+				tool = game.Players.LocalPlayer.Character:FindFirstChildOfClass("Tool") or nil 
+				end 
+			end 
+		end 
+	if tool then getsenv(tool.ClientScriptMouse).collectStart(game:GetService("Players").LocalPlayer:GetMouse()) end collectorSteal() workspace.NPCs.Onett.Onett["Porcelain Dipper"].ClickEvent:FireServer() end
+	wait(.1)
+test = "C"
+tweenservice = game:GetService("TweenService")
+plr = game.Players.LocalPlayer
+info = TweenInfo.new(0.3)
+item = {}
+for k,v in pairs(workspace.Collectibles:GetChildren()) do
+ if tostring(v) == tostring(game.Players.LocalPlayer.Name) or tostring(v) == test then
+                        if (v.Position-plr.Character.HumanoidRootPart.Position).magnitude <= 50 then
+item.CFrame = CFrame.new(v.Position.x,plr.Character.HumanoidRootPart.Position.y,v.Position.z)
+Tween = tweenservice:Create(plr.Character.HumanoidRootPart, info, item)
+Tween:Play()
+wait(.2)
+end
+end
+end
+end
+  
+         end
+})
+Main:AddToggle({
+    Name = "Auto Farm [walk]",
+    Default = false,
+    Callback = function(cointr91)
+         getgenv().turnoff11 = cointr91
+         if turnoff11 == true then
+                              game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = _G.cords
+wait(0.5)
+         A = {["Name"] = "Sprinkler Builder"}
+local Event = game:GetService("ReplicatedStorage").Events.PlayerActivesCommand
+Event:FireServer(A)
+         plr = game.Players.LocalPlayer
+         while turnoff11 == true do
+player = game:GetService("Players").LocalPlayer
+pollenLbl = player.Character:FindFirstChild("ProgressLabel",true)
+maxpollen = tonumber(pollenLbl.Text:match("%d+$"))
+while player.CoreStats.Pollen.Value>=maxpollen do 
+
+    player.Character:MoveTo(player.SpawnPos.Value.p)
+                wait(0.5)
+                    repeat wait(0.5) 
+                        if player.CoreStats.Pollen.Value < 99   then wait(5)
+wait(0.1)
+                            game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = _G.cords 
+wait(0.1)
+                            end until player.CoreStats.Pollen.Value < 99     
+end
+ local function collectorSteal()
+        for i,v in pairs(game.Players:GetChildren()) do
+            if v.Name ~= game.Players.LocalPlayer.Name then
+                if v then
+                    if v.Character then
+                        if v.Character:FindFirstChildWhichIsA("Tool") then
+                            if v.Character:FindFirstChildWhichIsA("Tool"):FindFirstChild("ClickEvent") then
+                    v.Character:FindFirstChildWhichIsA("Tool").ClickEvent:FireServer()
+                end
+            end
+        end
+        end
+        end
+        end
+    end
+	if game.Players.LocalPlayer then 
+		if game.Players.LocalPlayer.Character then 
+			if game.Players.LocalPlayer.Character:FindFirstChildOfClass("Tool") then 
+				if game.Players.LocalPlayer.Character:FindFirstChildOfClass("Tool"):FindFirstChild("ClickEvent", true) then 
+				tool = game.Players.LocalPlayer.Character:FindFirstChildOfClass("Tool") or nil 
+				end 
+			end 
+		end 
+	if tool then getsenv(tool.ClientScriptMouse).collectStart(game:GetService("Players").LocalPlayer:GetMouse()) end collectorSteal() workspace.NPCs.Onett.Onett["Porcelain Dipper"].ClickEvent:FireServer() end
+	wait(.1)
+	for i,v in pairs(game:GetService("Workspace").Collectibles:GetDescendants()) do
+    if v:IsA("Part") and (plr.Character.HumanoidRootPart.Position - v.Position).Magnitude < 50 then
+        plr.Character.Humanoid:MoveTo(v.Position)
+end
+end
+end
+end
+end
+})
+Main:AddToggle({
+    Name = "Auto Convert Pollen",
+    Default = false,
+    Callback = function(cointr9)
+         getgenv().turnoff5 = cointr9
+         while turnoff5 == true do
+local player = game:GetService("Players").LocalPlayer
+local pollenLbl = player.Character:FindFirstChild("ProgressLabel",true)
+local maxpollen = tonumber(pollenLbl.Text:match("%d+$"))
+wait(0.1)                                                                       
+if player.CoreStats.Pollen.Value>=maxpollen then
+
+    player.Character:MoveTo(player.SpawnPos.Value.p)
+                wait(0.5) game:GetService("ReplicatedStorage").Events.PlayerHiveCommand:FireServer("ToggleHoneyMaking")
+if player.CoreStats.Pollen.Value<100  then
+                    wait(2)  game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = _G.cords 
+                    end repeat wait(0.5) until player.CoreStats.Pollen.Value < 99
+end
+end
+end
+})
+
+Main:AddToggle({
+    Name = "Auto Use Micro-Converter",
+    Default = false,
+    Callback = function(cointr)
+         getgenv().turnoff4 = cointr
+         while turnoff4 == true do
+local player = game:GetService("Players").LocalPlayer
+local pollenLbl = player.Character:FindFirstChild("ProgressLabel",true)
+local maxpollen = tonumber(pollenLbl.Text:match("%d+$"))
+wait(0.1)                                                                       
+if player.CoreStats.Pollen.Value>=maxpollen then
+local Ass = {["Name"] = "Micro-Converter"}
+Event = game:GetService("ReplicatedStorage").Events.PlayerActivesCommand
+Event:FireServer(Ass)
+end
+end
+end
+})
+Main:AddToggle({
+    Name = "Auto Use Instant Converter",
+    Default = false,
+    Callback = function(cointr)
+         getgenv().turnoff4 = cointr
+         while turnoff4 == true do
+local player = game:GetService("Players").LocalPlayer
+local pollenLbl = player.Character:FindFirstChild("ProgressLabel",true)
+local maxpollen = tonumber(pollenLbl.Text:match("%d+$"))
+wait(0.3)
+if player.CoreStats.Pollen.Value>=maxpollen then do
+local zakharpidor = {[1] = "Instant Converter"}
+game:GetService("ReplicatedStorage").Events.ToyEvent:FireServer(unpack(zakharpidor))
+end
+wait(0.3)
+elseif player.CoreStats.Pollen.Value>=maxpollen then do
+zakharpidor = {[1] = "Instant Converter B"}
+game:GetService("ReplicatedStorage").Events.ToyEvent:FireServer(unpack(zakharpidor))
+wait(0.3) end
+elseif player.CoreStats.Pollen.Value>=maxpollen then do
+zakharpidor = {[1] = "Instant Converter C"}
+game:GetService("ReplicatedStorage").Events.ToyEvent:FireServer(unpack(zakharpidor))
+end
+end
+end
+end})
+Main:AddToggle({
+    Name = "Auto Use Coconut",
+    Default = false,
+    Callback = function(cointr)
+         getgenv().turnoff4 = cointr
+         while turnoff4 == true do 
+local Coconut = {["Name"] = "Coconut"}
+Event = game:GetService("ReplicatedStorage").Events.PlayerActivesCommand
+Event:FireServer(Coconut)
+            wait(11) end
+        end
+})
+Main:AddToggle({
+    Name = "Auto Use Gumdrops",
+    Default = false,
+    Callback = function(cointr)
+         getgenv().turnoff4 = cointr
+         while turnoff4 == true do
+local Gumdrops = {["Name"] = "Gumdrops"}
+Event = game:GetService("ReplicatedStorage").Events.PlayerActivesCommand
+Event:FireServer(Gumdrops)
+wait(3)
+end
+end
+})
+Main:AddToggle({
+    Name = "Auto Place Splinkler",
+    Default = false,
+    Callback = function(cointr)
+         getgenv().turnoff4 = cointr
+         while turnoff4 == true do 
+local A = {["Name"] = "Sprinkler Builder"}
+local Event = game:GetService("ReplicatedStorage").Events.PlayerActivesCommand
+Event:FireServer(A)
+            wait(2) end
+    end    
+})
+Tp12:AddButton({
+	Name = "TP To Hive",
+	Callback = function()
+    local player = game:GetService("Players").LocalPlayer
+    player.Character:MoveTo(player.SpawnPos.Value.p)
+  	end    
+})
+Tp12:AddButton({
+	Name = "Join Random Server",
+	Callback = function()
+local placeId = "1537690962"
+game:GetService("TeleportService"):Teleport(placeId)
+  	end    
+})
+Tp12:AddDropdown({
+    Name = "Teleport To",
+    Default = "Black Bearl",
+    Options = {"Black Bear","Brown Bear","Panda Bear","Polar Bear","Science Bear","Mother Bear","Spirit Bear","Gummy Bear","Onett","Tunnel Bear","King Beetle","Stick Bug","Mythic Meteor Shower","Basic Egg Shop","Tool Shop","Ticket Shop","Ticket Shop 2","Clover Field","Spider Field","Blue Flower Field","Sunflower Field","StrawBerry Field","Dandelion Field","Bamboo Field","Rose Field","Mushroom Field","Cactus Field","Pumpkin Field","MountainTop Field","PineTree Field","Pineapple Field","Coconut Field","Pepper Field","Stump Field","Red HQ","Blue HQ","MountainTop Shop","Royal Jelly Shop",},
+    Callback = function(Value)
+if Value == "Black Bear" then 
+game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(-258.1, 5, 299.7) 
+elseif Value == "Brown Bear" then game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(282, 46, 236) 
+elseif Value == "Panda Bear" then game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(106.3, 35, 50.1) 
+elseif Value == "Polar Bear" then game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(-106, 119, -77)
+elseif Value == "Science Bear" then game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(267, 103, 20)
+elseif Value == "Mother Bear" then game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(-183.898, 5.64093, 83.4582)
+elseif Value == "Spirit Bear" then game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(-363.936, 105.284, 485.853)
+elseif Value == "Gummy Bear" then game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(271.624, 25292.9, -850.958) 
+elseif Value == "King Beetle" then game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(183.117, 4.5759, 173.552)
+elseif Value == "Tunnel Bear" then game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(313.654, 6.81172, -46.9131)
+elseif Value == "Onett" then game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(-9.41592, 232.791, -520.278)
+elseif Value == "Stick Bug" then game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(-129.2, 50.0709, 148.288)
+elseif Value == "Mythic Meteor Shower" then game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(160.03, 126.662, -163.894)
+elseif Value == "Ticket Shop" then game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(-232.495, 18.1145, 390.573)
+elseif Value == "Ticket Shop 2" then game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(-15.1861, 184.583, -225.034)
+elseif Value == "Basic Egg Shop" then game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(-136.8, 4.6, 243.4)
+elseif Value == "Tool Shop" then game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(86, 4.6, 294)
+elseif Value == "Clover Field" then game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(174, 34, 189)
+elseif Value == "Spider Field" then game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(-57.2, 20, -5.3)
+elseif Value == "Mushroom Field" then game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(-94, 5, 116)
+elseif Value == "Blue Flower Field" then game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(113.7, 4, 101.5)
+elseif Value == "Sunflower Field" then game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(-208, 4, 185)
+elseif Value == "StrawBerry Field" then game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(-169.3, 20, -3.2)
+elseif Value == "Dandelion Field" then game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(-30, 4, 225)
+elseif Value == "Bamboo Field" then game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(93, 20, -25)
+elseif Value == "Rose Field" then game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(-322, 20, 124)
+elseif Value == "Cactus Field" then game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(-194, 68, -107)
+elseif Value == "Pumpkin Field" then game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(-194, 68, -182)
+elseif Value == "MountainTop Field" then game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(76, 176, -181)
+elseif Value == "PineTree Field" then game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(-318, 68, -150)
+elseif Value == "Pineapple Field" then game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(262, 68, -201)
+elseif Value == "Coconut Field" then game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(-254.478104, 68.9707947, 469.459045, 1, 0, 0, 0, 1, 0, 0, 0, 1)
+elseif Value == "Pepper Field" then game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(-488.303, 123.677, 529.154)
+elseif Value == "Stump Field" then game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(424.483276, 94.4255676, -174.810959, 1, 0, 0, 0, 1, 0, 0, 0, 1)
+elseif Value == "Blue HQ" then game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(292, 4, 98)
+elseif Value == "Red HQ" then game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(-334, 21, 216)
+elseif Value == "MountainTop Shop" then game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(-18, 176, -137)
+elseif Value == "Royal Jelly Shop" then game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(-297, 53, 68)
+end
+end
+})
+Mobs:AddButton({
+	Name = "Kill Crab",
+	Callback = function()
+local cocopad = Instance.new("Part", game:GetService("Workspace"))
+cocopad.Name = "Coconut Part"
+cocopad.Anchored = true
+cocopad.Transparency = 1
+cocopad.Size = Vector3.new(10, 1, 10)
+cocopad.Position = Vector3.new(-307.52117919922, 105.91863250732, 467.86791992188)
+wait(0.3)
+game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(-307.52117919922, 105.91863250732, 467.86791992188)
+
+  	end    
+})
+Mobs:AddButton({
+	Name = "Kill Commando Chick",
+	Callback = function()
+local Commandopad = Instance.new("Part", game:GetService("Workspace"))
+Commandopad.Name = "Commando Part"
+Commandopad.Anchored = true
+Commandopad.Transparency = 1
+Commandopad.Size = Vector3.new(10, 1, 10)
+Commandopad.Position = Vector3.new(532.56, 68.1981, 162.801)
+wait(0.1)
+game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(532.56, 68.1981, 162.801)
+  	end    
+})
+Mobs:AddButton({
+	Name = "AFK Stump Snail",
+	Callback = function()
+local snail = Instance.new("Part", game:GetService("Workspace"))
+snail.Name = "Coconut Part"
+snail.Anchored = true
+snail.Transparency = 1
+snail.Size = Vector3.new(10, 1, 10)
+snail.Position = Vector3.new(424.483276, 71.4255676, -174.810959, 1, 0, 0, 0, 1, 0, 0, 0, 1)
+game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(424.483276, 68.4255676, -174.810959, 1, 0, 0, 0, 1, 0, 0, 0, 1)
+wait(0.1)
+game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(424.483276, 74.4255676, -174.810959, 1, 0, 0, 0, 1, 0, 0, 0, 1)
+  	end    
+})
+Mobs:AddButton({
+	Name = "Kill Tunnel Bear",
+	Callback = function()
+local nigger = Instance.new("Part", game:GetService("Workspace"))
+nigger.Name = "Tunnel Part"
+nigger.Anchored = true
+nigger.Transparency = 1
+nigger.Size = Vector3.new(10, 1, 10)
+nigger.Position = Vector3.new(469.095, 23.2665, -46.3918)
+game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(469.095, 7.2665, -46.3918)
+wait(0.1)
+game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(469.095, 24.2665, -46.3918)
+end
+})
+Mobs:AddToggle({
+    Name = "Auto Kill Mondo Chick[In testing]",
+    Default = false,
+    Callback = function(assmore)
+         getgenv().turnoff54 = assmore
+         if turnoff54 == true then
+    while turnoff54 == true do
+                     
+                             mondopition = game.Workspace.Monsters["Mondo Chick (Lvl 8)"].Head.Position
+                             api.tween(0.3,CFrame.new(mondopition.x, mondopition.y + 30, mondopition.z)) game.Players.LocalPlayer.Character.Humanoid.HipHeight = 40                        
+                             end
+                        else
+                        game.Players.LocalPlayer.Character.Humanoid.HipHeight = 3
+
+                        end
+                        
+end
+})
+Mobs:AddButton({
+    Name = "Ass",
+    allback = function()
+for _,v in pairs(game.workspace.NPCBees:GetChildren()) do
+      if v.Name == "Windy" then
+game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = v.CFrame
+end end end})
+Mobs:AddToggle({
+    Name = "Kill Windy Bee",
+    Callback = function(aa)
+       getgenv().pon1 = aa
+       if pon1 == true then
+    while pon1 == true do wait(.3) for _,v in pairs(game.workspace.NPCBees:GetChildren()) do
+      if v.Name == "Windy" then game.Players.LocalPlayer.Character.Humanoid.HipHeight = 35
+game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = v.CFrame
+end end
+ 	local windymanoid = game:GetService("Players").LocalPlayer.Character.HumanoidRootPart
+			for i,v in next, game.workspace.Particles:GetChildren() do
+				for x in string.gmatch(v.Name, "Windy") do
+					if string.find(v.Name, "Windy") then
+						api.tween(1,CFrame.new(v.Position.x, v.Position.y, v.Position.z)) task.wait(1)
+						api.tween(0.5, CFrame.new(v.Position.x, v.Position.y, v.Position.z)) task.wait(.5)
+					end
+				end
+			end 
+			for i,v in next, game.workspace.Particles:GetChildren() do
+				for x in string.gmatch(v.Name, "Windy") do
+                    task.wait() if string.find(v.Name, "Windy") then 
+                        game.Players.LocalPlayer.Character.Humanoid.HipHeight = 20 for i=1, 4 do windymanoid.CFrame = CFrame.new(v.Position+10, v.Position + 50, v.Position) task.wait(.3) 
+                        end 
+                    end
+			task.wait(.1)
+         end
+        end end else game.Players.LocalPlayer.Character.Humanoid.HipHeight = 3
+         end end 
+})
+Mobs:AddToggle({
+    Name = "Kill Viciuos Bee",
+    Default = false,
+    Callback = function(cointr)
+         getgenv().turnoff4 = cointr
+         if turnoff4 == true then
+         while turnoff4 == true do
+             wait()
+			local vichumanoid = game:GetService("Players").LocalPlayer.Character.HumanoidRootPart
+			for i,v in next, game.workspace.Particles:GetChildren() do
+				for x in string.gmatch(v.Name, "Vicious") do
+                    task.wait() if string.find(v.Name, "Vicious") then 
+                        game.Players.LocalPlayer.Character.Humanoid.HipHeight = 20 for i=1, 4 do vichumanoid.CFrame = CFrame.new(v.Position.x, v.Position.y + 20, v.Position.z) task.wait(.3) 
+                        end 
+                    end end
+                end
+			end
+			task.wait(.1)
+         
+         else
+             game.Players.LocalPlayer.Character.Humanoid.HipHeight = 3
+         end 
+end})
+Main:AddSlider({
+    Name = "Speed",
+    Min = 1,
+    Max = 200,
+    Default = 20,
+    Color = Color3.fromRGB(230,255,255),
+    Increment = 1,
+    ValueName = " Speed",
+    Callback = function(preston)
+        _G.speed = preston
+    end    
+})
+Main:AddToggle({
+    Name = "Speed hack",
+    Default = false,
+    Callback = function(prestonon)
+        while prestonon == true do
+game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = _G.speed wait(0.2) end
+        end    
+})
+Main:AddSlider({
+    Name = "Jump Power",
+    Min = 0,
+    Max = 2000,
+    Default = 80,
+    Color = Color3.fromRGB(255,255,255),
+    Increment = 1,
+    ValueName = "power",
+    Callback = function(Value)
+        game.Players.LocalPlayer.Character.Humanoid.JumpPower = Value
+        end
+})
+Mask:AddDropdown({
+    Name = "Equip Mask",
+    Default = "nil",
+    Options = {"Gummy Mask","Demon Mask","Diamond Mask","Bubble Mask","Fire Mask","Honey Mask",},
+    Callback = function(Value)
+if Value == "Gummy Mask" then 
+A_1 = "Equip"
+A_2 = {["Mute"] = true
+    , ["Type"] = "Gummy Mask", ["Category"] = "Accessory"}
+Event = game:GetService("ReplicatedStorage").Events.ItemPackageEvent
+Event:InvokeServer(A_1, A_2)
+elseif Value == "Demon Mask" then
+A_3 = "Equip"
+A_4 = {["Mute"] = true
+    , ["Type"] = "Demon Mask", ["Category"] = "Accessory"}
+Event = game:GetService("ReplicatedStorage").Events.ItemPackageEvent
+Event:InvokeServer(A_3, A_4)
+elseif Value == "Diamond Mask" then
+A_5 = "Equip"
+A_6 = {["Mute"] = true
+    , ["Type"] = "Diamond Mask", ["Category"] = "Accessory"}
+Event = game:GetService("ReplicatedStorage").Events.ItemPackageEvent
+Event:InvokeServer(A_5, A_6)
+elseif Value == "Bubble Mask" then
+A_7 = "Equip"
+A_8 = {["Mute"] = true
+    , ["Type"] = "Bubble Mask", ["Category"] = "Accessory"}
+Event = game:GetService("ReplicatedStorage").Events.ItemPackageEvent
+Event:InvokeServer(A_7, A_8)
+elseif Value == "Fire Mask" then
+A_9 = "Equip"
+A_10 = {["Mute"] = true
+    , ["Type"] = "Fire Mask", ["Category"] = "Accessory"}
+Event = game:GetService("ReplicatedStorage").Events.ItemPackageEvent
+Event:InvokeServer(A_9, A_10)
+elseif Value == "Honey Mask" then 
+A_11 = "Equip"
+A_12 = {["Mute"] = true
+    , ["Type"] = "Honey Mask", ["Category"] = "Accessory"}
+Event = game:GetService("ReplicatedStorage").Events.ItemPackageEvent
+Event:InvokeServer(A_11, A_12)
+end
+end
+})
+local a = false
+local godmodtoggle = Mobs:AddToggle({
+    Name = "Godmode",
+    Default = false,
+    Callback = function(Value)
+        local xyi = Value
+        getgenv().zalypa = xyi
+    if getgenv().zalypa == true then 
+        a = true
+    local camera = workspace.CurrentCamera
+    local lp = game.Players.LocalPlayer
+    local camerapos = camera.CFrame
+    local character = lp.Character or workspace:FindFirstChild(lp.Name)
+    local humanoid = character.Humanoid
+    local copy = humanoid:Clone()
+        lp.Character = nil
+        copy:SetStateEnabled(15, false)
+        copy:SetStateEnabled(0, false)
+        copy:SetStateEnabled(1, false)
+        copy.Parent = character
+        humanoid:Destroy()
+        lp.Character = character
+        camera.CameraSubject = copy
+        camera.CFrame = camerapos
+        copy.DisplayDistanceType = Enum.HumanoidDisplayDistanceType.None
+        character:FindFirstChild("Animate").Disabled = true
+        character:FindFirstChild("Animate").Disabled = false
+        humanoid:SetStateEnabled(15, true)
+        copy:SetStateEnabled(0, true)
+        copy:SetStateEnabled(1, true)
+        lp.Character = nil
+        humanoid:ChangeState(15)
+        lp.Character = character
+        humanoid.DisplayDistanceType = Enum.HumanoidDisplayDistanceType.Viewer
+    elseif getgenv().zalypa == false then
+        if a == false then
+            return
+        elseif a == true then
+            local camera = workspace.CurrentCamera
+    local lp = game.Players.LocalPlayer
+    local camerapos = camera.CFrame
+    local character = lp.Character or workspace:FindFirstChild(lp.Name)
+    local humanoid = character.Humanoid
+    local copy = humanoid:Clone()
+        lp.Character = nil
+        copy:SetStateEnabled(15, false)
+        copy:SetStateEnabled(0, false)
+        copy:SetStateEnabled(1, false)
+        copy.Parent = character
+        humanoid:Destroy()
+        lp.Character = character
+        camera.CameraSubject = copy
+        camera.CFrame = camerapos
+        copy.DisplayDistanceType = Enum.HumanoidDisplayDistanceType.None
+        character:FindFirstChild("Animate").Disabled = true
+        character:FindFirstChild("Animate").Disabled = false
+        humanoid:SetStateEnabled(15, true)
+        copy:SetStateEnabled(0, true)
+        copy:SetStateEnabled(1, true)
+        lp.Character = nil
+        humanoid:ChangeState(15)
+        lp.Character = character
+        humanoid.DisplayDistanceType = Enum.HumanoidDisplayDistanceType.Viewer
+           Players = game.Players
+    LocalPlayer = Players.LocalPlayer
+    Character = workspace:FindFirstChild(LocalPlayer.Name)
+Character.Head:Destroy()
+        end
+end
+end
+    })
+Visuanal:AddButton({
+	Name = "Spawn Mythic Meteor",
+	Callback = function()
+    syn.secure_call(function() 
+        require(game.ReplicatedStorage.LocalFX.MythicMeteor)({
+        Pos = game.Players.LocalPlayer.Character.Humanoid.RootPart.CFrame.p,
+        Dur = 0.6,
+        Radius = 16,
+        Delay = 1.5,
+    })
+end, game.Players.LocalPlayer.PlayerScripts.ClientInit)
+end
+})
+Visuanal:AddButton({
+	Name = "Spawn Coconut",
+	Callback = function()
+      syn.secure_call(function() 
+        require(game.ReplicatedStorage.LocalFX.FallingCoconut)({
+        Pos = game.Players.LocalPlayer.Character.Humanoid.RootPart.CFrame.p,
+        Dur = 0.6,
+        Radius = 16,
+        Delay = 1.5,
+        Friendly = true
+    })
+end, game.Players.LocalPlayer.PlayerScripts.ClientInit)
+  	end
+})
+Visuanal:AddButton({
+	Name = "Spawn Hostile Coconut",
+	Callback = function()
+    syn.secure_call(function() 
+        require(game.ReplicatedStorage.LocalFX.FallingCoconut)({
+        Pos = game.Players.LocalPlayer.Character.Humanoid.RootPart.CFrame.p,
+        Dur = 0.6,
+        Radius = 16,
+        Delay = 1.5,
+        Friendly = false
+    })
+end, game.Players.LocalPlayer.PlayerScripts.ClientInit)
+  	end
+})
+Visuanal:AddButton({
+	Name = "Spawn Jellybean",
+	Callback = function()
+jellybeans = {"Navy","Blue","Spoiled","Merigold","Teal","Periwinkle","Pink","Slate","White","Black","Green","Brown","Yellow","Maroon","Red"}
+syn.secure_call(function() 
+        require(game.ReplicatedStorage.LocalFX.JellyBeanToss)({
+        Start = game.Players.LocalPlayer.Character.Humanoid.RootPart.CFrame.p,
+        Type = jellybeans[math.random(1,#jellybeans)],
+        End = (game.Players.LocalPlayer.Character.Humanoid.RootPart.CFrame * CFrame.new(0,0,-35)).p + Vector3.new(math.random(1,20),0,math.random(1,20))
+    })
+end, game.Players.LocalPlayer.PlayerScripts.ClientInit)
+  	end
+})
+Visuanal:AddButton({
+	Name = "Spawn Puffshroom Spore",
+	Callback = function()
+task.spawn(function() syn.secure_call(function()
+field = game:GetService("Workspace").FlowerZones:GetChildren()[math.random(1,#game:GetService("Workspace").FlowerZones:GetChildren())]
+pos = field.CFrame.p
+require(game.ReplicatedStorage.LocalFX.PuffshroomSporeThrow)({
+      Start = game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame.p,
+      End = pos,
+})
+end, game.Players.LocalPlayer.PlayerScripts.ClientInit) 
+wait(10)
+workspace.Particles:FindFirstChild("SporeCloud"):Destroy()
+end)
+  	end
+})
+Visuanal:AddButton({
+	Name = "Spawn Party Popper",
+	Callback = function()
+syn.secure_call(function() 
+require(game:GetService("ReplicatedStorage").LocalFX.PartyPopper)({
+Pos = game.Players.LocalPlayer.Character.Humanoid.RootPart.CFrame.p,
+})
+end, game.Players.LocalPlayer.PlayerScripts.ClientInit)
+  	end
+})
+Visuanal:AddButton({
+	Name = "Spawn Flame",
+	Callback = function()
+syn.secure_call(function()
+        require(game.ReplicatedStorage.LocalFX.LocalFlames).AddFlame(
+        game.Players.LocalPlayer.Character.Humanoid.RootPart.CFrame.p,
+        10,
+        1,
+        game.Players.LocalPlayer.UserId,
+        false
+    )
+end, game.Players.LocalPlayer.PlayerScripts.ClientInit)
+  	end
+})
+Visuanal:AddButton({
+	Name = "Spawn Dark Flame",
+	Callback = function()
+syn.secure_call(function()
+        require(game.ReplicatedStorage.LocalFX.LocalFlames).AddFlame(
+        game.Players.LocalPlayer.Character.Humanoid.RootPart.CFrame.p,
+        10,
+        1,
+        game.Players.LocalPlayer.UserId,
+        true
+    )
+end, game.Players.LocalPlayer.PlayerScripts.ClientInit)
+  	end
+})
+Visuanal:AddToggle({
+    Name = "Flame Walk",
+    Default = false,
+    Callback = function(ass)
+        getgenv().Asshole = ass
+        while Asshole == true do
+            wait(0.1)
+            syn.secure_call(function()
+        require(game.ReplicatedStorage.LocalFX.LocalFlames).AddFlame(
+        game.Players.LocalPlayer.Character.Humanoid.RootPart.CFrame.p,
+        10,
+        1,
+        game.Players.LocalPlayer.UserId,
+        false
+    )
+end, game.Players.LocalPlayer.PlayerScripts.ClientInit)
+        end
+    end})
+Visuanal:AddToggle({
+    Name = "Dark Flame Walk",
+    Default = false,
+    Callback = function(ass2)
+    getgenv().Asshole2 = ass2
+    while Asshole2 == true do
+        wait(0.1)
+        syn.secure_call(function()
+        require(game.ReplicatedStorage.LocalFX.LocalFlames).AddFlame(
+        game.Players.LocalPlayer.Character.Humanoid.RootPart.CFrame.p,
+        10,
+        1,
+        game.Players.LocalPlayer.UserId,
+        true
+    )
+end, game.Players.LocalPlayer.PlayerScripts.ClientInit)
+    end
+    end})
