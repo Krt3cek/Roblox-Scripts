@@ -272,6 +272,34 @@ function UnbindAimbotKey()
     DisableAimbot()
 end
 
+-- Function to update the dropdown options with current players
+local function UpdateTeleportDropdown()
+    local playerNames = {}
+    for _, Player in pairs(Players:GetPlayers()) do
+        if Player ~= LocalPlayer then  -- Exclude local player
+            table.insert(playerNames, Player.Name)
+        end
+    end
+    TeleportTab:UpdateDropdown({
+        Name = "Select Player to Teleport To",
+        Options = playerNames,
+    })
+end
+
+-- Initial population of the dropdown
+UpdateTeleportDropdown()
+
+-- Update dropdown when a player joins
+Players.PlayerAdded:Connect(function(Player)
+    Player.CharacterAdded:Wait()  -- Wait for their character to load
+    UpdateTeleportDropdown()
+end)
+
+-- Update dropdown when a player leaves
+Players.PlayerRemoving:Connect(function(Player)
+    UpdateTeleportDropdown()
+end)
+
 -- Correctly creating the Visual, Aim, Misc, and Teleport tabs
 local VisualsTab = Window:MakeTab({
     Name = "Visuals",
@@ -409,46 +437,21 @@ MiscTab:AddSlider({
 })
 
 
--- Teleport Tab: Teleport to Player dropdown
 TeleportTab:AddDropdown({
     Name = "Select Player to Teleport To",
-    Options = {},
+    Options = {},  -- Initially empty options
     Callback = function(selectedPlayer)
         for _, Player in pairs(Players:GetPlayers()) do
             if Player.Name == selectedPlayer then
-                LocalPlayer.Character.HumanoidRootPart.CFrame = Player.Character.HumanoidRootPart.CFrame
+                -- Ensure the player's character and HumanoidRootPart exist before teleporting
+                if Player.Character and Player.Character:FindFirstChild("HumanoidRootPart") then
+                    LocalPlayer.Character.HumanoidRootPart.CFrame = Player.Character.HumanoidRootPart.CFrame
+                end
                 break
             end
         end
     end,
 })
-
-local function addPlayerToDropdown(player)
-    teleportDropdown:Add(player.Name)
-end
-
--- Populate the teleport dropdown with player names
-Players.PlayerAdded:Connect(function(Player)
-    addPlayerToDropdown(Player)
-end)
-
--- Add currently connected players to the dropdown
-for _, player in pairs(Players:GetPlayers()) do
-    addPlayerToDropdown(player)
-end
-
--- Teleport Tab: Button to teleport to local player
-TeleportTab:AddButton({
-    Name = "Teleport to Me",
-    Callback = function()
-        if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
-            LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(0, 50, 0) -- Adjust coordinates as needed
-        else
-            warn("HumanoidRootPart not found in Character")
-        end
-    end,
-})
-
 -- Key bindings for menu toggling and ESP toggle
 UserInputService.InputBegan:Connect(function(input, gameProcessed)
     if not gameProcessed then
