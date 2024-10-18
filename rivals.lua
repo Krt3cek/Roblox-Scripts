@@ -309,16 +309,6 @@ VisualsTab:AddToggle({
     end,
 })
 
--- Ensure Chams highlight color picker is under 'VisualsTab'
-VisualsTab:AddColorPicker({
-    Name = "Chams Highlight Color",
-    Default = highlightColor,
-    Callback = function(color)
-        highlightColor = color
-        UpdateChams()  -- Update Chams color immediately
-    end,
-})
-
 -- Aimbot toggles and settings are under 'AimTab'
 AimTab:AddToggle({
     Name = "Toggle Aimbot",
