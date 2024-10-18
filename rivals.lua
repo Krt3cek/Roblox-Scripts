@@ -311,7 +311,6 @@ VisualsTab:AddToggle({
 
 AimTab:AddToggle({
     Name = "Aimbot",
-    Default = false,
     Callback = function(Value)
         isAimbotActive = Value
         if isAimbotActive then
