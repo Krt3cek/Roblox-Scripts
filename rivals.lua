@@ -201,32 +201,14 @@ local function ToggleSkeleton(Player)
     end)
 end
 
-local VisualsTab = Window:MakeTab({
+local MainTab = Window:MakeTab({
     Name = "Visuals",
     Icon = "rbxassetid://10472045394",
     PremiumOnly = false
 })
 
-local AimTab = Window:MakeTab({
-    Name = "Aim",
-    Icon = "rbxassetid://10472045394",
-    PremiumOnly = false
-})
-
-local MiscTab = Window:MakeTab({
-    Name = "Misc",
-    Icon = "rbxassetid://10472045394",
-    PremiumOnly = false
-})
-
-local TeleportTab = Window:MakeTab({
-    Name = "Teleport",
-    Icon = "rbxassetid://10472045394",
-    PremiumOnly = false
-})
-
 -- Visuals Tab: Toggle Chams button
-VisualsTab:AddToggle({
+MainTab:AddToggle({
     Name = "Toggle Chams",
     Default = false,
     Callback = function(Value)
@@ -236,7 +218,7 @@ VisualsTab:AddToggle({
 })
 
 -- Visuals Tab: Toggle ESP button
-VisualsTab:AddToggle({
+MainTab:AddToggle({
     Name = "Toggle ESP Boxes",
     Default = false,
     Callback = function(Value)
@@ -248,7 +230,7 @@ VisualsTab:AddToggle({
 })
 
 -- Visuals Tab: Change Highlight Color button with color picker
-VisualsTab:AddColorPicker({
+MainTab:AddColorPicker({
     Name = "Chams Highlight Color",
     Default = highlightColor,
     Callback = function(color)
@@ -266,7 +248,7 @@ VisualsTab:AddColorPicker({
 })
 
 -- Visuals Tab: Toggle Skeleton button
-VisualsTab:AddToggle({
+MainTab:AddToggle({
     Name = "Toggle Skeleton",
     Default = false,
     Callback = function(Value)
@@ -279,7 +261,7 @@ VisualsTab:AddToggle({
 })
 
 -- Aimbot Tab: Toggle Aimbot
-AimTab:AddToggle({
+MainTab:AddToggle({
     Name = "Toggle Aimbot",
     Default = false,
     Callback = function(Value)
@@ -288,7 +270,7 @@ AimTab:AddToggle({
 })
 
 -- Aimbot Tab: Aim Lock Toggle
-AimTab:AddToggle({
+MainTab:AddToggle({
     Name = "Toggle Aim Lock",
     Default = false,
     Callback = function(Value)
@@ -297,7 +279,7 @@ AimTab:AddToggle({
 })
 
 -- Aimbot Tab: Smooth Aiming Toggle
-AimTab:AddToggle({
+MainTab:AddToggle({
     Name = "Enable Smooth Aiming",
     Default = false,
     Callback = function(Value)
@@ -306,7 +288,7 @@ AimTab:AddToggle({
 })
 
 -- Aimbot Tab: Aim Smoothness Slider
-AimTab:AddSlider({
+MainTab:AddSlider({
     Name = "Aim Smoothness",
     Min = 0,
     Max = 1,
@@ -318,7 +300,7 @@ AimTab:AddSlider({
 })
 
 -- Aimbot Tab: Aim FOV Slider
-AimTab:AddSlider({
+MainTab:AddSlider({
     Name = "Aim FOV",
     Min = 0,
     Max = 200,
@@ -330,7 +312,7 @@ AimTab:AddSlider({
 })
 
 -- Misc Tab: Speed Adjustment
-MiscTab:AddSlider({
+MainTab:AddSlider({
     Name = "Adjust Player Speed",
     Min = 16,
     Max = 100,
@@ -343,7 +325,7 @@ MiscTab:AddSlider({
 })
 
 -- Misc Tab: FOV Changer
-MiscTab:AddSlider({
+MainTab:AddSlider({
     Name = "Adjust FOV",
     Min = 70,
     Max = 120,
