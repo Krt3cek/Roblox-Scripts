@@ -1,151 +1,69 @@
--- Advanced Bee Swarm Simulator with GUI and Keybinds
-
 local player = game.Players.LocalPlayer
 local tool = player.Backpack:FindFirstChildOfClass("Tool")
 local workspace = game:GetService("Workspace")
 local uis = game:GetService("UserInputService")
 local pollenLimit = 100 -- Default, can be changed in menu
 local autoFarmEnabled = false
-local autoCollectTokensEnabled = false -- New variable for token collection
-local autoQuestEnabled = false -- New variable for auto quests
-local autoBuyEnabled = false -- New variable for auto-buy
-local autoTeleportEnabled = false -- New variable for auto-teleport
+local autoCollectTokensEnabled = false
+local autoQuestEnabled = false
+local autoBuyEnabled = false
+local autoTeleportEnabled = false
 local selectedFields = {"SunflowerField"} -- Default field
-local bindKey = Enum.KeyCode.F -- Key for toggling the menu
+local bindKey = Enum.KeyCode.F -- Default bind
 
 -- Create the GUI
 local screenGui = Instance.new("ScreenGui", player.PlayerGui)
 local frame = Instance.new("Frame", screenGui)
-frame.Size = UDim2.new(0, 300, 0, 600) -- Increased height for additional buttons
-frame.Position = UDim2.new(0.5, -150, 0.5, -300)
-frame.BackgroundColor3 = Color3.fromRGB(128, 0, 128) -- Purple background
-frame.BorderSizePixel = 0
+frame.Size = UDim2.new(0, 300, 0, 400)
+frame.Position = UDim2.new(0.5, -150, 0.5, -200)
+frame.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
 frame.Visible = false -- Start hidden
-frame.Active = true
-frame.Draggable = true -- Make frame draggable
+frame.Draggable = true -- Allow dragging the frame
 
 local title = Instance.new("TextLabel", frame)
-title.Text = "Bee Swarm Simulator Script"
+title.Text = "Bee Swarm Simulator"
 title.Size = UDim2.new(1, 0, 0, 50)
-title.BackgroundColor3 = Color3.fromRGB(255, 255, 255) -- White background for title
-title.TextColor3 = Color3.fromRGB(128, 0, 128) -- Purple text
+title.BackgroundColor3 = Color3.fromRGB(128, 0, 128) -- Purple background
+title.TextColor3 = Color3.fromRGB(255, 255, 255)
 title.TextScaled = true
-title.Font = Enum.Font.GothamBold
-title.TextStrokeTransparency = 0.5
 
--- Toggle Auto Farm
-local toggleFarm = Instance.new("TextButton", frame)
-toggleFarm.Text = "Auto Farm: OFF"
-toggleFarm.Size = UDim2.new(1, 0, 0, 50)
-toggleFarm.Position = UDim2.new(0, 0, 0, 60)
-toggleFarm.BackgroundColor3 = Color3.fromRGB(75, 75, 75)
-toggleFarm.TextColor3 = Color3.fromRGB(255, 255, 255)
-toggleFarm.Font = Enum.Font.Gotham
-toggleFarm.TextScaled = true
-toggleFarm.TextStrokeTransparency = 0.5
+-- Function to create toggle buttons
+local function createToggle(label, position, toggleVar)
+    local toggleFrame = Instance.new("Frame", frame)
+    toggleFrame.Size = UDim2.new(1, 0, 0, 40)
+    toggleFrame.Position = position
+    toggleFrame.BackgroundColor3 = Color3.fromRGB(75, 75, 75)
 
-toggleFarm.MouseButton1Click:Connect(function()
-    autoFarmEnabled = not autoFarmEnabled
-    toggleFarm.Text = "Auto Farm: " .. (autoFarmEnabled and "ON" or "OFF")
-end)
+    local toggleLabel = Instance.new("TextLabel", toggleFrame)
+    toggleLabel.Text = label
+    toggleLabel.Size = UDim2.new(0.7, 0, 1, 0)
+    toggleLabel.BackgroundColor3 = Color3.fromRGB(75, 75, 75)
+    toggleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+    toggleLabel.TextScaled = true
 
--- Toggle Auto Collect Tokens
-local toggleTokens = Instance.new("TextButton", frame)
-toggleTokens.Text = "Auto Collect Tokens: OFF"
-toggleTokens.Size = UDim2.new(1, 0, 0, 50)
-toggleTokens.Position = UDim2.new(0, 0, 0, 120)
-toggleTokens.BackgroundColor3 = Color3.fromRGB(75, 75, 75)
-toggleTokens.TextColor3 = Color3.fromRGB(255, 255, 255)
-toggleTokens.Font = Enum.Font.Gotham
-toggleTokens.TextScaled = true
-toggleTokens.TextStrokeTransparency = 0.5
+    local toggleSwitch = Instance.new("TextButton", toggleFrame)
+    toggleSwitch.Size = UDim2.new(0.3, 0, 1, 0)
+    toggleSwitch.Position = UDim2.new(0.7, 0, 0, 0)
+    toggleSwitch.BackgroundColor3 = Color3.fromRGB(255, 0, 0) -- Red for off
+    toggleSwitch.TextColor3 = Color3.fromRGB(255, 255, 255)
+    toggleSwitch.Text = "OFF"
 
-toggleTokens.MouseButton1Click:Connect(function()
-    autoCollectTokensEnabled = not autoCollectTokensEnabled
-    toggleTokens.Text = "Auto Collect Tokens: " .. (autoCollectTokensEnabled and "ON" or "OFF")
-end)
+    toggleSwitch.MouseButton1Click:Connect(function()
+        toggleVar = not toggleVar
+        toggleSwitch.Text = toggleVar and "ON" or "OFF"
+        toggleSwitch.BackgroundColor3 = toggleVar and Color3.fromRGB(0, 255, 0) or Color3.fromRGB(255, 0, 0) -- Green for on
+        return toggleVar
+    end)
 
--- Toggle Auto Quests
-local toggleQuests = Instance.new("TextButton", frame)
-toggleQuests.Text = "Auto Quests: OFF"
-toggleQuests.Size = UDim2.new(1, 0, 0, 50)
-toggleQuests.Position = UDim2.new(0, 0, 0, 180)
-toggleQuests.BackgroundColor3 = Color3.fromRGB(75, 75, 75)
-toggleQuests.TextColor3 = Color3.fromRGB(255, 255, 255)
-toggleQuests.Font = Enum.Font.Gotham
-toggleQuests.TextScaled = true
-toggleQuests.TextStrokeTransparency = 0.5
+    return toggleVar
+end
 
-toggleQuests.MouseButton1Click:Connect(function()
-    autoQuestEnabled = not autoQuestEnabled
-    toggleQuests.Text = "Auto Quests: " .. (autoQuestEnabled and "ON" or "OFF")
-end)
-
--- Toggle Auto Buy
-local toggleBuy = Instance.new("TextButton", frame)
-toggleBuy.Text = "Auto Buy: OFF"
-toggleBuy.Size = UDim2.new(1, 0, 0, 50)
-toggleBuy.Position = UDim2.new(0, 0, 0, 240)
-toggleBuy.BackgroundColor3 = Color3.fromRGB(75, 75, 75)
-toggleBuy.TextColor3 = Color3.fromRGB(255, 255, 255)
-toggleBuy.Font = Enum.Font.Gotham
-toggleBuy.TextScaled = true
-toggleBuy.TextStrokeTransparency = 0.5
-
-toggleBuy.MouseButton1Click:Connect(function()
-    autoBuyEnabled = not autoBuyEnabled
-    toggleBuy.Text = "Auto Buy: " .. (autoBuyEnabled and "ON" or "OFF")
-end)
-
--- Toggle Auto Teleport to Base
-local toggleTeleport = Instance.new("TextButton", frame)
-toggleTeleport.Text = "Auto Teleport: OFF"
-toggleTeleport.Size = UDim2.new(1, 0, 0, 50)
-toggleTeleport.Position = UDim2.new(0, 0, 0, 300)
-toggleTeleport.BackgroundColor3 = Color3.fromRGB(75, 75, 75)
-toggleTeleport.TextColor3 = Color3.fromRGB(255, 255, 255)
-toggleTeleport.Font = Enum.Font.Gotham
-toggleTeleport.TextScaled = true
-toggleTeleport.TextStrokeTransparency = 0.5
-
-toggleTeleport.MouseButton1Click:Connect(function()
-    autoTeleportEnabled = not autoTeleportEnabled
-    toggleTeleport.Text = "Auto Teleport: " .. (autoTeleportEnabled and "ON" or "OFF")
-end)
-
--- Select fields
-local fieldLabel = Instance.new("TextLabel", frame)
-fieldLabel.Text = "Select Field:"
-fieldLabel.Size = UDim2.new(1, 0, 0, 40)
-fieldLabel.Position = UDim2.new(0, 0, 0, 360)
-fieldLabel.BackgroundColor3 = Color3.fromRGB(255, 255, 255) -- White background for field label
-fieldLabel.TextColor3 = Color3.fromRGB(128, 0, 128) -- Purple text
-fieldLabel.Font = Enum.Font.Gotham
-fieldLabel.TextScaled = true
-fieldLabel.TextStrokeTransparency = 0.5
-
-local dropdown = Instance.new("TextButton", frame)
-dropdown.Text = "SunflowerField"
-dropdown.Size = UDim2.new(1, 0, 0, 40)
-dropdown.Position = UDim2.new(0, 0, 0, 400)
-dropdown.BackgroundColor3 = Color3.fromRGB(75, 75, 75)
-dropdown.TextColor3 = Color3.fromRGB(255, 255, 255)
-dropdown.Font = Enum.Font.Gotham
-dropdown.TextScaled = true
-dropdown.TextStrokeTransparency = 0.5
-
-dropdown.MouseButton1Click:Connect(function()
-    if dropdown.Text == "SunflowerField" then
-        dropdown.Text = "DandelionField"
-        selectedFields = {"DandelionField"}
-    elseif dropdown.Text == "DandelionField" then
-        dropdown.Text = "MushroomField"
-        selectedFields = {"MushroomField"}
-    else
-        dropdown.Text = "SunflowerField"
-        selectedFields = {"SunflowerField"}
-    end
-end)
+-- Create toggle buttons
+local toggleFarm = createToggle("Auto Farm", UDim2.new(0, 0, 0, 60), autoFarmEnabled)
+local toggleTokens = createToggle("Auto Collect Tokens", UDim2.new(0, 0, 0, 110), autoCollectTokensEnabled)
+local toggleQuests = createToggle("Auto Quests", UDim2.new(0, 0, 0, 160), autoQuestEnabled)
+local toggleBuy = createToggle("Auto Buy", UDim2.new(0, 0, 0, 210), autoBuyEnabled)
+local toggleTeleport = createToggle("Auto Teleport", UDim2.new(0, 0, 0, 260), autoTeleportEnabled)
 
 -- Anti-AFK
 local virtualUser = game:GetService("VirtualUser")
@@ -158,8 +76,6 @@ end)
 local function collectPollen(fieldName)
     local field = workspace.FlowerZones:FindFirstChild(fieldName)
     if field and tool and tool:FindFirstChild("ClickEvent") then
-        -- Teleport player to the field
-        player.Character.HumanoidRootPart.CFrame = field.CFrame * CFrame.new(0, 3, 0) -- Adjust height as needed
         repeat
             tool.ClickEvent:FireServer() -- Simulate tool collection
             wait(math.random(0.3, 0.7)) -- Random delay between actions
@@ -264,11 +180,7 @@ uis.InputBegan:Connect(function(input)
             autoCollectTokensEnabled = false
             autoQuestEnabled = false
             autoBuyEnabled = false
-            toggleFarm.Text = "Auto Farm: OFF"
-            toggleTokens.Text = "Auto Collect Tokens: OFF"
-            toggleQuests.Text = "Auto Quests: OFF"
-            toggleBuy.Text = "Auto Buy: OFF"
-            toggleTeleport.Text = "Auto Teleport: OFF"
+            autoTeleportEnabled = false
         end
     end
 end)
