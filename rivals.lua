@@ -212,7 +212,6 @@ while true do
     if aimLock then
         -- Update position of FOV circle to be around the mouse cursor
         local mouse = LocalPlayer:GetMouse()
-        fovCircle.Position = UDim2.new(0, mouse.X, 0, mouse.Y) -- Set position to mouse cursor
     end
 
     wait(0.1) -- Adjust the frequency of updates as necessary
@@ -340,14 +339,6 @@ AimTab:AddToggle({
         aimLock = Value
     end,
 })
-
-AimTab:AddToggle({
-    Name = "Show Aimbot FOV",
-    Default = false,
-    Callback = function(Value)
-    end,
-})
-
 
 AimTab:AddToggle({
     Name = "Enable Smooth Aiming",
