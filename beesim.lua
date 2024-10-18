@@ -103,6 +103,8 @@ end)
 local function collectPollen(fieldName)
     local field = workspace.FlowerZones:FindFirstChild(fieldName)
     if field and tool and tool:FindFirstChild("ClickEvent") then
+        -- Teleport player to the field
+        player.Character.HumanoidRootPart.CFrame = field.CFrame * CFrame.new(0, 3, 0) -- Adjust height as needed
         repeat
             tool.ClickEvent:FireServer() -- Simulate tool collection
             wait(math.random(0.3, 0.7)) -- Random delay between actions
@@ -144,5 +146,3 @@ uis.InputBegan:Connect(function(input)
         end
     end
 end)
-
-
