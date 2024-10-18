@@ -30,6 +30,8 @@ local distanceIndicatorVisible = true  -- Player distance indicator
 local espBoxSize = Vector3.new(2, 2, 2)  -- Size for ESP boxes
 local espBoxTransparency = 0.5  -- Transparency for ESP boxes
 local playerSpeed = 16  -- Default player speed
+local defaultFOV = 70  -- Default Field of View
+local currentFOV = defaultFOV  -- Current Field of View
 
 -- Functions for ESP, Chams, and other functionalities
 local function ApplyChams(Player)
@@ -152,9 +154,11 @@ local function AimAtNearestEnemy()
         if Player ~= LocalPlayer and Player.Character and Player.Character:FindFirstChild("Humanoid") and Player.Character.Humanoid.Health > 0 then
             local head = Player.Character:FindFirstChild("Head")
             if head then
-                local distance = (LocalPlayer.Character.HumanoidRootPart.Position - head.Position).magnitude
-                if distance <= aimFOV and distance < closestDistance then
-                    closestDistance = distance
+                local screenPoint = workspace.CurrentCamera:WorldToScreenPoint(head.Position)
+                local mouseDistance = (Vector2.new(mouse.X, mouse.Y) - Vector2.new(screenPoint.X, screenPoint.Y)).Magnitude
+
+                if mouseDistance < closestDistance then
+                    closestDistance = mouseDistance
                     closestPlayer = head
                 end
             end
@@ -162,18 +166,11 @@ local function AimAtNearestEnemy()
     end
 
     if closestPlayer then
-        -- Move the mouse to the closest enemy's head smoothly
+        -- Move the mouse to the closest enemy's head
+        UserInputService.MouseBehavior = Enum.MouseBehavior.LockCenter  -- Lock mouse to center
         local targetPosition = workspace.CurrentCamera:WorldToScreenPoint(closestPlayer.Position)
         local newMousePosition = Vector2.new(targetPosition.X, targetPosition.Y)
-
-        if smoothAiming then
-            local mousePosition = Vector2.new(mouse.X, mouse.Y)
-            local step = aimSmoothness
-            mousePosition = mousePosition:Lerp(newMousePosition, step)  -- Smoothly interpolate
-            UserInputService:SetMouseLocation(mousePosition.X, mousePosition.Y)
-        else
-            UserInputService:SetMouseLocation(newMousePosition.X, newMousePosition.Y)
-        end
+        UserInputService:SetMouseLocation(newMousePosition.X, newMousePosition.Y)
     end
 end
 
@@ -208,33 +205,30 @@ local function ToggleSkeleton(Player)
         skeletonPart.CanCollide = false
         skeletonPart.Parent = Workspace
 
-        local weld = Instance.new("WeldConstraint")
-        weld.Part0 = skeletonPart
-        weld.Part1 = part
-        weld.Parent = skeletonPart
+        -- Attach skeleton part to the original part
+        skeletonPart.CFrame = part.CFrame
+        part:GetPropertyChangedSignal("CFrame"):Connect(function()
+            skeletonPart.CFrame = part.CFrame
+        end)
 
         return skeletonPart
     end
 
-    local HeadSkeleton = CreateSkeletonPart(Character:WaitForChild("Head"))
-    local TorsoSkeleton = CreateSkeletonPart(Character:WaitForChild("HumanoidRootPart"))
-
-    -- Create skeleton parts for limbs
-    local function CreateLimbSkeleton()
-        for _, limbName in pairs({"Left Arm", "Right Arm", "Left Leg", "Right Leg"}) do
-            local limb = Character:FindFirstChild(limbName)
-            if limb then
-                CreateSkeletonPart(limb)
+    -- Create skeleton parts for body parts
+    local function CreateSkeletonBody()
+        local bodyParts = {"Head", "Torso", "Left Arm", "Right Arm", "Left Leg", "Right Leg"}
+        for _, partName in pairs(bodyParts) do
+            local part = Character:FindFirstChild(partName)
+            if part then
+                CreateSkeletonPart(part)
             end
         end
     end
 
-    CreateLimbSkeleton()
+    CreateSkeletonBody()
 
     -- Clean up skeleton parts when the player dies
     Humanoid.Died:Connect(function()
-        HeadSkeleton:Destroy()
-        TorsoSkeleton:Destroy()
         for _, part in pairs(Workspace:GetChildren()) do
             if part:IsA("Part") and part.Name == "SkeletonPart" then
                 part:Destroy()
@@ -243,7 +237,7 @@ local function ToggleSkeleton(Player)
     end)
 end
 
--- Create Main Tab
+-- Create Main Tabs
 local VisualsTab = Window:MakeTab({
     Name = "Visuals",
     Icon = "rbxassetid://10472045394",
@@ -254,25 +248,45 @@ local AimTab = Window:MakeTab({
     Icon = "rbxassetid://10472045394",
 })
 
--- Toggle Chams button
-VisualsTab:AddToggle({
-    Name = "Toggle Chams",
-    Default = false,  -- Default off
-    Callback = function(Value)
-        ChamsEnabled = Value
-        ToggleESP()  -- Update Chams state
-    end,
+local MiscTab = Window:MakeTab({
+    Name = "Misc",
+    Icon = "rbxassetid://10472045394",
 })
 
--- Toggle ESP button
+local TeleportTab = Window:MakeTab({
+    Name = "Teleport",
+    Icon = "rbxassetid://10472045394",
+})
+
+-- Toggle ESP Boxes button
 VisualsTab:AddToggle({
     Name = "Toggle ESP Boxes",
-    Default = false,  -- Default off
+    Default = false,
     Callback = function(Value)
         ESPEnabled = Value
         if ESPEnabled then
             ToggleESP()  -- Apply ESP to players
         end
+    end,
+})
+
+-- Toggle Health Bar button
+VisualsTab:AddToggle({
+    Name = "Toggle Health Bar",
+    Default = true,
+    Callback = function(Value)
+        healthBarVisible = Value
+        ToggleESP()  -- Reapply ESP to update health bar visibility
+    end,
+})
+
+-- Toggle Distance Indicator button
+VisualsTab:AddToggle({
+    Name = "Toggle Distance Indicator",
+    Default = true,
+    Callback = function(Value)
+        distanceIndicatorVisible = Value
+        ToggleESP()  -- Reapply ESP to update distance indicator visibility
     end,
 })
 
@@ -293,54 +307,6 @@ VisualsTab:AddColorPicker({
     end,
 })
 
--- Toggle Skeleton button
-VisualsTab:AddToggle({
-    Name = "Toggle Skeleton",
-    Default = false,  -- Default off
-    Callback = function(Value)
-        skeletonEnabled = Value
-        for _, Player in pairs(Players:GetPlayers()) do
-            if Player ~= LocalPlayer and Player.Character then
-                if skeletonEnabled then
-                    ToggleSkeleton(Player)
-                end
-            end
-        end
-    end,
-})
-
--- Toggle View Line button
-VisualsTab:AddToggle({
-    Name = "Toggle View Line",
-    Default = false,  -- Default off
-    Callback = function(Value)
-        viewLineEnabled = Value
-        if viewLineEnabled then
-            DrawViewLine()
-        end
-    end,
-})
-
--- Toggle Health Bar button
-VisualsTab:AddToggle({
-    Name = "Toggle Health Bar",
-    Default = true,  -- Default on
-    Callback = function(Value)
-        healthBarVisible = Value
-        ToggleESP()  -- Reapply ESP to update health bar visibility
-    end,
-})
-
--- Toggle Distance Indicator button
-VisualsTab:AddToggle({
-    Name = "Toggle Distance Indicator",
-    Default = true,  -- Default on
-    Callback = function(Value)
-        distanceIndicatorVisible = Value
-        ToggleESP()  -- Reapply ESP to update distance indicator visibility
-    end,
-})
-
 -- Player Speed Adjustment slider
 VisualsTab:AddSlider({
     Name = "Adjust Player Speed",
@@ -354,7 +320,7 @@ VisualsTab:AddSlider({
     end,
 })
 
--- Teleport to Player button
+-- Teleport to Selected Player button
 AimTab:AddButton({
     Name = "Teleport to Selected Player",
     Callback = function()
@@ -368,9 +334,87 @@ AimTab:AddButton({
 -- Aimbot button
 AimTab:AddToggle({
     Name = "Toggle Aimbot",
-    Default = false,  -- Default off
+    Default = false,
     Callback = function(Value)
         isAimbotActive = Value
+    end,
+})
+
+-- Misc Tab: Speed Adjustment
+MiscTab:AddSlider({
+    Name = "Adjust Player Speed",
+    Min = 16,
+    Max = 100,
+    Default = playerSpeed,
+    Increment = 1,
+    Callback = function(Value)
+        playerSpeed = Value
+        LocalPlayer.Character.Humanoid.WalkSpeed = playerSpeed
+    end,
+})
+
+-- Misc Tab: FOV Changer
+MiscTab:AddSlider({
+    Name = "Adjust FOV",
+    Min = 70,
+    Max = 120,
+    Default = defaultFOV,
+    Increment = 1,
+    Callback = function(Value)
+        currentFOV = Value
+        workspace.CurrentCamera.FieldOfView = currentFOV  -- Update the camera FOV
+    end,
+})
+
+-- Misc Tab: Teleport to Player
+MiscTab:AddButton({
+    Name = "Teleport to Nearest Player",
+    Callback = function()
+        local closestPlayer = nil
+        local closestDistance = math.huge
+
+        for _, Player in pairs(Players:GetPlayers()) do
+            if Player ~= LocalPlayer and Player.Character and Player.Character:FindFirstChild("Humanoid") then
+                local distance = (LocalPlayer.Character.HumanoidRootPart.Position - Player.Character.HumanoidRootPart.Position).magnitude
+                if distance < closestDistance then
+                    closestDistance = distance
+                    closestPlayer = Player
+                end
+            end
+        end
+
+        if closestPlayer and closestPlayer.Character then
+            LocalPlayer.Character.HumanoidRootPart.CFrame = closestPlayer.Character.HumanoidRootPart.CFrame
+        end
+    end,
+})
+
+-- Teleport Tab: Teleport to Specific Player
+TeleportTab:AddDropdown({
+    Name = "Select Player to Teleport To",
+    Options = Players:GetPlayers(),
+    Callback = function(selectedPlayer)
+        for _, Player in pairs(Players:GetPlayers()) do
+            if Player.Name == selectedPlayer then
+                LocalPlayer.Character.HumanoidRootPart.CFrame = Player.Character.HumanoidRootPart.CFrame
+            end
+        end
+    end,
+})
+
+-- Teleport Tab: Teleport to Random Player
+TeleportTab:AddButton({
+    Name = "Teleport to Random Player",
+    Callback = function()
+        local allPlayers = Players:GetPlayers()
+        if #allPlayers > 1 then  -- Ensure there are other players to teleport to
+            local randomIndex = math.random(1, #allPlayers)
+            local targetPlayer = allPlayers[randomIndex]
+
+            if targetPlayer and targetPlayer.Character then
+                LocalPlayer.Character.HumanoidRootPart.CFrame = targetPlayer.Character.HumanoidRootPart.CFrame
+            end
+        end
     end,
 })
 
