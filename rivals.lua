@@ -184,6 +184,7 @@ local function AimAtNearestEnemy()
     end
 end
 
+-- Correctly creating the Visual, Aim, Misc, and Teleport tabs
 local VisualsTab = Window:MakeTab({
     Name = "Visuals",
     Icon = "rbxassetid://10472045394",
@@ -204,8 +205,9 @@ local TeleportTab = Window:MakeTab({
     Icon = "rbxassetid://10472045394",
 })
 
--- Visuals Tab: Toggle Chams button
-local togglechams = MainTab:AddToggle({
+
+-- Ensure we add Chams toggle under the correct 'VisualsTab'
+local togglechams = VisualsTab:AddToggle({
     Name = "Toggle Chams",
     Default = false,
     Callback = function(Value)
@@ -218,7 +220,7 @@ local togglechams = MainTab:AddToggle({
     end,
 })
 
--- Visuals Tab: Toggle ESP button
+-- Ensure ESP is under 'VisualsTab'
 local toggleboxes = VisualsTab:AddToggle({
     Name = "Toggle ESP Boxes",
     Default = false,
@@ -232,7 +234,7 @@ local toggleboxes = VisualsTab:AddToggle({
     end,
 })
 
--- Visuals Tab: Change Highlight Color button with color picker
+-- Ensure Chams highlight color picker is under 'VisualsTab'
 local colorpicket = VisualsTab:AddColorPicker({
     Name = "Chams Highlight Color",
     Default = highlightColor,
@@ -242,7 +244,7 @@ local colorpicket = VisualsTab:AddColorPicker({
     end,
 })
 
--- Aimbot Tab: Toggle Aimbot
+-- Aimbot toggles and settings are under 'AimTab'
 local toggleaimbot = AimTab:AddToggle({
     Name = "Toggle Aimbot",
     Default = false,
@@ -251,7 +253,6 @@ local toggleaimbot = AimTab:AddToggle({
     end,
 })
 
--- Aimbot Tab: Aim Lock Toggle
 local toggleaimlock = AimTab:AddToggle({
     Name = "Toggle Aim Lock",
     Default = false,
@@ -260,7 +261,6 @@ local toggleaimlock = AimTab:AddToggle({
     end,
 })
 
--- Aimbot Tab: Smooth Aiming Toggle
 local smoothaim = AimTab:AddToggle({
     Name = "Enable Smooth Aiming",
     Default = false,
@@ -269,7 +269,6 @@ local smoothaim = AimTab:AddToggle({
     end,
 })
 
--- Aimbot Tab: Aim Smoothness Slider
 local smoothaimslider = AimTab:AddSlider({
     Name = "Aim Smoothness",
     Min = 0,
@@ -281,7 +280,6 @@ local smoothaimslider = AimTab:AddSlider({
     end,
 })
 
--- Aimbot Tab: Aim FOV Slider
 local aimfov = AimTab:AddSlider({
     Name = "Aim FOV",
     Min = 0,
@@ -293,7 +291,7 @@ local aimfov = AimTab:AddSlider({
     end,
 })
 
--- Misc Tab: Speed Adjustment
+-- Miscellaneous settings under 'MiscTab'
 local playerspeed = MiscTab:AddSlider({
     Name = "Adjust Player Speed",
     Min = 16,
@@ -306,7 +304,6 @@ local playerspeed = MiscTab:AddSlider({
     end,
 })
 
--- Misc Tab: FOV Changer
 local fov = MiscTab:AddSlider({
     Name = "Adjust FOV",
     Min = 70,
@@ -318,6 +315,7 @@ local fov = MiscTab:AddSlider({
         workspace.CurrentCamera.FieldOfView = currentFOV  -- Update the camera FOV
     end,
 })
+
 
 -- Teleport Tab: Teleport to Player dropdown
 local teleportDropdown = TeleportTab:AddDropdown({
