@@ -1,87 +1,86 @@
 -- LocalScript
 
 local player = game.Players.LocalPlayer
-local mouse = player:GetMouse()
-local playerBorderColor = Color3.new(1, 0, 0) -- Default Red
-local borderVisible = false
-local menuVisible = true
+local uis = game:GetService("UserInputService")
+local players = game:GetService("Players")
 
--- Create Screen GUI
-local screenGui = Instance.new("ScreenGui")
-screenGui.Parent = player.PlayerGui
+local espEnabled = false -- Track ESP state
+local bindKey = Enum.KeyCode.F -- Key to toggle the menu
+local espBoxSize = Vector3.new(4, 6, 4) -- Size of the ESP box
 
--- Create Main Frame
-local mainFrame = Instance.new("Frame")
-mainFrame.Size = UDim2.new(0, 200, 0, 150)
-mainFrame.Position = UDim2.new(0.5, -100, 0.5, -75)
-mainFrame.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
-mainFrame.Visible = menuVisible
-mainFrame.Parent = screenGui
+-- Create the GUI
+local screenGui = Instance.new("ScreenGui", player.PlayerGui)
+local frame = Instance.new("Frame", screenGui)
+frame.Size = UDim2.new(0, 300, 0, 150)
+frame.Position = UDim2.new(0.5, -150, 0.5, -75)
+frame.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
+frame.Visible = false -- Start hidden
+frame.Draggable = true -- Allow dragging the frame
 
--- Create Toggle Button
-local toggleButton = Instance.new("TextButton")
-toggleButton.Size = UDim2.new(0, 180, 0, 50)
-toggleButton.Position = UDim2.new(0, 10, 0, 10)
-toggleButton.Text = "Toggle Border"
-toggleButton.Parent = mainFrame
+local title = Instance.new("TextLabel", frame)
+title.Text = "ESP Toggle"
+title.Size = UDim2.new(1, 0, 0, 50)
+title.BackgroundColor3 = Color3.fromRGB(128, 0, 128) -- Purple background
+title.TextColor3 = Color3.fromRGB(255, 255, 255)
+title.TextScaled = true
 
--- Create Color Picker
-local colorPicker = Instance.new("TextButton")
-colorPicker.Size = UDim2.new(0, 180, 0, 50)
-colorPicker.Position = UDim2.new(0, 10, 0, 70)
-colorPicker.Text = "Pick Color"
-colorPicker.Parent = mainFrame
+-- Function to create the toggle button
+local function createToggle(label, position)
+    local toggleFrame = Instance.new("Frame", frame)
+    toggleFrame.Size = UDim2.new(1, 0, 0, 40)
+    toggleFrame.Position = position
+    toggleFrame.BackgroundColor3 = Color3.fromRGB(75, 75, 75)
 
--- Function to create the border effect
-local function createBorderEffect()
-    local border = Instance.new("Part")
-    border.Size = Vector3.new(1.5, 1.5, 1.5) -- Adjust size as needed
-    border.Anchored = true
-    border.CanCollide = false
-    border.Parent = workspace
+    local toggleLabel = Instance.new("TextLabel", toggleFrame)
+    toggleLabel.Text = label
+    toggleLabel.Size = UDim2.new(0.7, 0, 1, 0)
+    toggleLabel.BackgroundColor3 = Color3.fromRGB(75, 75, 75)
+    toggleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+    toggleLabel.TextScaled = true
 
-    local playerChar = player.Character or player.CharacterAdded:Wait()
-    local playerRoot = playerChar:WaitForChild("HumanoidRootPart")
+    local toggleSwitch = Instance.new("TextButton", toggleFrame)
+    toggleSwitch.Size = UDim2.new(0.3, 0, 1, 0)
+    toggleSwitch.Position = UDim2.new(0.7, 0, 0, 0)
+    toggleSwitch.BackgroundColor3 = Color3.fromRGB(255, 0, 0) -- Red for off
+    toggleSwitch.TextColor3 = Color3.fromRGB(255, 255, 255)
+    toggleSwitch.Text = "OFF"
 
-    while borderVisible do
-        border.Position = playerRoot.Position + Vector3.new(0, 3, 0) -- Adjust height as needed
-        border.BrickColor = BrickColor.new(playerBorderColor)
-        border.Material = Enum.Material.Neon
-        border.Transparency = 0.5
-        wait(0.1)
-    end
+    toggleSwitch.MouseButton1Click:Connect(function()
+        espEnabled = not espEnabled
+        toggleSwitch.Text = espEnabled and "ON" or "OFF"
+        toggleSwitch.BackgroundColor3 = espEnabled and Color3.fromRGB(0, 255, 0) or Color3.fromRGB(255, 0, 0) -- Green for on
 
-    border:Destroy()
+        if espEnabled then
+            for _, p in pairs(players:GetPlayers()) do
+                if p ~= player then
+                    local espBox = Instance.new("BoxHandleAdornment")
+                    espBox.Size = espBoxSize
+                    espBox.Adornee = p.Character:WaitForChild("HumanoidRootPart")
+                    espBox.ZIndex = 0
+                    espBox.Color3 = Color3.fromRGB(255, 0, 0) -- Red color
+                    espBox.Transparency = 0.5
+                    espBox.Parent = p.Character.HumanoidRootPart
+                end
+            end
+        else
+            for _, p in pairs(players:GetPlayers()) do
+                if p ~= player and p.Character then
+                    local espBox = p.Character.HumanoidRootPart:FindFirstChildOfClass("BoxHandleAdornment")
+                    if espBox then
+                        espBox:Destroy()
+                    end
+                end
+            end
+        end
+    end)
 end
 
--- Toggle button functionality
-toggleButton.MouseButton1Click:Connect(function()
-    borderVisible = not borderVisible
-    toggleButton.Text = borderVisible and "Hide Border" or "Show Border"
-    if borderVisible then
-        createBorderEffect()
-    end
-end)
-
--- Color picker functionality
-colorPicker.MouseButton1Click:Connect(function()
-    -- Open color picker (simple implementation)
-    playerBorderColor = Color3.new(math.random(), math.random(), math.random()) -- Random color for example
-end)
+-- Create toggle button for ESP
+createToggle("Toggle ESP", UDim2.new(0, 0, 0, 60))
 
 -- Keybind functionality to toggle the menu
-local UserInputService = game:GetService("UserInputService")
-
-UserInputService.InputBegan:Connect(function(input, gameProcessed)
-    if not gameProcessed then
-        if input.KeyCode == Enum.KeyCode.M then -- Change 'M' to any key you want
-            menuVisible = not menuVisible
-            mainFrame.Visible = menuVisible
-        end
+uis.InputBegan:Connect(function(input, gameProcessed)
+    if not gameProcessed and input.KeyCode == bindKey then
+        frame.Visible = not frame.Visible -- Toggle GUI visibility
     end
-end)
-
--- Cleanup when player leaves
-player.CharacterRemoving:Connect(function()
-    borderVisible = false
 end)
