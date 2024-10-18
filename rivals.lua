@@ -146,22 +146,27 @@ local function StartESPThread()
         end
     end)
 end
+local function PredictPosition(target)
+    if target and target.Character and target.Character:FindFirstChild("Humanoid") then
+        local velocity = target.Character.HumanoidRootPart.Velocity
+        return target.Character.HumanoidRootPart.Position + (velocity * aimPredictionFactor)
+    end
+    return nil
+end
+
 -- Aimbot aiming function
 local function AimAt(target)
     local camera = Workspace.CurrentCamera
-    if target and target.Character and target.Character:FindFirstChild("HumanoidRootPart") then
-        local targetPosition = target.Character.HumanoidRootPart.Position + (target.Character.HumanoidRootPart.Velocity * aimPredictionFactor)
-        local screenPosition = camera:WorldToScreenPoint(targetPosition)
+    local targetPosition = PredictPosition(target)
 
+    if targetPosition then
+        local screenPosition = camera:WorldToScreenPoint(targetPosition)  -- Convert world position to screen position
         local mouseX, mouseY = UserInputService:GetMouseLocation()
 
-        if smoothAiming then
-            local newMouseX = mouseX + (screenPosition.X - mouseX) * aimSmoothness
-            local newMouseY = mouseY + (screenPosition.Y - mouseY) * aimSmoothness
-            UserInputService:SetMouseLocation(newMouseX, newMouseY)
-        else
-            UserInputService:SetMouseLocation(screenPosition.X, screenPosition.Y)
-        end
+        -- Smoothly move the mouse to the target position
+        local newMouseX = mouseX + (screenPosition.X - mouseX) * aimSmoothness
+        local newMouseY = mouseY + (screenPosition.Y - mouseY) * aimSmoothness
+        UserInputService:SetMouseLocation(newMouseX, newMouseY)
     end
 end
 
@@ -189,9 +194,9 @@ end
 -- RunService for continuous aiming
 RunService.RenderStepped:Connect(function()
     if isAimbotActive then
-        local currentTarget = GetNearestEnemy()
-        if currentTarget then
-            AimAt(currentTarget)
+        local targetPlayer = GetNearestEnemy()
+        if targetPlayer then
+            AimAt(targetPlayer.Head)  -- Aim specifically at the head
         end
     end
 end)
