@@ -32,6 +32,7 @@ local currentFOV = 70
 local espBoxes = {}
 local chamsHighlights = {}
 local espThread, chamsThread
+local noclipEnabled = false
 
 -- Function to create a highlight for a player (Chams)
 local function ApplyChams(Player)
@@ -184,6 +185,35 @@ local function AimAtNearestEnemy()
     end
 end
 
+function EnableNoClip()
+    noclipLoop = game:GetService("RunService").Stepped:Connect(function()
+        if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Humanoid") then
+            -- Set all parts in the character to CanCollide = false to pass through objects
+            for _, part in pairs(LocalPlayer.Character:GetDescendants()) do
+                if part:IsA("BasePart") then
+                    part.CanCollide = false
+                end
+            end
+        end
+    end)
+end
+
+-- Function to disable No-clip
+function DisableNoClip()
+    if noclipLoop then
+        noclipLoop:Disconnect()  -- Stop the No-clip loop
+    end
+
+    -- Reset character parts to CanCollide = true to restore normal collisions
+    if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Humanoid") then
+        for _, part in pairs(LocalPlayer.Character:GetDescendants()) do
+            if part:IsA("BasePart") then
+                part.CanCollide = true
+            end
+        end
+    end
+end
+
 -- Correctly creating the Visual, Aim, Misc, and Teleport tabs
 local VisualsTab = Window:MakeTab({
     Name = "Visuals",
@@ -301,6 +331,19 @@ MiscTab:AddSlider({
     Callback = function(Value)
         playerSpeed = Value
         LocalPlayer.Character.Humanoid.WalkSpeed = playerSpeed
+    end,
+})
+
+MiscTab:AddToggle({
+    Name = "No-clip",
+    Default = false,
+    Callback = function(Value)
+        noclipEnabled = Value
+        if noclipEnabled then
+            EnableNoClip()  -- Enable No-clip when the toggle is on
+        else
+            DisableNoClip()  -- Disable No-clip when the toggle is off
+        end
     end,
 })
 
