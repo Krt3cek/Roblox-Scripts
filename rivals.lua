@@ -309,6 +309,15 @@ VisualsTab:AddToggle({
     end,
 })
 
+VisualsTab:AddColorPicker({
+    Name = "Chams Highlight Color",
+    Default = highlightColor,
+    Callback = function(color)
+        highlightColor = color
+        UpdateChams()  -- Update Chams color immediately
+    end,
+})
+
 AimTab:AddDropdown({
     Name = "Aimbot Key",
     Default = "LeftAlt",
