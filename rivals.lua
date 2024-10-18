@@ -250,18 +250,6 @@ local function DisableNoClip()
     end
 end
 
-Players.PlayerAdded:Connect(function(player)
-    player.CharacterAdded:Wait()  -- Wait for character to load
-    teleportDropdown:UpdateOptions(UpdateTeleportOptions())  -- Update the options
-end)
-
-Players.PlayerRemoving:Connect(function(player)
-    teleportDropdown:UpdateOptions(UpdateTeleportOptions())  -- Update the options
-end)
-
--- Initial population of dropdown options
-teleportDropdown:UpdateOptions(UpdateTeleportOptions())
-
 -- Correctly creating the Visuals, Aim, Misc, and Teleport tabs
 local VisualsTab = Window:MakeTab({
     Name = "Visuals",
