@@ -309,15 +309,12 @@ VisualsTab:AddToggle({
     end,
 })
 
-AimTab:AddToggle({
-    Name = "Aimbot",
-    Callback = function(Value)
-        isAimbotActive = Value
-        if isAimbotActive then
-            BindAimbotKey()  -- Set up the keybind when aimbot is toggled on
-        else
-            UnbindAimbotKey()  -- Clean up when aimbot is toggled off
-        end
+AimTab:AddDropdown({
+    Name = "Aimbot Key",
+    Default = "LeftAlt",
+    Options = {"E", "Q", "R", "F", "G", "H", "Z", "X", "C", "V", "LeftAlt", "RightAlt"},
+    Callback = function(selectedKey)
+        aimbotKey = Enum.KeyCode[selectedKey]  -- Set the aimbot key to the selected value
     end,
 })
 
