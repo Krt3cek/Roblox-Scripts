@@ -309,6 +309,7 @@ VisualsTab:AddToggle({
     end,
 })
 
+
 AimTab:AddDropdown({
     Name = "Aimbot Key",
     Default = "LeftAlt",
