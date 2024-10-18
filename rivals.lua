@@ -193,13 +193,18 @@ local function ToggleSkeleton(Player)
 end
 
 -- Create Main Tab
-local MainTab = Window:MakeTab({
-    Name = "Main",
+local VisualsTab = Window:MakeTab({
+    Name = "Visuals",
+    Icon = "rbxassetid://10472045394",
+})
+
+local AimTab = Window:MakeTab({
+    Name = "Aim",
     Icon = "rbxassetid://10472045394",
 })
 
 -- Toggle Chams button
-MainTab:AddToggle({
+VisualsTab:AddToggle({
     Name = "Toggle Chams",
     Default = true,
     Callback = function(Value)
@@ -209,7 +214,7 @@ MainTab:AddToggle({
 })
 
 -- Toggle ESP button
-MainTab:AddToggle({
+VisualsTab:AddToggle({
     Name = "Toggle ESP Boxes",
     Default = true,
     Callback = function(Value)
@@ -221,7 +226,7 @@ MainTab:AddToggle({
 })
 
 -- Change Highlight Color button with color picker
-MainTab:AddColorPicker({
+VisualsTab:AddColorPicker({
     Name = "Chams Highlight Color",
     Default = highlightColor,
     Callback = function(color)
@@ -239,7 +244,7 @@ MainTab:AddColorPicker({
 })
 
 -- Toggle Skeleton button
-MainTab:AddToggle({
+VisualsTab:AddToggle({
     Name = "Toggle Skeleton",
     Default = false,
     Callback = function(Value)
@@ -255,7 +260,7 @@ MainTab:AddToggle({
 })
 
 -- Toggle View Line button
-MainTab:AddToggle({
+VisualsTab:AddToggle({
     Name = "Toggle View Line",
     Default = false,
     Callback = function(Value)
@@ -267,7 +272,7 @@ MainTab:AddToggle({
 })
 
 -- Toggle Aimbot button
-MainTab:AddToggle({
+AimTab:AddToggle({
     Name = "Toggle Aimbot",
     Default = false,
     Callback = function(Value)
