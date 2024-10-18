@@ -309,15 +309,6 @@ VisualsTab:AddToggle({
     end,
 })
 
--- Aimbot toggles and settings are under 'AimTab'
-AimTab:AddToggle({
-    Name = "Toggle Aimbot",
-    Default = false,
-    Callback = function(Value)
-        isAimbotActive = Value
-    end,
-})
-
 AimTab:AddToggle({
     Name = "Bind Aimbot to Key",
     Default = false,
