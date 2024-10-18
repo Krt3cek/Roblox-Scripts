@@ -23,23 +23,20 @@ local ESPEnabled = false
 local ChamsEnabled = false
 local highlightColor = Color3.fromRGB(255, 48, 51)
 local isAimbotActive = false
-local aimLock = false
 local smoothAiming = false
 local aimSmoothness = 0.5
 local aimFOV = 70
-local playerSpeed = 16
-local currentFOV = 70
+local aimPredictionFactor = 0.5
 local espBoxes = {}
 local chamsHighlights = {}
 local espThread, chamsThread
 local noclipEnabled = false
 local aimbotKey = Enum.KeyCode.E  -- Aimbot activation key
-local holdingKey = false
 
 -- Function to create a highlight for a player (Chams)
 local function ApplyChams(Player)
     local Character = Player.Character or Player.CharacterAdded:Wait()
-    
+
     -- Create a Highlight instance
     local Highlighter = Instance.new("Highlight")
     Highlighter.FillColor = highlightColor
@@ -147,13 +144,14 @@ local function StartESPThread()
         end
     end)
 end
+
 -- Aimbot aiming function
 local function AimAt(target)
     local camera = Workspace.CurrentCamera
-    local targetPosition = PredictPosition(target)
-
-    if targetPosition then
+    if target and target.Character and target.Character:FindFirstChild("HumanoidRootPart") then
+        local targetPosition = target.Character.HumanoidRootPart.Position + (target.Character.HumanoidRootPart.Velocity * aimPredictionFactor)
         local screenPosition = camera:WorldToScreenPoint(targetPosition)
+
         local mouseX, mouseY = UserInputService:GetMouseLocation()
 
         if smoothAiming then
@@ -166,34 +164,31 @@ local function AimAt(target)
     end
 end
 
--- RunService for continuous aiming
-RunService.RenderStepped:Connect(function()
-    if isAimbotActive then
-        currentTarget = GetNearestEnemy()
-        if currentTarget then
-            AimAt(currentTarget)
+-- Function to find the nearest enemy within FOV
+local function GetNearestEnemy()
+    local closestEnemy = nil
+    local closestDistance = math.huge
+
+    for _, player in pairs(Players:GetPlayers()) do
+        if player ~= LocalPlayer and player.Character and player.Character:FindFirstChild("Humanoid") and player.Character.Humanoid.Health > 0 then
+            local head = player.Character:FindFirstChild("Head")
+            if head then
+                local distance = (LocalPlayer.Character.HumanoidRootPart.Position - head.Position).magnitude
+                if distance <= aimFOV and distance < closestDistance then
+                    closestDistance = distance
+                    closestEnemy = player
+                end
+            end
         end
     end
-end)
 
-
-local function ToggleAimbot()
-    isAimbotActive = not isAimbotActive
-    fovCircle.Visible = isAimbotActive  -- Show/Hide FOV circle
-
-    local notificationMessage = isAimbotActive and "Aimbot Activated!" or "Aimbot Deactivated!"
-    OrionLib:MakeNotification({
-        Name = "Aimbot Status",
-        Content = notificationMessage,
-        Duration = 3,
-        Image = "rbxassetid://10472045394"
-    })
+    return closestEnemy
 end
 
 -- RunService for continuous aiming
 RunService.RenderStepped:Connect(function()
     if isAimbotActive then
-        currentTarget = GetNearestEnemy()
+        local currentTarget = GetNearestEnemy()
         if currentTarget then
             AimAt(currentTarget)
         end
@@ -202,36 +197,15 @@ end)
 
 -- Aimbot toggle using key press
 UserInputService.InputBegan:Connect(function(input, gameProcessed)
-    if not gameProcessed and input.KeyCode == aimKey then
-        isAimbotActive = not isAimbotActive
-        fovCircle.Visible = isAimbotActive  -- Show/Hide FOV circle
-    end
-end)
-
--- Update FOV Circle based on aimFOV
-RunService.RenderStepped:Connect(function()
-    if fovCircleVisible then
-        fovCircle.Size = UDim2.new(0, aimFOV * 2, 0, aimFOV * 2)
-    end
-end)
-
--- Aimbot activation using key press
-UserInputService.InputBegan:Connect(function(input, gameProcessed)
     if not gameProcessed and input.KeyCode == aimbotKey then
-        isAimbotActive = true
-    end
-end)
-
-UserInputService.InputBegan:Connect(function(input, gameProcessed)
-    if not gameProcessed and input.KeyCode == aimKey then
-        ToggleAimbot()
-    end
-end)
-
--- Update FOV Circle based on aimFOV
-RunService.RenderStepped:Connect(function()
-    if fovCircleVisible then
-        fovCircle.Size = UDim2.new(0, aimFOV * 2, 0, aimFOV * 2)
+        isAimbotActive = not isAimbotActive
+        local notificationMessage = isAimbotActive and "Aimbot Activated!" or "Aimbot Deactivated!"
+        OrionLib:MakeNotification({
+            Name = "Aimbot Status",
+            Content = notificationMessage,
+            Duration = 3,
+            Image = "rbxassetid://10472045394"
+        })
     end
 end)
 
@@ -308,57 +282,31 @@ local TeleportTab = Window:MakeTab({
     Icon = "rbxassetid://10472045394",
 })
 
--- Visuals Tab Options
+-- Visuals section
 VisualsTab:AddToggle({
-    Name = "Enable ESP",
+    Name = "ESP",
     Default = false,
     Callback = function(value)
         ESPEnabled = value
-        StartESPThread()
+        if value then StartESPThread() else RemoveAllESPBoxes() end
     end,
 })
 
 VisualsTab:AddToggle({
-    Name = "Enable Chams",
+    Name = "Chams",
     Default = false,
     Callback = function(value)
         ChamsEnabled = value
-        StartChamsThread()
+        if value then StartChamsThread() else RemoveAllChams() end
     end,
 })
 
+-- Aim section
 AimTab:AddToggle({
     Name = "Aimbot",
     Default = false,
     Callback = function(value)
         isAimbotActive = value
-        fovCircle.Visible = value
-        local notificationMessage = value and "Aimbot Activated!" or "Aimbot Deactivated!"
-        OrionLib:MakeNotification({
-            Name = "Aimbot Status",
-            Content = notificationMessage,
-            Duration = 3,
-            Image = "rbxassetid://10472045394"
-        })
-    end,
-})
-
-AimTab:AddSlider({
-    Name = "Aim FOV",
-    Min = 0,
-    Max = 200,
-    Default = 70,
-    Increment = 5,
-    Callback = function(value)
-        aimFOV = value
-    end,
-})
-
-AimTab:AddToggle({
-    Name = "Smooth Aiming",
-    Default = true,
-    Callback = function(value)
-        smoothAiming = value
     end,
 })
 
@@ -366,66 +314,56 @@ AimTab:AddSlider({
     Name = "Aim Smoothness",
     Min = 0,
     Max = 1,
-    Default = 0.1,
-    Increment = 0.01,
+    Default = aimSmoothness,
+    Increment = 0.1,
     Callback = function(value)
         aimSmoothness = value
     end,
 })
 
 AimTab:AddSlider({
-    Name = "Aim Prediction Factor",
+    Name = "Aim FOV",
     Min = 0,
-    Max = 1,
-    Default = 0.5,
-    Increment = 0.01,
+    Max = 150,
+    Default = aimFOV,
+    Increment = 1,
     Callback = function(value)
-        aimPredictionFactor = value
+        aimFOV = value
     end,
 })
 
-AimTab:AddDropdown({
-    Name = "Aimbot Key",
-    Default = aimKey.Name,
-    Options = {"E", "Q", "F", "G", "H", "J", "K"},
+AimTab:AddToggle({
+    Name = "Smooth Aiming",
+    Default = false,
     Callback = function(value)
-        aimKey = Enum.KeyCode[value]
+        smoothAiming = value
     end,
 })
 
--- Misc Tab Options
-MiscTab:AddButton({
-    Name = "Enable No-Clip",
-    Callback = function()
-        noclipEnabled = not noclipEnabled
-        if noclipEnabled then
-            EnableNoClip()
-        else
-            DisableNoClip()
-        end
+-- Misc section
+MiscTab:AddToggle({
+    Name = "No-Clip",
+    Default = false,
+    Callback = function(value)
+        noclipEnabled = value
+        if value then EnableNoClip() else DisableNoClip() end
     end,
 })
 
--- Teleport Tab Options
+-- Teleport section
 TeleportTab:AddDropdown({
-    Name = "Select Player to Teleport To",
-    Options = {},  -- Options will be populated dynamically
+    Name = "Teleport to Player",
+    Options = {},  -- Will be updated dynamically
     Callback = function(selectedPlayer)
-        local playerToTeleport = Players:FindFirstChild(selectedPlayer)
-        if playerToTeleport and playerToTeleport.Character then
-            LocalPlayer.Character.HumanoidRootPart.CFrame = playerToTeleport.Character.HumanoidRootPart.CFrame
+        local targetPlayer = Players:FindFirstChild(selectedPlayer)
+        if targetPlayer and targetPlayer.Character then
+            LocalPlayer.Character.HumanoidRootPart.CFrame = targetPlayer.Character.HumanoidRootPart.CFrame
         end
     end,
 })
 
--- Update the dropdown on script start
+-- Initialize the teleport dropdown
 UpdateTeleportDropdown()
 
--- Exit the script cleanly
-OrionLib:MakeNotification({
-    Name = "Krt Hub Loaded",
-    Content = "Welcome to Krt Hub!",
-    Duration = 5,
-    Image = "rbxassetid://10472045394"
-})
-
+-- Function to handle closing the script
+Window:Destroy()
