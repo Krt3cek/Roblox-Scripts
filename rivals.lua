@@ -4,15 +4,18 @@
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("UserInputService")
+local TweenService = game:GetService("TweenService")
 
 -- Variables
 local LocalPlayer = Players.LocalPlayer
 local ESPEnabled = true -- Start with ESP enabled
 local highlightColor = Color3.fromRGB(255, 48, 51) -- Default highlight color
+local skeletonColor = Color3.fromRGB(0, 255, 0) -- Default skeleton color
 local toggleKey = Enum.KeyCode.M -- Key to toggle the menu
 local aimKey = Enum.KeyCode.E -- Key to activate aimbot
 local isAimbotActive = false -- Aimbot toggle state
 local aimTarget = nil -- The current target for aimbot
+local skeletonEnabled = false -- Skeleton toggle state
 
 -- Function to create a highlight for a player
 local function ApplyHighlight(Player)
@@ -55,6 +58,42 @@ local function HighlightPlayer(Player)
     return Player.CharacterAdded:Connect(function()
         return ApplyHighlight(Player)
     end)
+end
+
+-- Function to create skeleton visualization
+local function CreateSkeleton(Player)
+    local Character = Player.Character
+    if not Character then return end
+
+    local SkeletonParts = {}
+    for _, joint in ipairs(Character:GetDescendants()) do
+        if joint:IsA("Motor6D") then
+            local part0 = joint.Part0
+            local part1 = joint.Part1
+            if part0 and part1 then
+                local line = Instance.new("Part")
+                line.Size = Vector3.new(0.1, 0.1, (part0.Position - part1.Position).Magnitude)
+                line.Anchored = true
+                line.CanCollide = false
+                line.Color = skeletonColor
+                line.Material = Enum.Material.Neon
+                line.Parent = workspace
+                
+                -- Position the line correctly
+                line.CFrame = CFrame.new((part0.Position + part1.Position) / 2, part1.Position)
+                
+                -- Add to SkeletonParts for cleanup later
+                table.insert(SkeletonParts, line)
+            end
+        end
+    end
+
+    -- Return cleanup function
+    return function()
+        for _, part in pairs(SkeletonParts) do
+            part:Destroy()
+        end
+    end
 end
 
 -- GUI for toggling ESP and Aimbot
@@ -109,9 +148,17 @@ local function createToggleGUI()
     ColorPicker.TextColor3 = Color3.fromRGB(255, 255, 255)
     ColorPicker.TextScaled = true
 
+    local SkeletonToggle = Instance.new("TextButton", ContentFrame)
+    SkeletonToggle.Size = UDim2.new(1, 0, 0, 50)
+    SkeletonToggle.Position = UDim2.new(0, 0, 0, 100)
+    SkeletonToggle.BackgroundColor3 = Color3.fromRGB(75, 75, 75)
+    SkeletonToggle.Text = "Toggle Skeleton"
+    SkeletonToggle.TextColor3 = Color3.fromRGB(255, 255, 255)
+    SkeletonToggle.TextScaled = true
+
     local AimbotToggle = Instance.new("TextButton", ContentFrame)
     AimbotToggle.Size = UDim2.new(1, 0, 0, 50)
-    AimbotToggle.Position = UDim2.new(0, 0, 0, 100)
+    AimbotToggle.Position = UDim2.new(0, 0, 0, 150)
     AimbotToggle.BackgroundColor3 = Color3.fromRGB(75, 75, 75)
     AimbotToggle.Text = "Toggle Aimbot"
     AimbotToggle.TextColor3 = Color3.fromRGB(255, 255, 255)
@@ -150,65 +197,71 @@ local function createToggleGUI()
         end
     end)
 
-    -- Aimbot functionality
-    AimbotToggle.MouseButton1Click:Connect(function()
-        isAimbotActive = not isAimbotActive -- Toggle aimbot state
-        AimbotToggle.Text = isAimbotActive and "Aimbot: ON" or "Aimbot: OFF" -- Update button text
-    end)
+    SkeletonToggle.MouseButton1Click:Connect(function()
+        skeletonEnabled = not skeletonEnabled -- Toggle skeleton state
+        SkeletonToggle.Text = skeletonEnabled and "Skeleton: ON" or "Skeleton: OFF" -- Update button text
 
-    -- Keybinding for toggling the menu visibility
-    local isMenuVisible = true
-    local function toggleMenu()
-        Frame.Visible = not Frame.Visible
-        isMenuVisible = Frame.Visible
-    end
-
-    -- Bind the key to toggle the menu
-    UserInputService.InputBegan:Connect(function(input, gameProcessed)
-        if not gameProcessed and input.KeyCode == toggleKey then
-            toggleMenu()
-        end
-    end)
-
-    -- Aimbot functionality while holding the aim key
-    RunService.RenderStepped:Connect(function()
-        if isAimbotActive then
-            aimTarget = nil
-            for _, Player in pairs(Players:GetPlayers()) do
-                if Player ~= LocalPlayer and Player.Character and Player.Character:FindFirstChild("HumanoidRootPart") then
-                    local head = Player.Character:FindFirstChild("Head")
-                    if head and head:IsA("Part") then
-                        local screenPoint = workspace.CurrentCamera:WorldToScreenPoint(head.Position)
-                        if (Vector2.new(screenPoint.X, screenPoint.Y) - UserInputService:GetMouseLocation()).Magnitude < 200 then
-                            aimTarget = head
-                            break -- Lock onto the closest target
+        for _, Player in pairs(Players:GetPlayers()) do
+            if Player ~= LocalPlayer and Player.Character then
+                if skeletonEnabled then
+                    CreateSkeleton(Player)
+                else
+                    -- Remove the skeleton
+                    local character = Player.Character
+                    for _, skeletonPart in pairs(workspace:GetChildren()) do
+                        if skeletonPart:IsA("Part") and skeletonPart.Color == skeletonColor then
+                            skeletonPart:Destroy()
                         end
                     end
                 end
             end
-            
-            -- If we have a target, aim at it
-            if aimTarget then
-                LocalPlayer.Character.HumanoidRootPart.CFrame = aimTarget.CFrame * CFrame.new(0, 0, 5) -- Aim at the target
-            end
         end
     end)
 
-    -- Initially set highlight color
-    for _, Player in pairs(Players:GetPlayers()) do
-        if Player ~= LocalPlayer then
-            local character = Player.Character
-            if character then
-                local highlight = character:FindFirstChildOfClass("Highlight")
-                if highlight then
-                    highlight.FillColor = highlightColor -- Set initial highlight color
+    AimbotToggle.MouseButton1Click:Connect(function()
+        isAimbotActive = not isAimbotActive
+        AimbotToggle.Text = isAimbotActive and "Aimbot: ON" or "Aimbot: OFF"
+    end)
+
+    -- Tab switching
+    VisualsTab.MouseButton1Click:Connect(function()
+        ContentFrame.Visible = true
+        AimbotToggle.Visible = false
+    end)
+
+    AimbotTab.MouseButton1Click:Connect(function()
+        ContentFrame.Visible = false
+        AimbotToggle.Visible = true
+    end)
+end
+
+-- Aimbot functionality
+RunService.RenderStepped:Connect(function()
+    if isAimbotActive then
+        local closestPlayer = nil
+        local closestDistance = math.huge
+
+        for _, Player in pairs(Players:GetPlayers()) do
+            if Player ~= LocalPlayer and Player.Character and Player.Character:FindFirstChild("Head") and Player.Character:FindFirstChild("Humanoid") and Player.Character.Humanoid.Health > 0 then
+                local head = Player.Character.Head
+                local distance = (head.Position - LocalPlayer.Character.Head.Position).Magnitude
+
+                if distance < closestDistance then
+                    closestDistance = distance
+                    closestPlayer = Player
                 end
             end
         end
-    end
-end
 
--- Apply highlights to players
+        if closestPlayer then
+            aimTarget = closestPlayer.Character.Head
+            -- Aim at the target head (you may want to smooth this out)
+            LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(aimTarget.Position) * CFrame.Angles(0, math.rad(90), 0) -- Adjusting the aim
+        end
+    end
+end)
+
+-- Highlight existing players and create the GUI
 local highlightConnections = {}
 for _, Player in next, Players:GetPlayers() do
     if Player ~= LocalPlayer then
