@@ -9,15 +9,16 @@ local autoFarmEnabled = false
 local autoCollectTokensEnabled = false -- New variable for token collection
 local autoQuestEnabled = false -- New variable for auto quests
 local autoBuyEnabled = false -- New variable for auto-buy
+local autoTeleportEnabled = false -- New variable for auto-teleport
 local selectedFields = {"SunflowerField"} -- Default field
 local bindKey = Enum.KeyCode.F -- Key for toggling the menu
 
 -- Create the GUI
 local screenGui = Instance.new("ScreenGui", player.PlayerGui)
 local frame = Instance.new("Frame", screenGui)
-frame.Size = UDim2.new(0, 300, 0, 550) -- Increased height for additional buttons
-frame.Position = UDim2.new(0.5, -150, 0.5, -275)
-frame.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+frame.Size = UDim2.new(0, 300, 0, 600) -- Increased height for additional buttons
+frame.Position = UDim2.new(0.5, -150, 0.5, -300)
+frame.BackgroundColor3 = Color3.fromRGB(128, 0, 128) -- Purple background
 frame.BorderSizePixel = 0
 frame.Visible = false -- Start hidden
 frame.Active = true
@@ -26,8 +27,8 @@ frame.Draggable = true -- Make frame draggable
 local title = Instance.new("TextLabel", frame)
 title.Text = "Bee Swarm Simulator Script"
 title.Size = UDim2.new(1, 0, 0, 50)
-title.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
-title.TextColor3 = Color3.fromRGB(255, 215, 0) -- Gold color
+title.BackgroundColor3 = Color3.fromRGB(255, 255, 255) -- White background for title
+title.TextColor3 = Color3.fromRGB(128, 0, 128) -- Purple text
 title.TextScaled = true
 title.Font = Enum.Font.GothamBold
 title.TextStrokeTransparency = 0.5
@@ -96,13 +97,29 @@ toggleBuy.MouseButton1Click:Connect(function()
     toggleBuy.Text = "Auto Buy: " .. (autoBuyEnabled and "ON" or "OFF")
 end)
 
+-- Toggle Auto Teleport to Base
+local toggleTeleport = Instance.new("TextButton", frame)
+toggleTeleport.Text = "Auto Teleport: OFF"
+toggleTeleport.Size = UDim2.new(1, 0, 0, 50)
+toggleTeleport.Position = UDim2.new(0, 0, 0, 300)
+toggleTeleport.BackgroundColor3 = Color3.fromRGB(75, 75, 75)
+toggleTeleport.TextColor3 = Color3.fromRGB(255, 255, 255)
+toggleTeleport.Font = Enum.Font.Gotham
+toggleTeleport.TextScaled = true
+toggleTeleport.TextStrokeTransparency = 0.5
+
+toggleTeleport.MouseButton1Click:Connect(function()
+    autoTeleportEnabled = not autoTeleportEnabled
+    toggleTeleport.Text = "Auto Teleport: " .. (autoTeleportEnabled and "ON" or "OFF")
+end)
+
 -- Select fields
 local fieldLabel = Instance.new("TextLabel", frame)
 fieldLabel.Text = "Select Field:"
 fieldLabel.Size = UDim2.new(1, 0, 0, 40)
-fieldLabel.Position = UDim2.new(0, 0, 0, 300)
-fieldLabel.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
-fieldLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+fieldLabel.Position = UDim2.new(0, 0, 0, 360)
+fieldLabel.BackgroundColor3 = Color3.fromRGB(255, 255, 255) -- White background for field label
+fieldLabel.TextColor3 = Color3.fromRGB(128, 0, 128) -- Purple text
 fieldLabel.Font = Enum.Font.Gotham
 fieldLabel.TextScaled = true
 fieldLabel.TextStrokeTransparency = 0.5
@@ -110,7 +127,7 @@ fieldLabel.TextStrokeTransparency = 0.5
 local dropdown = Instance.new("TextButton", frame)
 dropdown.Text = "SunflowerField"
 dropdown.Size = UDim2.new(1, 0, 0, 40)
-dropdown.Position = UDim2.new(0, 0, 0, 340)
+dropdown.Position = UDim2.new(0, 0, 0, 400)
 dropdown.BackgroundColor3 = Color3.fromRGB(75, 75, 75)
 dropdown.TextColor3 = Color3.fromRGB(255, 255, 255)
 dropdown.Font = Enum.Font.Gotham
@@ -164,26 +181,23 @@ local function makeHoney()
     end
 end
 
--- Function to auto-collect tokens
+-- Function to collect tokens
 local function collectTokens()
     while autoCollectTokensEnabled do
-        for _, token in pairs(workspace:GetChildren()) do
+        for _, token in pairs(workspace.Tokens:GetChildren()) do
             if token:IsA("Part") and token.Name:match("Token") then
-                local character = player.Character
-                if character and character:FindFirstChild("HumanoidRootPart") then
-                    -- Teleport to token
-                    character.HumanoidRootPart.CFrame = token.CFrame * CFrame.new(0, 3, 0) -- Adjust height as needed
-                    wait(0.1) -- Small wait before collecting
-                    fireclickdetector(token.ClickDetector)
-                    wait(math.random(0.5, 1.5)) -- Random delay to mimic human behavior
-                end
+                -- Teleport player to the token
+                player.Character.HumanoidRootPart.CFrame = token.CFrame * CFrame.new(0, 3, 0) -- Adjust height as needed
+                wait(0.1) -- Small wait before collecting
+                fireclickdetector(token.ClickDetector)
+                wait(math.random(0.5, 1.5)) -- Random delay to mimic human behavior
             end
         end
         wait(5) -- Delay before checking for tokens again
     end
 end
 
--- Function to auto complete quests
+-- Function to auto-complete quests
 local function autoCompleteQuests()
     while autoQuestEnabled do
         for _, quest in pairs(workspace.Quests:GetChildren()) do
@@ -217,6 +231,29 @@ local function autoBuy()
     end
 end
 
+-- Function to teleport back to the base
+local function teleportToBase()
+    local hive = workspace.HoneyHives:FindFirstChild(player.Name) -- Assuming player's hive is located here
+    if hive and player.Data.Pollen.Value >= pollenLimit then
+        player.Character.HumanoidRootPart.CFrame = hive.CFrame * CFrame.new(0, 3, 0) -- Adjust height as needed
+        wait(1) -- Wait a bit after teleporting
+        makeHoney() -- Make honey after teleporting
+    end
+end
+
+-- Auto-farm function with teleportation when backpack is full
+local function autoFarm()
+    while autoFarmEnabled do
+        for _, field in pairs(selectedFields) do
+            collectPollen(field)
+            if autoTeleportEnabled then
+                teleportToBase() -- Check for teleportation to base after collecting
+            end
+            wait(math.random(5, 10)) -- Random delay for safety
+        end
+    end
+end
+
 -- Bind the farming and quest process to the key for toggling the menu
 uis.InputBegan:Connect(function(input)
     if input.KeyCode == bindKey then
@@ -231,6 +268,7 @@ uis.InputBegan:Connect(function(input)
             toggleTokens.Text = "Auto Collect Tokens: OFF"
             toggleQuests.Text = "Auto Quests: OFF"
             toggleBuy.Text = "Auto Buy: OFF"
+            toggleTeleport.Text = "Auto Teleport: OFF"
         end
     end
 end)
@@ -240,3 +278,4 @@ coroutine.wrap(autoFarm)()
 coroutine.wrap(collectTokens)()
 coroutine.wrap(autoCompleteQuests)()
 coroutine.wrap(autoBuy)()
+coroutine.wrap(autoTeleport)()
