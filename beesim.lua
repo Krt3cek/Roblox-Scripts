@@ -6,6 +6,7 @@ local workspace = game:GetService("Workspace")
 local uis = game:GetService("UserInputService")
 local pollenLimit = 100 -- Default, can be changed in menu
 local autoFarmEnabled = false
+local autoCollectTokensEnabled = false -- New variable for token collection
 local selectedFields = {"SunflowerField"} -- Default field
 local bindKey = Enum.KeyCode.F -- Default bind
 
@@ -37,18 +38,31 @@ toggleFarm.MouseButton1Click:Connect(function()
     toggleFarm.Text = "Auto Farm: " .. (autoFarmEnabled and "ON" or "OFF")
 end)
 
+-- Toggle Auto Collect Tokens
+local toggleTokens = Instance.new("TextButton", frame)
+toggleTokens.Text = "Auto Collect Tokens: OFF"
+toggleTokens.Size = UDim2.new(1, 0, 0, 50)
+toggleTokens.Position = UDim2.new(0, 0, 0, 120)
+toggleTokens.BackgroundColor3 = Color3.fromRGB(75, 75, 75)
+toggleTokens.TextColor3 = Color3.fromRGB(255, 255, 255)
+
+toggleTokens.MouseButton1Click:Connect(function()
+    autoCollectTokensEnabled = not autoCollectTokensEnabled
+    toggleTokens.Text = "Auto Collect Tokens: " .. (autoCollectTokensEnabled and "ON" or "OFF")
+end)
+
 -- Select fields
 local fieldLabel = Instance.new("TextLabel", frame)
 fieldLabel.Text = "Select Field:"
 fieldLabel.Size = UDim2.new(1, 0, 0, 40)
-fieldLabel.Position = UDim2.new(0, 0, 0, 120)
+fieldLabel.Position = UDim2.new(0, 0, 0, 180)
 fieldLabel.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
 fieldLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
 
 local dropdown = Instance.new("TextButton", frame)
 dropdown.Text = "SunflowerField"
 dropdown.Size = UDim2.new(1, 0, 0, 40)
-dropdown.Position = UDim2.new(0, 0, 0, 160)
+dropdown.Position = UDim2.new(0, 0, 0, 220)
 dropdown.BackgroundColor3 = Color3.fromRGB(75, 75, 75)
 dropdown.TextColor3 = Color3.fromRGB(255, 255, 255)
 
@@ -69,14 +83,14 @@ end)
 local keyLabel = Instance.new("TextLabel", frame)
 keyLabel.Text = "Press a key to bind:"
 keyLabel.Size = UDim2.new(1, 0, 0, 40)
-keyLabel.Position = UDim2.new(0, 0, 0, 220)
+keyLabel.Position = UDim2.new(0, 0, 0, 280)
 keyLabel.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
 keyLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
 
 local bindButton = Instance.new("TextButton", frame)
 bindButton.Text = "Current: F"
 bindButton.Size = UDim2.new(1, 0, 0, 40)
-bindButton.Position = UDim2.new(0, 0, 0, 260)
+bindButton.Position = UDim2.new(0, 0, 0, 320)
 bindButton.BackgroundColor3 = Color3.fromRGB(75, 75, 75)
 bindButton.TextColor3 = Color3.fromRGB(255, 255, 255)
 
@@ -126,6 +140,25 @@ local function makeHoney()
     end
 end
 
+-- Function to auto-collect tokens
+local function collectTokens()
+    while autoCollectTokensEnabled do
+        for _, token in pairs(workspace:GetChildren()) do
+            if token:IsA("Part") and token.Name:match("Token") then
+                local character = player.Character
+                if character and character:FindFirstChild("HumanoidRootPart") then
+                    -- Teleport to token
+                    character.HumanoidRootPart.CFrame = token.CFrame * CFrame.new(0, 3, 0) -- Adjust height as needed
+                    wait(0.1) -- Give time for teleportation
+                    fireclickdetector(token:FindFirstChild("ClickDetector"))
+                    wait(math.random(0.5, 1.5)) -- Random delay to mimic human behavior
+                end
+            end
+        end
+        wait(1) -- Delay before searching for tokens again
+    end
+end
+
 -- Function to auto farm selected fields
 local function autoFarm()
     while autoFarmEnabled do
@@ -143,6 +176,9 @@ uis.InputBegan:Connect(function(input)
         frame.Visible = not frame.Visible -- Toggle GUI visibility
         if autoFarmEnabled then
             autoFarm()
+        end
+        if autoCollectTokensEnabled then
+            collectTokens()
         end
     end
 end)
