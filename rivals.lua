@@ -310,6 +310,45 @@ AimTab:AddToggle({
     end,
 })
 
+AimTab:AddDropdown({
+    Name = "Aimbot Key",
+    Options = {
+        "E",
+        "LeftAlt",
+        "Q",
+        "R",
+        "F",
+        "G",
+        "H",
+        "T",
+        "Y",
+        "U",
+        "I",
+        "O",
+        "P",
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6",
+        "7",
+        "8",
+        "9",
+        "0",
+    },
+    Default = "E",
+    Callback = function(selectedKey)
+        aimbotKey = Enum.KeyCode[selectedKey]  -- Update the aimbot key based on the selection
+        OrionLib:MakeNotification({
+            Name = "Aimbot Key Changed",
+            Content = "Aimbot key set to: " .. selectedKey,
+            Duration = 3,
+            Image = "rbxassetid://10472045394"
+        })
+    end,
+})
+
 AimTab:AddSlider({
     Name = "Aim Smoothness",
     Min = 0,
