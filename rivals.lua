@@ -184,6 +184,80 @@ local function AimAtNearestEnemy()
     end
 end
 
+-- Function to calculate predicted position of a target
+local function PredictPosition(target, deltaTime)
+    if target and target.Character and target.Character:FindFirstChild("Humanoid") then
+        local velocity = target.Character.HumanoidRootPart.Velocity
+        return target.Character.HumanoidRootPart.Position + (velocity * aimPredictionFactor)
+    end
+    return nil
+end
+
+-- Function to find the nearest enemy within FOV
+local function GetNearestEnemy()
+    local closestEnemy = nil
+    local closestDistance = math.huge
+
+    for _, player in pairs(Players:GetPlayers()) do
+        if player ~= LocalPlayer and player.Character and player.Character:FindFirstChild("Humanoid") and player.Character.Humanoid.Health > 0 then
+            local head = player.Character:FindFirstChild("Head")
+            if head then
+                local distance = (LocalPlayer.Character.HumanoidRootPart.Position - head.Position).magnitude
+                if distance <= aimFOV and distance < closestDistance then
+                    closestDistance = distance
+                    closestEnemy = player
+                end
+            end
+        end
+    end
+
+    return closestEnemy
+end
+
+-- Aimbot aiming function
+local function AimAt(target)
+    local camera = workspace.CurrentCamera
+    local targetPosition = PredictPosition(target)
+
+    if targetPosition then
+        local screenPosition = camera:WorldToScreenPoint(targetPosition)
+        local mouseX, mouseY = UserInputService:GetMouseLocation()
+
+        if smoothAiming then
+            local newMouseX = mouseX + (screenPosition.X - mouseX) * aimSmoothness
+            local newMouseY = mouseY + (screenPosition.Y - mouseY) * aimSmoothness
+            UserInputService:SetMouseLocation(newMouseX, newMouseY)
+        else
+            UserInputService:SetMouseLocation(screenPosition.X, screenPosition.Y)
+        end
+    end
+end
+
+-- RunService for continuous aiming
+RunService.RenderStepped:Connect(function()
+    if isAimbotActive then
+        currentTarget = GetNearestEnemy()
+        if currentTarget then
+            AimAt(currentTarget)
+        end
+    end
+end)
+
+-- Aimbot toggle using key press
+UserInputService.InputBegan:Connect(function(input, gameProcessed)
+    if not gameProcessed and input.KeyCode == aimKey then
+        isAimbotActive = not isAimbotActive
+        fovCircle.Visible = isAimbotActive  -- Show/Hide FOV circle
+    end
+end)
+
+-- Update FOV Circle based on aimFOV
+RunService.RenderStepped:Connect(function()
+    if fovCircleVisible then
+        fovCircle.Size = UDim2.new(0, aimFOV * 2, 0, aimFOV * 2)
+    end
+end)
+
 -- Aimbot activation using key press
 UserInputService.InputBegan:Connect(function(input, gameProcessed)
     if not gameProcessed and input.KeyCode == aimbotKey then
@@ -296,18 +370,29 @@ VisualsTab:AddToggle({
     end,
 })
 
--- Aim Tab Options
 AimTab:AddToggle({
     Name = "Aimbot",
     Default = false,
     Callback = function(value)
         isAimbotActive = value
+        fovCircle.Visible = value
+    end,
+})
+
+AimTab:AddSlider({
+    Name = "Aim FOV",
+    Min = 0,
+    Max = 200,
+    Default = 70,
+    Increment = 5,
+    Callback = function(value)
+        aimFOV = value
     end,
 })
 
 AimTab:AddToggle({
     Name = "Smooth Aiming",
-    Default = false,
+    Default = true,
     Callback = function(value)
         smoothAiming = value
     end,
@@ -317,21 +402,21 @@ AimTab:AddSlider({
     Name = "Aim Smoothness",
     Min = 0,
     Max = 1,
-    Default = 0.5,
-    Increment = 0.1,
+    Default = 0.1,
+    Increment = 0.01,
     Callback = function(value)
         aimSmoothness = value
     end,
 })
 
 AimTab:AddSlider({
-    Name = "Aim FOV",
+    Name = "Aim Prediction Factor",
     Min = 0,
-    Max = 150,
-    Default = 70,
-    Increment = 5,
+    Max = 1,
+    Default = 0.5,
+    Increment = 0.01,
     Callback = function(value)
-        aimFOV = value
+        aimPredictionFactor = value
     end,
 })
 
