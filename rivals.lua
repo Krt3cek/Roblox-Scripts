@@ -40,20 +40,6 @@ local teleportDropdown = {} -- Replace with your actual dropdown object
 local TeleportTab = {} -- Replace with your actual teleport tab object
 local holdingKey = false
 
-
--- Create the FOV circle
-local fovCircle = Instance.new("Frame")
-fovCircle.Size = UDim2.new(0, aimFOV * 2, 0, aimFOV * 2)
-fovCircle.AnchorPoint = Vector2.new(0.5, 0.5)
-fovCircle.Position = UDim2.new(0.5, 0, 0.5, 0)
-fovCircle.BackgroundColor3 = Color3.fromRGB(255, 0, 0) -- Red color for the FOV circle
-fovCircle.BackgroundTransparency = 0.5 -- Semi-transparent
-fovCircle.Visible = false -- Initially not visible
-fovCircle.BorderSizePixel = 0 -- No border
-fovCircle.ZIndex = 10 -- Ensure it appears above other GUI elements
-fovCircle.Shape = Enum.PartType.Ball -- Make it a circle
-fovCircle.Parent = screenGui
-
 -- Function to create a highlight for a player (Chams)
 local function ApplyChams(Player)
     local Character = Player.Character or Player.CharacterAdded:Wait()
@@ -360,8 +346,6 @@ AimTab:AddToggle({
     Name = "Show Aimbot FOV",
     Default = false,
     Callback = function(Value)
-        aimLock = Value
-        fovCircle.Visible = Value -- Show or hide the FOV circle based on the toggle
     end,
 })
 
