@@ -9,7 +9,7 @@ game:GetService("Players").LocalPlayer.Idled:connect(function()
 end)
 hives = game.Workspace.Honeycombs:GetChildren() for i = #hives, 1, -1 do  v = game.Workspace.Honeycombs:GetChildren()[i] if v.Owner.Value == nil then game.ReplicatedStorage.Events.ClaimHive:FireServer(v.HiveID.Value) end end
 OrionLib = loadstring(game:HttpGet(('https://raw.githubusercontent.com/shlexware/Orion/main/source')))()
-local Window = OrionLib:MakeWindow({Name = "89 Hub", HidePremium = false, SaveConfig = true, ConfigFolder = "89 Hub", IntroEnabled = true, IntroText = "89 Hub|Loader",IntroIcon = "rbxassetid://10472045394", Icon = "rbxassetid://10472045394" })
+local Window = OrionLib:MakeWindow({Name = "Krt Hub", HidePremium = false, SaveConfig = true, ConfigFolder = "Krt Hub", IntroEnabled = true, IntroText = "Krt Hub|Loader",IntroIcon = "rbxassetid://10472045394", Icon = "rbxassetid://10472045394" })
 local Main = Window:MakeTab({
 	Name = "Main",
 	Icon = "",
