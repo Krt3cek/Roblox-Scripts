@@ -196,7 +196,7 @@ local VisualsTab = Window:MakeTab({
 })
 
 local AimTab = Window:MakeTab({
-    Name = "Visuals",
+    Name = "Aim",
     Icon = "rbxassetid://10472045394",
 })
 
