@@ -2,7 +2,6 @@
 
 -- Services
 local Players = game:GetService("Players")
-local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("UserInputService")
 
 -- Variables
@@ -12,50 +11,45 @@ local highlightColor = Color3.fromRGB(255, 48, 51)
 local skeletonColor = Color3.fromRGB(0, 255, 0)
 local viewLineColor = Color3.fromRGB(0, 0, 255)
 local toggleKey = Enum.KeyCode.M  -- Key for toggling the menu
-local aimKey = Enum.KeyCode.E      -- Key for aimbot
 local isAimbotActive = false
-local aimTarget = nil
 local skeletonEnabled = false
 local viewLineEnabled = false
 
 -- Function to create a highlight for a player
 local function ApplyHighlight(Player)
-    local Connections = {}
-
     local Character = Player.Character or Player.CharacterAdded:Wait()
     local Humanoid = Character:WaitForChild("Humanoid")
-    local Highlighter = Instance.new("Highlight", Character)
 
-    local function UpdateFillColor()
-        Highlighter.FillColor = highlightColor
-    end
+    -- Create a Highlight instance
+    local Highlighter = Instance.new("Highlight")
+    Highlighter.FillColor = highlightColor
+    Highlighter.Parent = Character
 
-    local function Disconnect()
-        Highlighter:Destroy()
-        for _, Connection in next, Connections do
-            Connection:Disconnect()
-        end
-    end
-
-    table.insert(Connections, Player:GetPropertyChangedSignal("TeamColor"):Connect(UpdateFillColor))
-    table.insert(Connections, Humanoid:GetPropertyChangedSignal("Health"):Connect(function()
+    -- Function to update highlight based on health
+    local function OnHealthChanged()
         if Humanoid.Health <= 0 then
-            Disconnect()
+            Highlighter:Destroy()
         end
-    end))
+    end
 
-    return Disconnect
+    -- Connect health change
+    Humanoid:GetPropertyChangedSignal("Health"):Connect(OnHealthChanged)
+
+    return Highlighter
 end
 
--- Function to highlight a player
-local function HighlightPlayer(Player)
-    if Player.Character then
-        return ApplyHighlight(Player)
+-- Function to toggle highlights for all players
+local function ToggleESP()
+    for _, Player in pairs(Players:GetPlayers()) do
+        if Player ~= LocalPlayer and Player.Character then
+            local highlight = Player.Character:FindFirstChildOfClass("Highlight")
+            if highlight then
+                highlight.Enabled = ESPEnabled
+            else
+                ApplyHighlight(Player)
+            end
+        end
     end
-
-    return Player.CharacterAdded:Connect(function()
-        return ApplyHighlight(Player)
-    end)
 end
 
 -- Function to create the GUI
@@ -71,6 +65,7 @@ local function createToggleGUI()
     Frame.Draggable = true
     Frame.Visible = false  -- Start with the menu hidden
 
+    -- Title Label
     local TitleLabel = Instance.new("TextLabel", Frame)
     TitleLabel.Size = UDim2.new(1, 0, 0, 50)
     TitleLabel.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
@@ -80,6 +75,7 @@ local function createToggleGUI()
     TitleLabel.BorderSizePixel = 0
     TitleLabel.TextStrokeTransparency = 0.5
 
+    -- Create Tabs
     local VisualsTab = Instance.new("TextButton", Frame)
     VisualsTab.Size = UDim2.new(0.5, 0, 0, 50)
     VisualsTab.Position = UDim2.new(0, 0, 0.2, 0)
@@ -96,6 +92,7 @@ local function createToggleGUI()
     AimbotTab.TextColor3 = Color3.fromRGB(255, 255, 255)
     AimbotTab.TextScaled = true
 
+    -- Create content frame for toggles
     local ContentFrame = Instance.new("Frame", Frame)
     ContentFrame.Size = UDim2.new(1, 0, 0, 300)
     ContentFrame.Position = UDim2.new(0, 0, 0.3, 0)
@@ -109,56 +106,40 @@ local function createToggleGUI()
         button.Text = text
         button.TextColor3 = Color3.fromRGB(255, 255, 255)
         button.TextScaled = true
+        button.BorderSizePixel = 0
 
         button.MouseButton1Click:Connect(toggleFunction)
         return button
     end
 
-    -- Toggle buttons
+    -- Toggle buttons for visuals
     createToggleButton(ContentFrame, "Toggle ESP", UDim2.new(0, 0, 0, 0), function()
         ESPEnabled = not ESPEnabled
-        for _, Player in pairs(Players:GetPlayers()) do
-            if Player ~= LocalPlayer and Player.Character then
-                local highlight = Player.Character:FindFirstChildOfClass("Highlight")
-                if highlight then
-                    highlight.Enabled = ESPEnabled
-                end
-            end
-        end
+        ToggleESP()  -- Update ESP state
     end)
 
     createToggleButton(ContentFrame, "Change Color", UDim2.new(0, 0, 0, 50), function()
         highlightColor = Color3.new(math.random(), math.random(), math.random())
-        for _, Player in pairs(Players:GetPlayers()) do
-            if Player ~= LocalPlayer and Player.Character then
-                local highlight = Player.Character:FindFirstChildOfClass("Highlight")
-                if highlight then
-                    highlight.FillColor = highlightColor
-                end
-            end
-        end
+        ToggleESP()  -- Update highlight color
     end)
 
     createToggleButton(ContentFrame, "Toggle Skeleton", UDim2.new(0, 0, 0, 100), function()
         skeletonEnabled = not skeletonEnabled
-        if skeletonEnabled then
-            -- Implement skeleton visualization logic here
-        else
-            -- Remove skeletons logic here
-        end
+        -- TODO: Implement skeleton visualization logic here
     end)
 
-    createToggleButton(ContentFrame, "Toggle Aimbot", UDim2.new(0, 0, 0, 150), function()
-        isAimbotActive = not isAimbotActive
-        -- Implement aimbot logic here
-    end)
-
-    createToggleButton(ContentFrame, "Toggle View Line", UDim2.new(0, 0, 0, 200), function()
+    createToggleButton(ContentFrame, "Toggle View Line", UDim2.new(0, 0, 0, 150), function()
         viewLineEnabled = not viewLineEnabled
-        -- Implement view line logic here
+        -- TODO: Implement view line logic here
     end)
 
-    -- Tab switching
+    -- Toggle buttons for aimbot
+    createToggleButton(ContentFrame, "Toggle Aimbot", UDim2.new(0, 0, 0, 200), function()
+        isAimbotActive = not isAimbotActive
+        -- TODO: Implement aimbot logic here
+    end)
+
+    -- Manage tab visibility
     VisualsTab.MouseButton1Click:Connect(function()
         ContentFrame.Visible = true
     end)
@@ -168,21 +149,8 @@ local function createToggleGUI()
     end)
 end
 
--- Aimbot and ESP logic here (implementation omitted for brevity)
-
 -- Create the toggle GUI
 createToggleGUI()
-
--- Initial settings for players
-for _, Player in pairs(Players:GetPlayers()) do
-    if Player ~= LocalPlayer and Player.Character then
-        local highlight = Player.Character:FindFirstChildOfClass("Highlight")
-        if highlight then
-            highlight.Enabled = ESPEnabled
-            highlight.FillColor = highlightColor
-        end
-    end
-end
 
 -- Key bindings for menu toggling
 UserInputService.InputBegan:Connect(function(input, gameProcessed)
@@ -192,3 +160,6 @@ UserInputService.InputBegan:Connect(function(input, gameProcessed)
         end
     end
 end)
+
+-- Initial settings for players
+ToggleESP()  -- Apply initial highlights to all players
