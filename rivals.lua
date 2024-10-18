@@ -155,6 +155,7 @@ local function StartESPThread()
     end)
 end
 
+-- Function to aim at the nearest enemy
 local function AimAtNearestEnemy()
     local mouse = LocalPlayer:GetMouse()
     local closestPlayer = nil
@@ -182,7 +183,7 @@ local function AimAtNearestEnemy()
         if smoothAiming then
             local mousePosition = Vector2.new(mouse.X, mouse.Y)
             local step = aimSmoothness
-            mousePosition = mousePosition:Lerp(newMousePosition, step)  -- Smoothly interpolate to the new position
+            mousePosition = mousePosition:Lerp(newMousePosition, step) -- Smoothly interpolate to the new position
             UserInputService:SetMouseLocation(mousePosition.X, mousePosition.Y)
         else
             UserInputService:SetMouseLocation(newMousePosition.X, newMousePosition.Y)
@@ -192,20 +193,24 @@ end
 
 -- Aimbot activation using key press
 UserInputService.InputBegan:Connect(function(input, gameProcessed)
-    if not gameProcessed and input.UserInputType == Enum.UserInputType.Keyboard then
-        if input.KeyCode == aimbotKey then
-            isAimbotActive = true
-        end
+    if not gameProcessed and input.UserInputType == Enum.UserInputType.Keyboard and input.KeyCode == aimbotKey then
+        isAimbotActive = true
     end
 end)
 
 UserInputService.InputEnded:Connect(function(input, gameProcessed)
-    if not gameProcessed and input.UserInputType == Enum.UserInputType.Keyboard then
-        if input.KeyCode == aimbotKey then
-            isAimbotActive = false
-        end
+    if not gameProcessed and input.UserInputType == Enum.UserInputType.Keyboard and input.KeyCode == aimbotKey then
+        isAimbotActive = false
     end
 end)
+
+-- Continuous aiming when aimbot is active
+while true do
+    if isAimbotActive then
+        AimAtNearestEnemy()
+    end
+    wait(0.1) -- Adjust the frequency of aiming updates as necessary
+end
 
 function EnableNoClip()
     noclipLoop = game:GetService("RunService").Stepped:Connect(function()
