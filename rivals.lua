@@ -21,24 +21,24 @@ local Workspace = game:GetService("Workspace")
 local LocalPlayer = Players.LocalPlayer
 local ESPEnabled = false
 local ChamsEnabled = false
-local highlightColor = Color3.fromRGB(0, 255, 72)
+local highlightColor = Color3.fromRGB(255, 48, 51)
 local isAimbotActive = false
-local smoothAiming = false
-local aimSmoothness = 0.5
+local smoothAiming = true
+local aimSmoothness = 0.1
 local aimFOV = 70
-local aimPredictionFactor = 0.5
+local aimbotKey = Enum.KeyCode.E  -- Aimbot activation key
 local espBoxes = {}
 local chamsHighlights = {}
 local espThread, chamsThread
 local noclipEnabled = false
-local aimbotKey = Enum.KeyCode.E  -- Aimbot activation key
-local flying = false
-local flySpeed = 50
+local noclipLoop
+local fovCircle = Instance.new("Frame")  -- FOV circle placeholder
+local currentFOV = 70
 
 -- Function to create a highlight for a player (Chams)
 local function ApplyChams(Player)
     local Character = Player.Character or Player.CharacterAdded:Wait()
-
+    
     -- Create a Highlight instance
     local Highlighter = Instance.new("Highlight")
     Highlighter.FillColor = highlightColor
@@ -146,31 +146,17 @@ local function StartESPThread()
         end
     end)
 end
+
+-- Function to predict target position based on velocity
 local function PredictPosition(target)
     if target and target.Character and target.Character:FindFirstChild("Humanoid") then
         local velocity = target.Character.HumanoidRootPart.Velocity
-        return target.Character.HumanoidRootPart.Position + (velocity * aimPredictionFactor)
+        return target.Character.HumanoidRootPart.Position + (velocity * 0.5)  -- Adjust this factor as necessary
     end
     return nil
 end
 
--- Aimbot aiming function
-local function AimAt(target)
-    local camera = Workspace.CurrentCamera
-    local targetPosition = PredictPosition(target)
-
-    if targetPosition then
-        local screenPosition = camera:WorldToScreenPoint(targetPosition)  -- Convert world position to screen position
-        local mouseX, mouseY = UserInputService:GetMouseLocation()
-
-        -- Smoothly move the mouse to the target position
-        local newMouseX = mouseX + (screenPosition.X - mouseX) * aimSmoothness
-        local newMouseY = mouseY + (screenPosition.Y - mouseY) * aimSmoothness
-        UserInputService:SetMouseLocation(newMouseX, newMouseY)
-    end
-end
-
--- Function to find the nearest enemy within FOV
+-- Function to get the closest enemy player within FOV
 local function GetNearestEnemy()
     local closestEnemy = nil
     local closestDistance = math.huge
@@ -191,17 +177,37 @@ local function GetNearestEnemy()
     return closestEnemy
 end
 
+-- Function to aim at the target's head
+local function AimAt(target)
+    if target and target.Character then
+        local camera = Workspace.CurrentCamera
+        local targetPosition = PredictPosition(target)
+
+        if targetPosition then
+            local screenPosition = camera:WorldToScreenPoint(targetPosition)  -- Convert world position to screen position
+            local mouseX, mouseY = UserInputService:GetMouseLocation()
+
+            -- Smoothly move the mouse to the target position
+            local newMouseX = mouseX + (screenPosition.X - mouseX) * aimSmoothness
+            local newMouseY = mouseY + (screenPosition.Y - mouseY) * aimSmoothness
+            UserInputService:SetMouseLocation(newMouseX, newMouseY)
+        end
+    end
+end
+
 -- RunService for continuous aiming
 RunService.RenderStepped:Connect(function()
     if isAimbotActive then
         local targetPlayer = GetNearestEnemy()
         if targetPlayer then
-            AimAt(targetPlayer.Head)  -- Aim specifically at the head
+            AimAt(targetPlayer)  -- Aim specifically at the head
+        else
+            print("No enemy found within range.")  -- Debug message
         end
     end
 end)
 
--- Aimbot toggle using key press
+-- Toggle Aimbot using key press
 UserInputService.InputBegan:Connect(function(input, gameProcessed)
     if not gameProcessed and input.KeyCode == aimbotKey then
         isAimbotActive = not isAimbotActive
@@ -212,6 +218,7 @@ UserInputService.InputBegan:Connect(function(input, gameProcessed)
             Duration = 3,
             Image = "rbxassetid://10472045394"
         })
+        print(notificationMessage)  -- Debug message for aimbot status
     end
 end)
 
@@ -243,109 +250,104 @@ local function DisableNoClip()
     end
 end
 
--- Correctly creating the Visuals, Aim, Misc, and Teleport tabs
-local VisualsTab = Window:MakeTab({
-    Name = "Visuals",
-    Icon = "rbxassetid://10472045394",
-})
+-- Update the dropdown options with current players for teleportation
+local function UpdateTeleportDropdown()
+    local playerNames = {}
+    for _, Player in pairs(Players:GetPlayers()) do
+        if Player ~= LocalPlayer then  -- Exclude local player
+            table.insert(playerNames, Player.Name)
+        end
+    end
+    TeleportTab:UpdateDropdown({
+        Name = "Select Player to Teleport To",
+        Options = playerNames,
+    })
+end
 
-local AimTab = Window:MakeTab({
-    Name = "Aim",
-    Icon = "rbxassetid://10472045394",
-})
-
-local MiscTab = Window:MakeTab({
-    Name = "Misc",
-    Icon = "rbxassetid://10472045394",
-})
-
+-- Create GUI for Teleportation
 local TeleportTab = Window:MakeTab({
     Name = "Teleport",
     Icon = "rbxassetid://10472045394",
+    PremiumOnly = false,
 })
 
--- Visuals section
-VisualsTab:AddToggle({
+TeleportTab:AddDropdown({
+    Name = "Teleport to Player",
+    Options = {},  -- Will be updated dynamically
+    Callback = function(selectedPlayer)
+        local targetPlayer = Players:FindFirstChild(selectedPlayer)
+        if targetPlayer and targetPlayer.Character then
+            LocalPlayer.Character.HumanoidRootPart.CFrame = targetPlayer.Character.HumanoidRootPart.CFrame
+        end
+    end,
+})
+
+TeleportTab:AddButton({
+    Name = "Refresh Players",
+    Callback = function()
+        UpdateTeleportDropdown()  -- Update the dropdown options
+    end,
+})
+
+-- GUI for ESP
+local ESPTab = Window:MakeTab({
     Name = "ESP",
+    Icon = "rbxassetid://10472045394",
+    PremiumOnly = false,
+})
+
+ESPTab:AddToggle({
+    Name = "Enable ESP",
     Default = false,
     Callback = function(value)
         ESPEnabled = value
-        if value then StartESPThread() else RemoveAllESPBoxes() end
-    end,
+        if value then
+            StartESPThread()
+        else
+            RemoveAllESPBoxes()
+        end
+    end
 })
 
-VisualsTab:AddToggle({
+-- GUI for Chams
+local ChamsTab = Window:MakeTab({
     Name = "Chams",
+    Icon = "rbxassetid://10472045394",
+    PremiumOnly = false,
+})
+
+ChamsTab:AddToggle({
+    Name = "Enable Chams",
     Default = false,
     Callback = function(value)
         ChamsEnabled = value
-        if value then StartChamsThread() else RemoveAllChams() end
-    end,
+        if value then
+            StartChamsThread()
+        else
+            RemoveAllChams()
+        end
+    end
 })
 
--- Aim section
-AimTab:AddToggle({
+-- GUI for Aimbot
+local AimbotTab = Window:MakeTab({
     Name = "Aimbot",
+    Icon = "rbxassetid://10472045394",
+    PremiumOnly = false,
+})
+
+AimbotTab:AddToggle({
+    Name = "Enable Aimbot",
     Default = false,
     Callback = function(value)
         isAimbotActive = value
     end,
 })
 
-AimTab:AddDropdown({
-    Name = "Aimbot Key",
-    Options = {
-        "E",
-        "LeftAlt",
-        "Q",
-        "R",
-        "F",
-        "G",
-        "H",
-        "T",
-        "Y",
-        "U",
-        "I",
-        "O",
-        "P",
-        "1",
-        "2",
-        "3",
-        "4",
-        "5",
-        "6",
-        "7",
-        "8",
-        "9",
-        "0",
-    },
-    Default = "E",
-    Callback = function(selectedKey)
-        aimbotKey = Enum.KeyCode[selectedKey]  -- Update the aimbot key based on the selection
-        OrionLib:MakeNotification({
-            Name = "Aimbot Key Changed",
-            Content = "Aimbot key set to: " .. selectedKey,
-            Duration = 3,
-            Image = "rbxassetid://10472045394"
-        })
-    end,
-})
-
-AimTab:AddSlider({
-    Name = "Aim Smoothness",
-    Min = 0,
-    Max = 1,
-    Default = aimSmoothness,
-    Increment = 0.1,
-    Callback = function(value)
-        aimSmoothness = value
-    end,
-})
-
-AimTab:AddSlider({
+AimbotTab:AddSlider({
     Name = "Aim FOV",
     Min = 0,
-    Max = 150,
+    Max = 200,
     Default = aimFOV,
     Increment = 1,
     Callback = function(value)
@@ -353,43 +355,48 @@ AimTab:AddSlider({
     end,
 })
 
-AimTab:AddToggle({
-    Name = "Smooth Aiming",
-    Default = false,
+AimbotTab:AddSlider({
+    Name = "Aiming Smoothness",
+    Min = 0,
+    Max = 1,
+    Default = aimSmoothness,
+    Increment = 0.01,
     Callback = function(value)
-        smoothAiming = value
+        aimSmoothness = value
     end,
 })
 
--- Misc section
-MiscTab:AddToggle({
+-- GUI for No-Clip
+local NoClipTab = Window:MakeTab({
     Name = "No-Clip",
+    Icon = "rbxassetid://10472045394",
+    PremiumOnly = false,
+})
+
+NoClipTab:AddToggle({
+    Name = "Enable No-Clip",
     Default = false,
     Callback = function(value)
         noclipEnabled = value
-        if value then EnableNoClip() else DisableNoClip() end
-    end,
-})
-
-
-TeleportTab:AddDropdown({
-    Name = "Teleport to Player",
-    Options = UpdateTeleportOptions(),  -- Populate options initially
-    Callback = function(selectedPlayer)
-        local targetPlayer = Players:FindFirstChild(selectedPlayer)
-        if targetPlayer and targetPlayer.Character and targetPlayer.Character:FindFirstChild("HumanoidRootPart") then
-            LocalPlayer.Character.HumanoidRootPart.CFrame = targetPlayer.Character.HumanoidRootPart.CFrame
+        if value then
+            EnableNoClip()
         else
-            OrionLib:MakeNotification({
-                Name = "Teleport Failed",
-                Content = "Target player not found or their character is not available.",
-                Duration = 3,
-                Image = "rbxassetid://10472045394"
-            })
+            DisableNoClip()
         end
     end,
 })
 
+-- Cleanup on exit
+game.Players.PlayerRemoving:Connect(function(player)
+    if player == LocalPlayer then
+        RemoveAllESPBoxes()
+        RemoveAllChams()
+        DisableNoClip()
+    end
+end)
 
--- Function to handle closing the script
-Window:Destroy()
+-- Initial update for Teleport dropdown
+UpdateTeleportDropdown()
+
+-- Show the window
+OrionLib:Init()
