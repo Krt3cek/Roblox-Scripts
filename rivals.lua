@@ -172,7 +172,6 @@ local function AimAtNearestEnemy()
             end
         end
     end
-if holdingKey then
     if closestPlayer then
         -- Move the mouse to the closest enemy's head smoothly
         local targetPosition = workspace.CurrentCamera:WorldToScreenPoint(closestPlayer.Position)
@@ -186,7 +185,6 @@ if holdingKey then
         else
             UserInputService:SetMouseLocation(newMousePosition.X, newMousePosition.Y)
         end
-    end
     end
 end
 
