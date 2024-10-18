@@ -19,19 +19,20 @@ local Workspace = game:GetService("Workspace")
 
 -- Variables
 local LocalPlayer = Players.LocalPlayer
-local ESPEnabled = false  -- Set to false initially
-local ChamsEnabled = false  -- Set to false initially
+local ESPEnabled = false
+local ChamsEnabled = false
 local highlightColor = Color3.fromRGB(255, 48, 51)
-local isAimbotActive = false  -- Set to false initially
-local aimLock = false  -- Set to false initially
-local smoothAiming = false  -- Set to false initially
-local aimSmoothness = 0.5  -- Default smoothness
-local aimFOV = 70  -- Default FOV for aiming
-local playerSpeed = 16  -- Default player speed
-local currentFOV = 70  -- Current Field of View
+local isAimbotActive = false
+local aimLock = false
+local smoothAiming = false
+local aimSmoothness = 0.5
+local aimFOV = 70
+local playerSpeed = 16
+local currentFOV = 70
 local espBoxes = {}
+local chamsHighlights = {}
+local espThread, chamsThread
 
--- Function to create a highlight for a player
 -- Function to create a highlight for a player (Chams)
 local function ApplyChams(Player)
     local Character = Player.Character or Player.CharacterAdded:Wait()
@@ -59,6 +60,33 @@ local function ApplyChams(Player)
     return Highlighter
 end
 
+-- Function to create ESP box for a player
+local function CreateESPBox(Player)
+    local Character = Player.Character or Player.CharacterAdded:Wait()
+
+    -- Create a BoxHandleAdornment for ESP
+    local espBox = Instance.new("BoxHandleAdornment")
+    espBox.Size = Character:GetExtentsSize()
+    espBox.Adornee = Character
+    espBox.Color3 = highlightColor
+    espBox.Transparency = 0.5
+    espBox.ZIndex = 10
+    espBox.Parent = Character
+
+    -- Store the ESP box for later removal
+    espBoxes[Player] = espBox
+
+    -- Clean up the box when the player dies
+    Character.Humanoid.Died:Connect(function()
+        if espBoxes[Player] then
+            espBoxes[Player]:Destroy()
+            espBoxes[Player] = nil
+        end
+    end)
+
+    return espBox
+end
+
 -- Function to update Chams for all players
 local function UpdateChams()
     for _, Player in pairs(Players:GetPlayers()) do
@@ -68,6 +96,7 @@ local function UpdateChams()
     end
 end
 
+-- Function to update ESP for all players
 local function UpdateESP()
     for _, Player in pairs(Players:GetPlayers()) do
         if Player ~= LocalPlayer and Player.Character and not espBoxes[Player] then
@@ -86,6 +115,17 @@ local function RemoveAllESPBoxes()
     espBoxes = {}
 end
 
+-- Function to remove all Chams highlights
+local function RemoveAllChams()
+    for _, highlight in pairs(chamsHighlights) do
+        if highlight then
+            highlight:Destroy()
+        end
+    end
+    chamsHighlights = {}
+end
+
+-- Function to start Chams thread
 local function StartChamsThread()
     if chamsThread then return end  -- Prevent multiple threads
     chamsThread = RunService.Heartbeat:Connect(function()
@@ -97,7 +137,7 @@ local function StartChamsThread()
     end)
 end
 
--- Function to start the update thread for ESP
+-- Function to start ESP thread
 local function StartESPThread()
     if espThread then return end  -- Prevent multiple threads
     espThread = RunService.Heartbeat:Connect(function()
@@ -108,70 +148,6 @@ local function StartESPThread()
         end
     end)
 end
-
-
--- Function to toggle highlights for all players
-local function ToggleChams()
-    for _, Player in pairs(Players:GetPlayers()) do
-        if Player ~= LocalPlayer and Player.Character then
-            local highlight = Player.Character:FindFirstChildOfClass("Highlight")
-            if highlight then
-                highlight.Enabled = ChamsEnabled
-            else
-                ApplyChams(Player)
-            end
-        end
-    end
-end
-
--- Function to create a box around the player (ESP)
-local function CreateESPBox(Player)
-    local Character = Player.Character or Player.CharacterAdded:Wait()
-    
-    -- Create a box part for ESP
-    local espBox = Instance.new("BoxHandleAdornment")
-    espBox.Size = Character:GetExtentsSize()
-    espBox.Adornee = Character
-    espBox.Color3 = highlightColor
-    espBox.Transparency = 0.5
-    espBox.ZIndex = 10
-    espBox.Parent = Character
-
-    -- Store the box for later removal
-    espBoxes[Player] = espBox
-
-    -- Clean up the box when the player dies
-    Character.Humanoid.Died:Connect(function()
-        if espBoxes[Player] then
-            espBoxes[Player]:Destroy()
-            espBoxes[Player] = nil
-        end
-    end)
-
-    return espBox
-end
-
--- Function to toggle ESP boxes for all players
-local function ToggleESP()
-    if ESPEnabled then
-        -- Create ESP boxes for all players if ESP is enabled
-        for _, Player in pairs(Players:GetPlayers()) do
-            if Player ~= LocalPlayer and Player.Character and not espBoxes[Player] then
-                CreateESPBox(Player)
-            end
-        end
-    else
-        -- Remove all ESP boxes if ESP is disabled
-        for _, espBox in pairs(espBoxes) do
-            if espBox then
-                espBox:Destroy()
-            end
-        end
-        -- Clear the espBoxes table
-        espBoxes = {}
-    end
-end
-
 
 -- Aimbot function to aim at the nearest enemy's head
 local function AimAtNearestEnemy()
@@ -208,74 +184,7 @@ local function AimAtNearestEnemy()
     end
 end
 
--- Function to create a view line
-local function DrawViewLine()
-    for _, Player in pairs(Players:GetPlayers()) do
-        if Player ~= LocalPlayer and Player.Character and Player.Character:FindFirstChild("Head") then
-            local line = Instance.new("LineHandleAdornment")
-            line.Adornee = Player.Character.Head
-            line.Length = 100
-            line.Color3 = Color3.new(0, 0, 255) -- Blue color
-            line.Thickness = 0.1
-            line.Parent = Player.Character.Head
-
-            -- Clean up the line when the player is no longer alive
-            Player.Character.Humanoid.Died:Connect(function()
-                line:Destroy()
-            end)
-        end
-    end
-end
-
--- Function to create skeleton visualization
-local function ToggleSkeleton(Player)
-    local Character = Player.Character or Player.CharacterAdded:Wait()
-    local Humanoid = Character:WaitForChild("Humanoid")
-
-    -- Create parts for skeleton visualization
-    local function CreateSkeletonPart(part)
-        local skeletonPart = Instance.new("Part")
-        skeletonPart.Size = Vector3.new(0.2, 0.2, 0.2)
-        skeletonPart.Color = Color3.fromRGB(0, 255, 0) -- Green color
-        skeletonPart.Anchored = true
-        skeletonPart.CanCollide = false
-        skeletonPart.Parent = Workspace
-
-        local weld = Instance.new("WeldConstraint")
-        weld.Part0 = skeletonPart
-        weld.Part1 = part
-        weld.Parent = skeletonPart
-
-        return skeletonPart
-    end
-
-    local HeadSkeleton = CreateSkeletonPart(Character:WaitForChild("Head"))
-    local TorsoSkeleton = CreateSkeletonPart(Character:WaitForChild("HumanoidRootPart"))
-
-    -- Create skeleton parts for limbs
-    local function CreateLimbSkeleton()
-        for _, limbName in pairs({"Left Arm", "Right Arm", "Left Leg", "Right Leg"}) do
-            local limb = Character:FindFirstChild(limbName)
-            if limb then
-                CreateSkeletonPart(limb)
-            end
-        end
-    end
-
-    CreateLimbSkeleton()
-
-    -- Clean up skeleton parts when the player dies
-    Humanoid.Died:Connect(function()
-        HeadSkeleton:Destroy()
-        TorsoSkeleton:Destroy()
-        for _, part in pairs(Workspace:GetChildren()) do
-            if part:IsA("Part") and part.Name == "SkeletonPart" then
-                part:Destroy()
-            end
-        end
-    end)
-end
-
+-- GUI Components
 local MainTab = Window:MakeTab({
     Name = "Visuals",
     Icon = "rbxassetid://10472045394",
@@ -316,29 +225,7 @@ MainTab:AddColorPicker({
     Default = highlightColor,
     Callback = function(color)
         highlightColor = color
-        ToggleChams()  -- Update Chams color
-        for _, Player in pairs(Players:GetPlayers()) do
-            if Player ~= LocalPlayer and Player.Character then
-                local highlight = Player.Character:FindFirstChildOfClass("Highlight")
-                if highlight then
-                    highlight.FillColor = highlightColor
-                    UpdateChams()
-                end
-            end
-        end
-    end,
-})
-
--- Visuals Tab: Toggle Skeleton button
-MainTab:AddToggle({
-    Name = "Toggle Skeleton",
-    Default = false,
-    Callback = function(Value)
-        for _, Player in pairs(Players:GetPlayers()) do
-            if Player ~= LocalPlayer and Value then
-                ToggleSkeleton(Player)
-            end
-        end
+        UpdateChams()  -- Update Chams color immediately
     end,
 })
 
@@ -484,3 +371,7 @@ Players.PlayerAdded:Connect(function(Player)
         ApplyChams(Player)
     end)
 end)
+
+
+-- Initialize the library
+OrionLib:Init()
