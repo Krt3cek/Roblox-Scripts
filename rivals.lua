@@ -9,12 +9,11 @@ local borderSize = 0.5 -- Size of the border
 local borderColor = Color3.fromRGB(255, 0, 0) -- Color of the border
 local borderTransparency = 0.5 -- Transparency of the border
 
--- Function to create a glowing border for a player's character
-local function createESP(player)
-    local character = player.Character or player.CharacterAdded:Wait()
-
-    -- Create a part for the ESP border
+-- Function to create a glowing border for a target player's character
+local function createESP(targetPlayer)
+    local character = targetPlayer.Character or targetPlayer.CharacterAdded:Wait()
     local espPart = Instance.new("Part")
+    
     espPart.Size = Vector3.new(4, 6, 4) -- Size of the border part
     espPart.Anchored = true
     espPart.CanCollide = false
@@ -43,32 +42,39 @@ local function createESP(player)
         end
     end)
 
-    -- Cleanup when the player leaves
-    player.CharacterRemoving:Connect(function()
+    -- Cleanup when the target player leaves
+    targetPlayer.CharacterRemoving:Connect(function()
         espPart:Destroy()
         connection:Disconnect()
     end)
 end
 
--- Function to enable ESP for all players
+-- Function to enable ESP for all other players
 local function enableESP()
-    for _, p in pairs(players:GetPlayers()) do
-        if p ~= player then
-            createESP(p)
+    for _, targetPlayer in pairs(players:GetPlayers()) do
+        if targetPlayer ~= player then
+            targetPlayer.CharacterAdded:Connect(function()
+                createESP(targetPlayer)
+            end)
+
+            -- Create ESP if the character already exists
+            if targetPlayer.Character then
+                createESP(targetPlayer)
+            end
         end
     end
 end
 
 -- Connect to player added event
-players.PlayerAdded:Connect(function(p)
-    p.CharacterAdded:Wait()
-    createESP(p)
+players.PlayerAdded:Connect(function(targetPlayer)
+    targetPlayer.CharacterAdded:Wait()
+    createESP(targetPlayer)
 end)
 
 -- Connect to player removing event
-players.PlayerRemoving:Connect(function(p)
-    if p ~= player then
-        local espPart = workspace:FindFirstChild(p.Name)
+players.PlayerRemoving:Connect(function(targetPlayer)
+    if targetPlayer ~= player then
+        local espPart = workspace:FindFirstChild(targetPlayer.Name)
         if espPart then
             espPart:Destroy()
         end
