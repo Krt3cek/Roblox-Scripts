@@ -456,11 +456,6 @@ UserInputService.InputBegan:Connect(function(input, gameProcessed)
         if input.KeyCode == Enum.KeyCode.F then
             Window:Toggle()  -- Toggle Orion window
         end
-
-        -- Activate aimbot when it's enabled
-        if isAimbotActive and not aimLock then
-            AimAtNearestEnemy()
-        end
     end
 end)
 
