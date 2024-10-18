@@ -200,12 +200,12 @@ local MiscTab = Window:MakeTab({
 })
 
 local TeleportTab = Window:MakeTab({
-    Name = "Misc",
+    Name = "Teleport",
     Icon = "rbxassetid://10472045394",
 })
 
 -- Visuals Tab: Toggle Chams button
-MainTab:AddToggle({
+local togglechams = MainTab:AddToggle({
     Name = "Toggle Chams",
     Default = false,
     Callback = function(Value)
@@ -219,7 +219,7 @@ MainTab:AddToggle({
 })
 
 -- Visuals Tab: Toggle ESP button
-VisualsTab:AddToggle({
+local toggleboxes = VisualsTab:AddToggle({
     Name = "Toggle ESP Boxes",
     Default = false,
     Callback = function(Value)
@@ -233,7 +233,7 @@ VisualsTab:AddToggle({
 })
 
 -- Visuals Tab: Change Highlight Color button with color picker
-VisualsTab:AddColorPicker({
+local colorpicket = VisualsTab:AddColorPicker({
     Name = "Chams Highlight Color",
     Default = highlightColor,
     Callback = function(color)
@@ -243,7 +243,7 @@ VisualsTab:AddColorPicker({
 })
 
 -- Aimbot Tab: Toggle Aimbot
-AimTab:AddToggle({
+local toggleaimbot = AimTab:AddToggle({
     Name = "Toggle Aimbot",
     Default = false,
     Callback = function(Value)
@@ -252,7 +252,7 @@ AimTab:AddToggle({
 })
 
 -- Aimbot Tab: Aim Lock Toggle
-AimTab:AddToggle({
+local toggleaimlock = AimTab:AddToggle({
     Name = "Toggle Aim Lock",
     Default = false,
     Callback = function(Value)
@@ -261,7 +261,7 @@ AimTab:AddToggle({
 })
 
 -- Aimbot Tab: Smooth Aiming Toggle
-AimTab:AddToggle({
+local smoothaim = AimTab:AddToggle({
     Name = "Enable Smooth Aiming",
     Default = false,
     Callback = function(Value)
@@ -270,7 +270,7 @@ AimTab:AddToggle({
 })
 
 -- Aimbot Tab: Aim Smoothness Slider
-AimTab:AddSlider({
+local smoothaimslider = AimTab:AddSlider({
     Name = "Aim Smoothness",
     Min = 0,
     Max = 1,
@@ -282,7 +282,7 @@ AimTab:AddSlider({
 })
 
 -- Aimbot Tab: Aim FOV Slider
-AimTab:AddSlider({
+local aimfov = AimTab:AddSlider({
     Name = "Aim FOV",
     Min = 0,
     Max = 200,
@@ -294,7 +294,7 @@ AimTab:AddSlider({
 })
 
 -- Misc Tab: Speed Adjustment
-MiscTab:AddSlider({
+local playerspeed = MiscTab:AddSlider({
     Name = "Adjust Player Speed",
     Min = 16,
     Max = 100,
@@ -307,7 +307,7 @@ MiscTab:AddSlider({
 })
 
 -- Misc Tab: FOV Changer
-MiscTab:AddSlider({
+local fov = MiscTab:AddSlider({
     Name = "Adjust FOV",
     Min = 70,
     Max = 120,
