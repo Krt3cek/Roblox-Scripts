@@ -483,7 +483,3 @@ Players.PlayerAdded:Connect(function(Player)
         ApplyChams(Player)
     end)
 end)
-
-
--- Initialize the library
-OrionLib:Init()
