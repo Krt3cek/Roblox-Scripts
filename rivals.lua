@@ -16,9 +16,9 @@ local Players = game:GetService("Players")
 local UserInputService = game:GetService("UserInputService")
 local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
+local LocalPlayer = Players.LocalPlayer
 
 -- Variables
-local LocalPlayer = Players.LocalPlayer
 local ESPEnabled = false  -- Set to false initially
 local ChamsEnabled = false  -- Set to false initially
 local highlightColor = Color3.fromRGB(255, 48, 51)
@@ -29,8 +29,9 @@ local healthBarVisible = true  -- Player health display
 local distanceIndicatorVisible = true  -- Player distance indicator
 local espBoxSize = Vector3.new(2, 2, 2)  -- Size for ESP boxes
 local espBoxTransparency = 0.5  -- Transparency for ESP boxes
+local playerSpeed = 16  -- Default player speed
 
--- Function to create a highlight for a player
+-- Functions for ESP, Chams, and other functionalities
 local function ApplyChams(Player)
     local Character = Player.Character or Player.CharacterAdded:Wait()
     
@@ -53,7 +54,6 @@ local function ApplyChams(Player)
     return Highlighter
 end
 
--- Function to create a health bar above the player's head
 local function CreateHealthBar(Player)
     local Character = Player.Character or Player.CharacterAdded:Wait()
     local Humanoid = Character:WaitForChild("Humanoid")
@@ -79,7 +79,6 @@ local function CreateHealthBar(Player)
     return healthBar
 end
 
--- Function to create a distance indicator
 local function CreateDistanceIndicator(Player)
     local Character = Player.Character or Player.CharacterAdded:Wait()
 
@@ -98,13 +97,11 @@ local function CreateDistanceIndicator(Player)
     return distanceText
 end
 
--- Function to update the distance indicator
 local function UpdateDistanceIndicator(distanceText, Player)
     local distance = (LocalPlayer.Character.HumanoidRootPart.Position - Player.Character.HumanoidRootPart.Position).magnitude
     distanceText.Text = math.floor(distance) .. " studs"
 end
 
--- Function to create a box around the player
 local function CreateESPBox(Player)
     local Character = Player.Character or Player.CharacterAdded:Wait()
     local Head = Character:WaitForChild("Head")
@@ -126,7 +123,6 @@ local function CreateESPBox(Player)
     return espBox
 end
 
--- Function to toggle ESP boxes for all players
 local function ToggleESP()
     for _, Player in pairs(Players:GetPlayers()) do
         if Player ~= LocalPlayer and Player.Character then
@@ -147,7 +143,6 @@ local function ToggleESP()
     end
 end
 
--- Aimbot function to aim at the nearest enemy's head
 local function AimAtNearestEnemy()
     local mouse = LocalPlayer:GetMouse()
     local closestPlayer = nil
@@ -177,7 +172,6 @@ local function AimAtNearestEnemy()
     end
 end
 
--- Function to create a view line
 local function DrawViewLine()
     for _, Player in pairs(Players:GetPlayers()) do
         if Player ~= LocalPlayer and Player.Character and Player.Character:FindFirstChild("Head") then
@@ -196,7 +190,6 @@ local function DrawViewLine()
     end
 end
 
--- Function to toggle skeleton visualization
 local function ToggleSkeleton(Player)
     local Character = Player.Character or Player.CharacterAdded:Wait()
     local Humanoid = Character:WaitForChild("Humanoid")
@@ -262,7 +255,7 @@ VisualsTab:AddToggle({
     Default = false,  -- Default off
     Callback = function(Value)
         ChamsEnabled = Value
-        ToggleChams()  -- Update Chams state
+        ToggleESP()  -- Update Chams state
     end,
 })
 
@@ -284,7 +277,6 @@ VisualsTab:AddColorPicker({
     Default = highlightColor,
     Callback = function(color)
         highlightColor = color
-        ToggleChams()  -- Update Chams color
         for _, Player in pairs(Players:GetPlayers()) do
             if Player ~= LocalPlayer and Player.Character then
                 local highlight = Player.Character:FindFirstChildOfClass("Highlight")
@@ -344,6 +336,30 @@ VisualsTab:AddToggle({
     end,
 })
 
+-- Player Speed Adjustment slider
+VisualsTab:AddSlider({
+    Name = "Adjust Player Speed",
+    Min = 16,
+    Max = 100,
+    Default = playerSpeed,
+    Increment = 1,
+    Callback = function(Value)
+        playerSpeed = Value
+        LocalPlayer.Character.Humanoid.WalkSpeed = playerSpeed
+    end,
+})
+
+-- Teleport to Player button
+AimTab:AddButton({
+    Name = "Teleport to Selected Player",
+    Callback = function()
+        local targetPlayer = Players:GetPlayers()[1]  -- Select the first player as an example
+        if targetPlayer and targetPlayer.Character and targetPlayer.Character:FindFirstChild("HumanoidRootPart") then
+            LocalPlayer.Character.HumanoidRootPart.CFrame = targetPlayer.Character.HumanoidRootPart.CFrame
+        end
+    end,
+})
+
 -- Aimbot button
 AimTab:AddToggle({
     Name = "Toggle Aimbot",
@@ -354,7 +370,6 @@ AimTab:AddToggle({
 })
 
 -- Initial settings for players
-ToggleChams()  -- Apply initial Chams to all players
 ToggleESP()  -- Apply initial ESP to all players
 
 -- Key bindings for menu toggling and ESP toggle
