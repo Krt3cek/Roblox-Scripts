@@ -16,6 +16,8 @@ local Players = game:GetService("Players")
 local UserInputService = game:GetService("UserInputService")
 local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
+local screenGui = Instance.new("ScreenGui")
+screenGui.Parent = LocalPlayer:WaitForChild("PlayerGui")
 
 -- Variables
 local LocalPlayer = Players.LocalPlayer
@@ -38,6 +40,19 @@ local teleportDropdown = {} -- Replace with your actual dropdown object
 local TeleportTab = {} -- Replace with your actual teleport tab object
 local holdingKey = false
 
+
+-- Create the FOV circle
+local fovCircle = Instance.new("Frame")
+fovCircle.Size = UDim2.new(0, aimFOV * 2, 0, aimFOV * 2)
+fovCircle.AnchorPoint = Vector2.new(0.5, 0.5)
+fovCircle.Position = UDim2.new(0.5, 0, 0.5, 0)
+fovCircle.BackgroundColor3 = Color3.fromRGB(255, 0, 0) -- Red color for the FOV circle
+fovCircle.BackgroundTransparency = 0.5 -- Semi-transparent
+fovCircle.Visible = false -- Initially not visible
+fovCircle.BorderSizePixel = 0 -- No border
+fovCircle.ZIndex = 10 -- Ensure it appears above other GUI elements
+fovCircle.Shape = Enum.PartType.Ball -- Make it a circle
+fovCircle.Parent = screenGui
 
 -- Function to create a highlight for a player (Chams)
 local function ApplyChams(Player)
@@ -155,7 +170,7 @@ local function StartESPThread()
     end)
 end
 
--- Function to aim at the nearest enemy
+-- Function to aim at the nearest enemy (as per your original script)
 local function AimAtNearestEnemy()
     local mouse = LocalPlayer:GetMouse()
     local closestPlayer = nil
@@ -190,7 +205,6 @@ local function AimAtNearestEnemy()
         end
     end
 end
-
 -- Aimbot activation using key press
 UserInputService.InputBegan:Connect(function(input, gameProcessed)
     if not gameProcessed and input.UserInputType == Enum.UserInputType.Keyboard and input.KeyCode == aimbotKey then
@@ -209,7 +223,14 @@ while true do
     if isAimbotActive then
         AimAtNearestEnemy()
     end
-    wait(0.1) -- Adjust the frequency of aiming updates as necessary
+
+    if aimLock then
+        -- Update position of FOV circle to be around the mouse cursor
+        local mouse = LocalPlayer:GetMouse()
+        fovCircle.Position = UDim2.new(0, mouse.X, 0, mouse.Y) -- Set position to mouse cursor
+    end
+
+    wait(0.1) -- Adjust the frequency of updates as necessary
 end
 
 function EnableNoClip()
@@ -334,6 +355,16 @@ AimTab:AddToggle({
         aimLock = Value
     end,
 })
+
+AimTab:AddToggle({
+    Name = "Show Aimbot FOV",
+    Default = false,
+    Callback = function(Value)
+        aimLock = Value
+        fovCircle.Visible = Value -- Show or hide the FOV circle based on the toggle
+    end,
+})
+
 
 AimTab:AddToggle({
     Name = "Enable Smooth Aiming",
