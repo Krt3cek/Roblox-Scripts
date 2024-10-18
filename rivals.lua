@@ -175,12 +175,21 @@ MainTab:AddButton({
     end,
 })
 
--- Change Highlight Color button
-MainTab:AddButton({
-    Name = "Change Highlight Color",
-    Callback = function()
-        highlightColor = Color3.new(math.random(), math.random(), math.random())
+-- Change Highlight Color button with color picker
+MainTab:AddColorPicker({
+    Name = "ESP Highlight Color",
+    Default = highlightColor,
+    Callback = function(color)
+        highlightColor = color
         ToggleESP()  -- Update highlight color
+        for _, Player in pairs(Players:GetPlayers()) do
+            if Player ~= LocalPlayer and Player.Character then
+                local highlight = Player.Character:FindFirstChildOfClass("Highlight")
+                if highlight then
+                    highlight.FillColor = highlightColor
+                end
+            end
+        end
     end,
 })
 
