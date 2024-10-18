@@ -8,7 +8,7 @@ local pollenLimit = 100 -- Default, can be changed in menu
 local autoFarmEnabled = false
 local autoCollectTokensEnabled = false -- New variable for token collection
 local selectedFields = {"SunflowerField"} -- Default field
-local bindKey = Enum.KeyCode.F -- Default bind
+local bindKey = Enum.KeyCode.F -- Key for toggling the menu
 
 -- Create the GUI
 local screenGui = Instance.new("ScreenGui", player.PlayerGui)
@@ -96,39 +96,6 @@ dropdown.MouseButton1Click:Connect(function()
     end
 end)
 
--- Set bind key
-local keyLabel = Instance.new("TextLabel", frame)
-keyLabel.Text = "Press a key to bind:"
-keyLabel.Size = UDim2.new(1, 0, 0, 40)
-keyLabel.Position = UDim2.new(0, 0, 0, 280)
-keyLabel.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
-keyLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-keyLabel.Font = Enum.Font.Gotham
-keyLabel.TextScaled = true
-keyLabel.TextStrokeTransparency = 0.5
-
-local bindButton = Instance.new("TextButton", frame)
-bindButton.Text = "Current: F"
-bindButton.Size = UDim2.new(1, 0, 0, 40)
-bindButton.Position = UDim2.new(0, 0, 0, 320)
-bindButton.BackgroundColor3 = Color3.fromRGB(75, 75, 75)
-bindButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-bindButton.Font = Enum.Font.Gotham
-bindButton.TextScaled = true
-bindButton.TextStrokeTransparency = 0.5
-
-bindButton.MouseButton1Click:Connect(function()
-    bindButton.Text = "Press any key..."
-    local connection
-    connection = uis.InputBegan:Connect(function(input)
-        if input.KeyCode ~= Enum.KeyCode.Unknown then
-            bindKey = input.KeyCode
-            bindButton.Text = "Current: " .. input.KeyCode.Name
-            connection:Disconnect()
-        end
-    end)
-end)
-
 -- Anti-AFK
 local virtualUser = game:GetService("VirtualUser")
 player.Idled:Connect(function()
@@ -193,15 +160,16 @@ local function autoFarm()
     end
 end
 
--- Bind the farming process to the selected key
+-- Bind the farming process to the key for toggling the menu
 uis.InputBegan:Connect(function(input)
     if input.KeyCode == bindKey then
         frame.Visible = not frame.Visible -- Toggle GUI visibility
-        if autoFarmEnabled then
-            autoFarm()
-        end
-        if autoCollectTokensEnabled then
-            collectTokens()
+        -- If the GUI is open, stop auto farming and collecting tokens
+        if not frame.Visible then
+            autoFarmEnabled = false
+            autoCollectTokensEnabled = false
+            toggleFarm.Text = "Auto Farm: OFF"
+            toggleTokens.Text = "Auto Collect Tokens: OFF"
         end
     end
 end)
