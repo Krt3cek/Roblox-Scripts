@@ -32,6 +32,8 @@ local chamsHighlights = {}
 local espThread, chamsThread
 local noclipEnabled = false
 local aimbotKey = Enum.KeyCode.E  -- Aimbot activation key
+local flying = false
+local flySpeed = 50
 
 -- Function to create a highlight for a player (Chams)
 local function ApplyChams(Player)
@@ -237,29 +239,29 @@ local function DisableNoClip()
     end
 end
 
--- Function to update the dropdown options with current players
-local function UpdateTeleportDropdown()
-    local playerNames = {}
-    for _, Player in pairs(Players:GetPlayers()) do
-        if Player ~= LocalPlayer then  -- Exclude local player
-            table.insert(playerNames, Player.Name)
+-- Function to populate the Teleport dropdown
+local function UpdateTeleportOptions()
+    local options = {}
+    for _, player in pairs(Players:GetPlayers()) do
+        if player ~= LocalPlayer then  -- Exclude local player
+            table.insert(options, player.Name)
         end
     end
-    TeleportTab:UpdateDropdown({
-        Name = "Select Player to Teleport To",
-        Options = playerNames,
-    })
+    return options
 end
 
--- Update dropdown when a player joins or leaves
-Players.PlayerAdded:Connect(function(Player)
-    Player.CharacterAdded:Wait()  -- Wait for their character to load
-    UpdateTeleportDropdown()
+-- Update the dropdown when players join or leave
+Players.PlayerAdded:Connect(function(player)
+    player.CharacterAdded:Wait()  -- Wait for character to load
+    teleportDropdown:UpdateOptions(UpdateTeleportOptions())  -- Update the options
 end)
 
-Players.PlayerRemoving:Connect(function(Player)
-    UpdateTeleportDropdown()
+Players.PlayerRemoving:Connect(function(player)
+    teleportDropdown:UpdateOptions(UpdateTeleportOptions())  -- Update the options
 end)
+
+-- Initial population of dropdown options
+teleportDropdown:UpdateOptions(UpdateTeleportOptions())
 
 -- Correctly creating the Visuals, Aim, Misc, and Teleport tabs
 local VisualsTab = Window:MakeTab({
@@ -389,20 +391,48 @@ MiscTab:AddToggle({
     end,
 })
 
--- Teleport section
-TeleportTab:AddDropdown({
-    Name = "Teleport to Player",
-    Options = {},  -- Will be updated dynamically
-    Callback = function(selectedPlayer)
-        local targetPlayer = Players:FindFirstChild(selectedPlayer)
-        if targetPlayer and targetPlayer.Character then
-            LocalPlayer.Character.HumanoidRootPart.CFrame = targetPlayer.Character.HumanoidRootPart.CFrame
+MiscTab:AddToggle({
+    Name = "Enable Fly",
+    Default = false,
+    Callback = function(value)
+        flying = value
+        if flying then
+            local character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
+            local humanoid = character:WaitForChild("Humanoid")
+            humanoid.PlatformStand = true  -- Disable falling
+            RunService.RenderStepped:Connect(function()
+                if flying then
+                    local camera = Workspace.CurrentCamera
+                    local direction = camera.CFrame.LookVector * flySpeed
+                    character:Move(direction, true)
+                end
+            end)
+        else
+            local character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
+            local humanoid = character:WaitForChild("Humanoid")
+            humanoid.PlatformStand = false  -- Re-enable falling
         end
     end,
 })
 
--- Initialize the teleport dropdown
-UpdateTeleportDropdown()
+TeleportTab:AddDropdown({
+    Name = "Teleport to Player",
+    Options = UpdateTeleportOptions(),  -- Populate options initially
+    Callback = function(selectedPlayer)
+        local targetPlayer = Players:FindFirstChild(selectedPlayer)
+        if targetPlayer and targetPlayer.Character and targetPlayer.Character:FindFirstChild("HumanoidRootPart") then
+            LocalPlayer.Character.HumanoidRootPart.CFrame = targetPlayer.Character.HumanoidRootPart.CFrame
+        else
+            OrionLib:MakeNotification({
+                Name = "Teleport Failed",
+                Content = "Target player not found or their character is not available.",
+                Duration = 3,
+                Image = "rbxassetid://10472045394"
+            })
+        end
+    end,
+})
+
 
 -- Function to handle closing the script
 Window:Destroy()
