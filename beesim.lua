@@ -7,14 +7,15 @@ local uis = game:GetService("UserInputService")
 local pollenLimit = 100 -- Default, can be changed in menu
 local autoFarmEnabled = false
 local autoCollectTokensEnabled = false -- New variable for token collection
+local autoQuestEnabled = false -- New variable for auto quests
 local selectedFields = {"SunflowerField"} -- Default field
 local bindKey = Enum.KeyCode.F -- Key for toggling the menu
 
 -- Create the GUI
 local screenGui = Instance.new("ScreenGui", player.PlayerGui)
 local frame = Instance.new("Frame", screenGui)
-frame.Size = UDim2.new(0, 300, 0, 400)
-frame.Position = UDim2.new(0.5, -150, 0.5, -200)
+frame.Size = UDim2.new(0, 300, 0, 500) -- Increased height for quests
+frame.Position = UDim2.new(0.5, -150, 0.5, -250)
 frame.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
 frame.BorderSizePixel = 0
 frame.Visible = false -- Start hidden
@@ -62,11 +63,27 @@ toggleTokens.MouseButton1Click:Connect(function()
     toggleTokens.Text = "Auto Collect Tokens: " .. (autoCollectTokensEnabled and "ON" or "OFF")
 end)
 
+-- Toggle Auto Quests
+local toggleQuests = Instance.new("TextButton", frame)
+toggleQuests.Text = "Auto Quests: OFF"
+toggleQuests.Size = UDim2.new(1, 0, 0, 50)
+toggleQuests.Position = UDim2.new(0, 0, 0, 180)
+toggleQuests.BackgroundColor3 = Color3.fromRGB(75, 75, 75)
+toggleQuests.TextColor3 = Color3.fromRGB(255, 255, 255)
+toggleQuests.Font = Enum.Font.Gotham
+toggleQuests.TextScaled = true
+toggleQuests.TextStrokeTransparency = 0.5
+
+toggleQuests.MouseButton1Click:Connect(function()
+    autoQuestEnabled = not autoQuestEnabled
+    toggleQuests.Text = "Auto Quests: " .. (autoQuestEnabled and "ON" or "OFF")
+end)
+
 -- Select fields
 local fieldLabel = Instance.new("TextLabel", frame)
 fieldLabel.Text = "Select Field:"
 fieldLabel.Size = UDim2.new(1, 0, 0, 40)
-fieldLabel.Position = UDim2.new(0, 0, 0, 180)
+fieldLabel.Position = UDim2.new(0, 0, 0, 240)
 fieldLabel.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
 fieldLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
 fieldLabel.Font = Enum.Font.Gotham
@@ -76,7 +93,7 @@ fieldLabel.TextStrokeTransparency = 0.5
 local dropdown = Instance.new("TextButton", frame)
 dropdown.Text = "SunflowerField"
 dropdown.Size = UDim2.new(1, 0, 0, 40)
-dropdown.Position = UDim2.new(0, 0, 0, 220)
+dropdown.Position = UDim2.new(0, 0, 0, 280)
 dropdown.BackgroundColor3 = Color3.fromRGB(75, 75, 75)
 dropdown.TextColor3 = Color3.fromRGB(255, 255, 255)
 dropdown.Font = Enum.Font.Gotham
@@ -160,16 +177,43 @@ local function autoFarm()
     end
 end
 
--- Bind the farming process to the key for toggling the menu
+-- Function to auto complete quests
+local function autoCompleteQuests()
+    while autoQuestEnabled do
+        for _, quest in pairs(workspace.Quests:GetChildren()) do
+            if quest:IsA("Quest") and quest:FindFirstChild("QuestGiver") then
+                local questGiver = quest.QuestGiver
+                if questGiver:FindFirstChild("Talk") then
+                    fireclickdetector(questGiver.Talk.ClickDetector) -- Simulate talking to the quest giver
+                    wait(math.random(1, 2)) -- Wait for interaction
+                end
+                if quest:FindFirstChild("Complete") and quest.Complete.Value then
+                    fireclickdetector(quest.Complete.ClickDetector) -- Complete the quest
+                    wait(math.random(1, 2)) -- Wait for completion
+                end
+            end
+        end
+        wait(5) -- Delay before checking quests again
+    end
+end
+
+-- Bind the farming and quest process to the key for toggling the menu
 uis.InputBegan:Connect(function(input)
     if input.KeyCode == bindKey then
         frame.Visible = not frame.Visible -- Toggle GUI visibility
-        -- If the GUI is open, stop auto farming and collecting tokens
+        -- If the GUI is open, stop auto farming, collecting tokens, and auto questing
         if not frame.Visible then
             autoFarmEnabled = false
             autoCollectTokensEnabled = false
+            autoQuestEnabled = false
             toggleFarm.Text = "Auto Farm: OFF"
             toggleTokens.Text = "Auto Collect Tokens: OFF"
+            toggleQuests.Text = "Auto Quests: OFF"
         end
     end
 end)
+
+-- Start auto farm and questing in separate threads
+coroutine.wrap(autoFarm)()
+coroutine.wrap(collectTokens)()
+coroutine.wrap(autoCompleteQuests)()
