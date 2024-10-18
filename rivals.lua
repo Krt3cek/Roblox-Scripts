@@ -5,7 +5,7 @@ local Window = OrionLib:MakeWindow({
     HidePremium = false,
     SaveConfig = true,
     ConfigFolder = "Krt Hub",
-    IntroEnabled = true,
+    IntroEnabled = false,
     IntroText = "Krt Hub | Loader",
     IntroIcon = "rbxassetid://10472045394",
     Icon = "rbxassetid://10472045394"
@@ -207,7 +207,7 @@ local TeleportTab = Window:MakeTab({
 
 
 -- Ensure we add Chams toggle under the correct 'VisualsTab'
-local togglechams = VisualsTab:AddToggle({
+VisualsTab:AddToggle({
     Name = "Toggle Chams",
     Default = false,
     Callback = function(Value)
@@ -221,7 +221,7 @@ local togglechams = VisualsTab:AddToggle({
 })
 
 -- Ensure ESP is under 'VisualsTab'
-local toggleboxes = VisualsTab:AddToggle({
+VisualsTab:AddToggle({
     Name = "Toggle ESP Boxes",
     Default = false,
     Callback = function(Value)
@@ -235,7 +235,7 @@ local toggleboxes = VisualsTab:AddToggle({
 })
 
 -- Ensure Chams highlight color picker is under 'VisualsTab'
-local colorpicket = VisualsTab:AddColorPicker({
+VisualsTab:AddColorPicker({
     Name = "Chams Highlight Color",
     Default = highlightColor,
     Callback = function(color)
@@ -245,7 +245,7 @@ local colorpicket = VisualsTab:AddColorPicker({
 })
 
 -- Aimbot toggles and settings are under 'AimTab'
-local toggleaimbot = AimTab:AddToggle({
+AimTab:AddToggle({
     Name = "Toggle Aimbot",
     Default = false,
     Callback = function(Value)
@@ -253,7 +253,7 @@ local toggleaimbot = AimTab:AddToggle({
     end,
 })
 
-local toggleaimlock = AimTab:AddToggle({
+AimTab:AddToggle({
     Name = "Toggle Aim Lock",
     Default = false,
     Callback = function(Value)
@@ -261,7 +261,7 @@ local toggleaimlock = AimTab:AddToggle({
     end,
 })
 
-local smoothaim = AimTab:AddToggle({
+AimTab:AddToggle({
     Name = "Enable Smooth Aiming",
     Default = false,
     Callback = function(Value)
@@ -269,7 +269,7 @@ local smoothaim = AimTab:AddToggle({
     end,
 })
 
-local smoothaimslider = AimTab:AddSlider({
+AimTab:AddSlider({
     Name = "Aim Smoothness",
     Min = 0,
     Max = 1,
@@ -280,7 +280,7 @@ local smoothaimslider = AimTab:AddSlider({
     end,
 })
 
-local aimfov = AimTab:AddSlider({
+AimTab:AddSlider({
     Name = "Aim FOV",
     Min = 0,
     Max = 200,
@@ -292,7 +292,7 @@ local aimfov = AimTab:AddSlider({
 })
 
 -- Miscellaneous settings under 'MiscTab'
-local playerspeed = MiscTab:AddSlider({
+MiscTab:AddSlider({
     Name = "Adjust Player Speed",
     Min = 16,
     Max = 100,
@@ -304,7 +304,7 @@ local playerspeed = MiscTab:AddSlider({
     end,
 })
 
-local fov = MiscTab:AddSlider({
+MiscTab:AddSlider({
     Name = "Adjust FOV",
     Min = 70,
     Max = 120,
@@ -318,7 +318,7 @@ local fov = MiscTab:AddSlider({
 
 
 -- Teleport Tab: Teleport to Player dropdown
-local teleportDropdown = TeleportTab:AddDropdown({
+TeleportTab:AddDropdown({
     Name = "Select Player to Teleport To",
     Options = {},
     Callback = function(selectedPlayer)
