@@ -23,17 +23,12 @@ local ESPEnabled = false
 local ChamsEnabled = false
 local highlightColor = Color3.fromRGB(255, 48, 51)
 local isAimbotActive = false
-local smoothAiming = true
 local aimSmoothness = 0.1
 local aimFOV = 70
 local aimbotKey = Enum.KeyCode.E  -- Aimbot activation key
 local espBoxes = {}
 local chamsHighlights = {}
 local espThread, chamsThread
-local noclipEnabled = false
-local noclipLoop
-local fovCircle = Instance.new("Frame")  -- FOV circle placeholder
-local currentFOV = 70
 
 -- Function to create a highlight for a player (Chams)
 local function ApplyChams(Player)
@@ -46,18 +41,6 @@ local function ApplyChams(Player)
 
     -- Store the highlighter for later removal
     chamsHighlights[Player] = Highlighter
-
-    -- Function to update highlight based on health
-    local function OnHealthChanged()
-        if Character and Character:FindFirstChild("Humanoid") and Character.Humanoid.Health <= 0 then
-            Highlighter:Destroy()
-            chamsHighlights[Player] = nil
-        end
-    end
-
-    -- Connect health change
-    local Humanoid = Character:WaitForChild("Humanoid")
-    Humanoid:GetPropertyChangedSignal("Health"):Connect(OnHealthChanged)
 end
 
 -- Function to create ESP box for a player
@@ -75,14 +58,6 @@ local function CreateESPBox(Player)
 
     -- Store the ESP box for later removal
     espBoxes[Player] = espBox
-
-    -- Clean up the box when the player dies
-    Character.Humanoid.Died:Connect(function()
-        if espBoxes[Player] then
-            espBoxes[Player]:Destroy()
-            espBoxes[Player] = nil
-        end
-    end)
 end
 
 -- Function to update Chams for all players
@@ -147,15 +122,6 @@ local function StartESPThread()
     end)
 end
 
--- Function to predict target position based on velocity
-local function PredictPosition(target)
-    if target and target.Character and target.Character:FindFirstChild("Humanoid") then
-        local velocity = target.Character.HumanoidRootPart.Velocity
-        return target.Character.HumanoidRootPart.Position + (velocity * 0.5)  -- Adjust this factor as necessary
-    end
-    return nil
-end
-
 -- Function to get the closest enemy player within FOV
 local function GetNearestEnemy()
     local closestEnemy = nil
@@ -179,19 +145,16 @@ end
 
 -- Function to aim at the target's head
 local function AimAt(target)
-    if target and target.Character then
+    if target and target.Character and target.Character:FindFirstChild("Head") then
+        local targetPosition = target.Character.Head.Position
         local camera = Workspace.CurrentCamera
-        local targetPosition = PredictPosition(target)
-
-        if targetPosition then
-            local screenPosition = camera:WorldToScreenPoint(targetPosition)  -- Convert world position to screen position
-            local mouseX, mouseY = UserInputService:GetMouseLocation()
-
-            -- Smoothly move the mouse to the target position
-            local newMouseX = mouseX + (screenPosition.X - mouseX) * aimSmoothness
-            local newMouseY = mouseY + (screenPosition.Y - mouseY) * aimSmoothness
-            UserInputService:SetMouseLocation(newMouseX, newMouseY)
-        end
+        
+        -- Calculate the angle between the camera's CFrame and the target position
+        local direction = (targetPosition - camera.CFrame.Position).unit
+        local targetCFrame = CFrame.new(camera.CFrame.Position, camera.CFrame.Position + direction)
+        
+        -- Smoothly interpolate the camera's CFrame towards the target
+        camera.CFrame = camera.CFrame:Lerp(targetCFrame, aimSmoothness)
     end
 end
 
@@ -201,8 +164,6 @@ RunService.RenderStepped:Connect(function()
         local targetPlayer = GetNearestEnemy()
         if targetPlayer then
             AimAt(targetPlayer)  -- Aim specifically at the head
-        else
-            print("No enemy found within range.")  -- Debug message
         end
     end
 end)
@@ -218,51 +179,8 @@ UserInputService.InputBegan:Connect(function(input, gameProcessed)
             Duration = 3,
             Image = "rbxassetid://10472045394"
         })
-        print(notificationMessage)  -- Debug message for aimbot status
     end
 end)
-
--- Function to enable No-Clip
-local function EnableNoClip()
-    noclipLoop = RunService.Stepped:Connect(function()
-        if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Humanoid") then
-            for _, part in pairs(LocalPlayer.Character:GetDescendants()) do
-                if part:IsA("BasePart") then
-                    part.CanCollide = false
-                end
-            end
-        end
-    end)
-end
-
--- Function to disable No-Clip
-local function DisableNoClip()
-    if noclipLoop then
-        noclipLoop:Disconnect()  -- Stop the No-clip loop
-    end
-
-    if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Humanoid") then
-        for _, part in pairs(LocalPlayer.Character:GetDescendants()) do
-            if part:IsA("BasePart") then
-                part.CanCollide = true
-            end
-        end
-    end
-end
-
--- Update the dropdown options with current players for teleportation
-local function UpdateTeleportDropdown()
-    local playerNames = {}
-    for _, Player in pairs(Players:GetPlayers()) do
-        if Player ~= LocalPlayer then  -- Exclude local player
-            table.insert(playerNames, Player.Name)
-        end
-    end
-    TeleportTab:UpdateDropdown({
-        Name = "Select Player to Teleport To",
-        Options = playerNames,
-    })
-end
 
 -- Create GUI for Teleportation
 local TeleportTab = Window:MakeTab({
@@ -326,43 +244,6 @@ ChamsTab:AddToggle({
         else
             RemoveAllChams()
         end
-    end
-})
-
--- GUI for Aimbot
-local AimbotTab = Window:MakeTab({
-    Name = "Aimbot",
-    Icon = "rbxassetid://10472045394",
-    PremiumOnly = false,
-})
-
-AimbotTab:AddToggle({
-    Name = "Enable Aimbot",
-    Default = false,
-    Callback = function(value)
-        isAimbotActive = value
-    end,
-})
-
-AimbotTab:AddSlider({
-    Name = "Aim FOV",
-    Min = 0,
-    Max = 200,
-    Default = aimFOV,
-    Increment = 1,
-    Callback = function(value)
-        aimFOV = value
-    end,
-})
-
-AimbotTab:AddSlider({
-    Name = "Aiming Smoothness",
-    Min = 0,
-    Max = 1,
-    Default = aimSmoothness,
-    Increment = 0.01,
-    Callback = function(value)
-        aimSmoothness = value
     end,
 })
 
@@ -394,6 +275,20 @@ game.Players.PlayerRemoving:Connect(function(player)
         DisableNoClip()
     end
 end)
+
+-- Update the dropdown options with current players for teleportation
+local function UpdateTeleportDropdown()
+    local playerNames = {}
+    for _, Player in pairs(Players:GetPlayers()) do
+        if Player ~= LocalPlayer then  -- Exclude local player
+            table.insert(playerNames, Player.Name)
+        end
+    end
+    TeleportTab:UpdateDropdown({
+        Name = "Select Player to Teleport To",
+        Options = playerNames,
+    })
+end
 
 -- Initial update for Teleport dropdown
 UpdateTeleportDropdown()
