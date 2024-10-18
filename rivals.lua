@@ -14,6 +14,7 @@ local Window = OrionLib:MakeWindow({
 -- Services
 local Players = game:GetService("Players")
 local UserInputService = game:GetService("UserInputService")
+local RunService = game:GetService("RunService")
 
 -- Variables
 local LocalPlayer = Players.LocalPlayer
@@ -57,6 +58,36 @@ local function ToggleESP()
                 ApplyHighlight(Player)
             end
         end
+    end
+end
+
+-- Aimbot function to aim at the nearest enemy's head
+local function AimAtNearestEnemy()
+    local mouse = LocalPlayer:GetMouse()
+    local closestPlayer = nil
+    local closestDistance = math.huge
+
+    for _, Player in pairs(Players:GetPlayers()) do
+        if Player ~= LocalPlayer and Player.Character and Player.Character:FindFirstChild("Humanoid") and Player.Character.Humanoid.Health > 0 then
+            local head = Player.Character:FindFirstChild("Head")
+            if head then
+                local screenPoint = workspace.CurrentCamera:WorldToScreenPoint(head.Position)
+                local mouseDistance = (Vector2.new(mouse.X, mouse.Y) - Vector2.new(screenPoint.X, screenPoint.Y)).Magnitude
+
+                if mouseDistance < closestDistance then
+                    closestDistance = mouseDistance
+                    closestPlayer = head
+                end
+            end
+        end
+    end
+
+    if closestPlayer then
+        -- Move the mouse to the closest enemy's head
+        UserInputService.MouseBehavior = Enum.MouseBehavior.LockCenter  -- Lock mouse to center
+        local targetPosition = workspace.CurrentCamera:WorldToScreenPoint(closestPlayer.Position)
+        local newMousePosition = Vector2.new(targetPosition.X, targetPosition.Y)
+        UserInputService:SetMouseLocation(newMousePosition.X, newMousePosition.Y)
     end
 end
 
@@ -110,16 +141,36 @@ MainTab:AddToggle({
     Default = false,
     Callback = function(Value)
         isAimbotActive = Value
-        -- TODO: Implement aimbot logic here
     end,
 })
 
 -- Initial settings for players
 ToggleESP()  -- Apply initial highlights to all players
 
--- Key bindings for menu toggling
+-- Key bindings for menu toggling and ESP toggle
 UserInputService.InputBegan:Connect(function(input, gameProcessed)
-    if not gameProcessed and input.KeyCode == Enum.KeyCode.M then
-        Window:Toggle()  -- Toggle Orion window
+    if not gameProcessed then
+        -- Toggle the Orion window with 'F'
+        if input.KeyCode == Enum.KeyCode.F then
+            Window:Toggle()  -- Toggle Orion window
+        end
+
+        -- Toggle ESP with 'E'
+        if input.KeyCode == Enum.KeyCode.E then
+            ESPEnabled = not ESPEnabled
+            ToggleESP()  -- Update ESP state
+        end
+
+        -- Activate aimbot when it's enabled
+        if isAimbotActive then
+            AimAtNearestEnemy()
+        end
+    end
+end)
+
+-- Aimbot loop to continuously aim at the nearest enemy
+RunService.RenderStepped:Connect(function()
+    if isAimbotActive then
+        AimAtNearestEnemy()
     end
 end)
