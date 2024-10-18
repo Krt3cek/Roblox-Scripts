@@ -25,6 +25,10 @@ local highlightColor = Color3.fromRGB(255, 48, 51)
 local isAimbotActive = false  -- Set to false initially
 local skeletonEnabled = false  -- Set to false initially
 local viewLineEnabled = false  -- Set to false initially
+local healthBarVisible = true  -- Player health display
+local distanceIndicatorVisible = true  -- Player distance indicator
+local espBoxSize = Vector3.new(2, 2, 2)  -- Size for ESP boxes
+local espBoxTransparency = 0.5  -- Transparency for ESP boxes
 
 -- Function to create a highlight for a player
 local function ApplyChams(Player)
@@ -49,18 +53,55 @@ local function ApplyChams(Player)
     return Highlighter
 end
 
--- Function to toggle highlights for all players
-local function ToggleChams()
-    for _, Player in pairs(Players:GetPlayers()) do
-        if Player ~= LocalPlayer and Player.Character then
-            local highlight = Player.Character:FindFirstChildOfClass("Highlight")
-            if highlight then
-                highlight.Enabled = ChamsEnabled
-            else
-                ApplyChams(Player)
-            end
-        end
-    end
+-- Function to create a health bar above the player's head
+local function CreateHealthBar(Player)
+    local Character = Player.Character or Player.CharacterAdded:Wait()
+    local Humanoid = Character:WaitForChild("Humanoid")
+
+    local healthBar = Instance.new("BillboardGui")
+    healthBar.Size = UDim2.new(0, 100, 0, 10)
+    healthBar.StudsOffset = Vector3.new(0, 3, 0)
+    healthBar.AlwaysOnTop = true
+    healthBar.Parent = Character:FindFirstChild("Head")
+
+    local healthBarFrame = Instance.new("Frame")
+    healthBarFrame.Size = UDim2.new(1, 0, 1, 0)
+    healthBarFrame.BackgroundColor3 = Color3.new(0, 1, 0)
+    healthBarFrame.Parent = healthBar
+
+    -- Update health bar as health changes
+    Humanoid:GetPropertyChangedSignal("Health"):Connect(function()
+        local healthRatio = Humanoid.Health / Humanoid.MaxHealth
+        healthBarFrame.Size = UDim2.new(healthRatio, 0, 1, 0)
+        healthBarFrame.BackgroundColor3 = healthRatio > 0.5 and Color3.new(0, 1, 0) or healthRatio > 0.25 and Color3.new(1, 1, 0) or Color3.new(1, 0, 0)
+    end)
+
+    return healthBar
+end
+
+-- Function to create a distance indicator
+local function CreateDistanceIndicator(Player)
+    local Character = Player.Character or Player.CharacterAdded:Wait()
+
+    local distanceLabel = Instance.new("BillboardGui")
+    distanceLabel.Size = UDim2.new(0, 100, 0, 50)
+    distanceLabel.StudsOffset = Vector3.new(0, 3, 0)
+    distanceLabel.AlwaysOnTop = true
+    distanceLabel.Parent = Character:FindFirstChild("Head")
+
+    local distanceText = Instance.new("TextLabel")
+    distanceText.Size = UDim2.new(1, 0, 1, 0)
+    distanceText.BackgroundTransparency = 1
+    distanceText.TextColor3 = Color3.new(1, 1, 1)
+    distanceText.Parent = distanceLabel
+
+    return distanceText
+end
+
+-- Function to update the distance indicator
+local function UpdateDistanceIndicator(distanceText, Player)
+    local distance = (LocalPlayer.Character.HumanoidRootPart.Position - Player.Character.HumanoidRootPart.Position).magnitude
+    distanceText.Text = math.floor(distance) .. " studs"
 end
 
 -- Function to create a box around the player
@@ -70,10 +111,10 @@ local function CreateESPBox(Player)
     
     -- Create a box part for ESP
     local espBox = Instance.new("BoxHandleAdornment")
-    espBox.Size = Character:GetExtentsSize()
+    espBox.Size = espBoxSize
     espBox.Adornee = Character
     espBox.Color3 = highlightColor
-    espBox.Transparency = 0.5
+    espBox.Transparency = espBoxTransparency
     espBox.ZIndex = 10
     espBox.Parent = Character
 
@@ -90,6 +131,18 @@ local function ToggleESP()
     for _, Player in pairs(Players:GetPlayers()) do
         if Player ~= LocalPlayer and Player.Character then
             CreateESPBox(Player)
+
+            -- Create health bar and distance indicator if enabled
+            if healthBarVisible then
+                CreateHealthBar(Player)
+            end
+            if distanceIndicatorVisible then
+                local distanceText = CreateDistanceIndicator(Player)
+                -- Update the distance every frame
+                RunService.RenderStepped:Connect(function()
+                    UpdateDistanceIndicator(distanceText, Player)
+                end)
+            end
         end
     end
 end
@@ -271,7 +324,27 @@ VisualsTab:AddToggle({
     end,
 })
 
--- Toggle Aimbot button
+-- Toggle Health Bar button
+VisualsTab:AddToggle({
+    Name = "Toggle Health Bar",
+    Default = true,  -- Default on
+    Callback = function(Value)
+        healthBarVisible = Value
+        ToggleESP()  -- Reapply ESP to update health bar visibility
+    end,
+})
+
+-- Toggle Distance Indicator button
+VisualsTab:AddToggle({
+    Name = "Toggle Distance Indicator",
+    Default = true,  -- Default on
+    Callback = function(Value)
+        distanceIndicatorVisible = Value
+        ToggleESP()  -- Reapply ESP to update distance indicator visibility
+    end,
+})
+
+-- Aimbot button
 AimTab:AddToggle({
     Name = "Toggle Aimbot",
     Default = false,  -- Default off
@@ -279,6 +352,10 @@ AimTab:AddToggle({
         isAimbotActive = Value
     end,
 })
+
+-- Initial settings for players
+ToggleChams()  -- Apply initial Chams to all players
+ToggleESP()  -- Apply initial ESP to all players
 
 -- Key bindings for menu toggling and ESP toggle
 UserInputService.InputBegan:Connect(function(input, gameProcessed)
