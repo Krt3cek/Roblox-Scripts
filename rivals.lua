@@ -34,6 +34,8 @@ local chamsHighlights = {}
 local espThread, chamsThread
 local noclipEnabled = false
 local aimbotKey = Enum.KeyCode.E  -- Example: Aimbot will activate when holding "E"
+local teleportDropdown = {} -- Replace with your actual dropdown object
+local TeleportTab = {} -- Replace with your actual teleport tab object
 local holdingKey = false
 
 
@@ -153,12 +155,12 @@ local function StartESPThread()
     end)
 end
 
--- Aimbot function to aim at the nearest enemy's head
 local function AimAtNearestEnemy()
     local mouse = LocalPlayer:GetMouse()
     local closestPlayer = nil
     local closestDistance = math.huge
 
+    -- Iterate through all players to find the closest enemy
     for _, Player in pairs(Players:GetPlayers()) do
         if Player ~= LocalPlayer and Player.Character and Player.Character:FindFirstChild("Humanoid") and Player.Character.Humanoid.Health > 0 then
             local head = Player.Character:FindFirstChild("Head")
@@ -171,15 +173,16 @@ local function AimAtNearestEnemy()
             end
         end
     end
+
+    -- If a closest player was found, move the mouse
     if closestPlayer then
-        -- Move the mouse to the closest enemy's head smoothly
         local targetPosition = workspace.CurrentCamera:WorldToScreenPoint(closestPlayer.Position)
         local newMousePosition = Vector2.new(targetPosition.X, targetPosition.Y)
 
         if smoothAiming then
             local mousePosition = Vector2.new(mouse.X, mouse.Y)
             local step = aimSmoothness
-            mousePosition = mousePosition:Lerp(newMousePosition, step)  -- Smoothly interpolate
+            mousePosition = mousePosition:Lerp(newMousePosition, step)  -- Smoothly interpolate to the new position
             UserInputService:SetMouseLocation(mousePosition.X, mousePosition.Y)
         else
             UserInputService:SetMouseLocation(newMousePosition.X, newMousePosition.Y)
@@ -410,20 +413,29 @@ TeleportTab:AddDropdown({
     end,
 })
 
+local function addPlayerToDropdown(player)
+    teleportDropdown:Add(player.Name)
+end
+
 -- Populate the teleport dropdown with player names
 Players.PlayerAdded:Connect(function(Player)
-    teleportDropdown:Add(selectedPlayer.Name)
+    addPlayerToDropdown(Player)
 end)
 
-for _, Player in pairs(Players:GetPlayers()) do
-    teleportDropdown:Add(Player.Name)
+-- Add currently connected players to the dropdown
+for _, player in pairs(Players:GetPlayers()) do
+    addPlayerToDropdown(player)
 end
 
 -- Teleport Tab: Button to teleport to local player
 TeleportTab:AddButton({
     Name = "Teleport to Me",
     Callback = function()
-        LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(0, 50, 0) -- Adjust as needed
+        if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+            LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(0, 50, 0) -- Adjust coordinates as needed
+        else
+            warn("HumanoidRootPart not found in Character")
+        end
     end,
 })
 
