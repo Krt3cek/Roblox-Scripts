@@ -34,7 +34,6 @@ local chamsHighlights = {}
 local espThread, chamsThread
 local noclipEnabled = false
 local aimbotKey = Enum.KeyCode.E  -- Example: Aimbot will activate when holding "E"
-local isAimbotActive = false
 local holdingKey = false
 
 
