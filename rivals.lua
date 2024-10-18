@@ -186,9 +186,18 @@ end
 
 -- GUI Components
 local MainTab = Window:MakeTab({
+    Name = "Main",
+    Icon = "rbxassetid://10472045394",
+})
+
+local VisualsTab = Window:MakeTab({
     Name = "Visuals",
     Icon = "rbxassetid://10472045394",
-    PremiumOnly = false
+})
+
+local AimTab = Window:MakeTab({
+    Name = "Visuals",
+    Icon = "rbxassetid://10472045394",
 })
 
 -- Visuals Tab: Toggle Chams button
