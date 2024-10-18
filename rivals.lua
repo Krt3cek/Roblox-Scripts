@@ -32,6 +32,7 @@ local currentFOV = 70  -- Current Field of View
 local espBoxes = {}
 
 -- Function to create a highlight for a player
+-- Function to create a highlight for a player (Chams)
 local function ApplyChams(Player)
     local Character = Player.Character or Player.CharacterAdded:Wait()
     
@@ -40,10 +41,14 @@ local function ApplyChams(Player)
     Highlighter.FillColor = highlightColor
     Highlighter.Parent = Character
 
+    -- Store the highlighter for later removal
+    chamsHighlights[Player] = Highlighter
+
     -- Function to update highlight based on health
     local function OnHealthChanged()
         if Character and Character:FindFirstChild("Humanoid") and Character.Humanoid.Health <= 0 then
             Highlighter:Destroy()
+            chamsHighlights[Player] = nil
         end
     end
 
@@ -53,6 +58,57 @@ local function ApplyChams(Player)
 
     return Highlighter
 end
+
+-- Function to update Chams for all players
+local function UpdateChams()
+    for _, Player in pairs(Players:GetPlayers()) do
+        if Player ~= LocalPlayer and Player.Character and not chamsHighlights[Player] then
+            ApplyChams(Player)
+        end
+    end
+end
+
+local function UpdateESP()
+    for _, Player in pairs(Players:GetPlayers()) do
+        if Player ~= LocalPlayer and Player.Character and not espBoxes[Player] then
+            CreateESPBox(Player)
+        end
+    end
+end
+
+-- Function to remove all ESP boxes
+local function RemoveAllESPBoxes()
+    for _, espBox in pairs(espBoxes) do
+        if espBox then
+            espBox:Destroy()
+        end
+    end
+    espBoxes = {}
+end
+
+local function StartChamsThread()
+    if chamsThread then return end  -- Prevent multiple threads
+    chamsThread = RunService.Heartbeat:Connect(function()
+        if ChamsEnabled then
+            UpdateChams()
+        else
+            RemoveAllChams()
+        end
+    end)
+end
+
+-- Function to start the update thread for ESP
+local function StartESPThread()
+    if espThread then return end  -- Prevent multiple threads
+    espThread = RunService.Heartbeat:Connect(function()
+        if ESPEnabled then
+            UpdateESP()
+        else
+            RemoveAllESPBoxes()
+        end
+    end)
+end
+
 
 -- Function to toggle highlights for all players
 local function ToggleChams()
@@ -68,9 +124,9 @@ local function ToggleChams()
     end
 end
 
+-- Function to create a box around the player (ESP)
 local function CreateESPBox(Player)
     local Character = Player.Character or Player.CharacterAdded:Wait()
-    local Head = Character:WaitForChild("Head")
     
     -- Create a box part for ESP
     local espBox = Instance.new("BoxHandleAdornment")
@@ -81,7 +137,7 @@ local function CreateESPBox(Player)
     espBox.ZIndex = 10
     espBox.Parent = Character
 
-    -- Store the box in the espBoxes table for later removal
+    -- Store the box for later removal
     espBoxes[Player] = espBox
 
     -- Clean up the box when the player dies
@@ -232,16 +288,25 @@ MainTab:AddToggle({
     Default = false,
     Callback = function(Value)
         ChamsEnabled = Value
-        ToggleChams()  -- Update Chams state
+        if ChamsEnabled then
+            StartChamsThread()  -- Start the thread to continuously update Chams
+        else
+            RemoveAllChams()  -- Clean up Chams when disabled
+        end
     end,
 })
 
+-- Visuals Tab: Toggle ESP button
 MainTab:AddToggle({
     Name = "Toggle ESP Boxes",
     Default = false,
     Callback = function(Value)
         ESPEnabled = Value
-        ToggleESP()  -- Apply or remove ESP based on the toggle state
+        if ESPEnabled then
+            StartESPThread()  -- Start the thread to continuously update ESP
+        else
+            RemoveAllESPBoxes()  -- Clean up ESP when disabled
+        end
     end,
 })
 
@@ -257,6 +322,7 @@ MainTab:AddColorPicker({
                 local highlight = Player.Character:FindFirstChildOfClass("Highlight")
                 if highlight then
                     highlight.FillColor = highlightColor
+                    UpdateChams()
                 end
             end
         end
