@@ -19,12 +19,12 @@ local Workspace = game:GetService("Workspace")
 
 -- Variables
 local LocalPlayer = Players.LocalPlayer
-local ESPEnabled = true
-local ChamsEnabled = true
+local ESPEnabled = false  -- Set to false initially
+local ChamsEnabled = false  -- Set to false initially
 local highlightColor = Color3.fromRGB(255, 48, 51)
-local isAimbotActive = false
-local skeletonEnabled = false
-local viewLineEnabled = false
+local isAimbotActive = false  -- Set to false initially
+local skeletonEnabled = false  -- Set to false initially
+local viewLineEnabled = false  -- Set to false initially
 
 -- Function to create a highlight for a player
 local function ApplyChams(Player)
@@ -206,7 +206,7 @@ local AimTab = Window:MakeTab({
 -- Toggle Chams button
 VisualsTab:AddToggle({
     Name = "Toggle Chams",
-    Default = true,
+    Default = false,  -- Default off
     Callback = function(Value)
         ChamsEnabled = Value
         ToggleChams()  -- Update Chams state
@@ -216,7 +216,7 @@ VisualsTab:AddToggle({
 -- Toggle ESP button
 VisualsTab:AddToggle({
     Name = "Toggle ESP Boxes",
-    Default = true,
+    Default = false,  -- Default off
     Callback = function(Value)
         ESPEnabled = Value
         if ESPEnabled then
@@ -246,7 +246,7 @@ VisualsTab:AddColorPicker({
 -- Toggle Skeleton button
 VisualsTab:AddToggle({
     Name = "Toggle Skeleton",
-    Default = false,
+    Default = false,  -- Default off
     Callback = function(Value)
         skeletonEnabled = Value
         for _, Player in pairs(Players:GetPlayers()) do
@@ -262,7 +262,7 @@ VisualsTab:AddToggle({
 -- Toggle View Line button
 VisualsTab:AddToggle({
     Name = "Toggle View Line",
-    Default = false,
+    Default = false,  -- Default off
     Callback = function(Value)
         viewLineEnabled = Value
         if viewLineEnabled then
@@ -274,15 +274,11 @@ VisualsTab:AddToggle({
 -- Toggle Aimbot button
 AimTab:AddToggle({
     Name = "Toggle Aimbot",
-    Default = false,
+    Default = false,  -- Default off
     Callback = function(Value)
         isAimbotActive = Value
     end,
 })
-
--- Initial settings for players
-ToggleChams()  -- Apply initial Chams to all players
-ToggleESP()  -- Apply initial ESP to all players
 
 -- Key bindings for menu toggling and ESP toggle
 UserInputService.InputBegan:Connect(function(input, gameProcessed)
