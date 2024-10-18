@@ -366,29 +366,6 @@ MiscTab:AddToggle({
     end,
 })
 
-MiscTab:AddToggle({
-    Name = "Enable Fly",
-    Default = false,
-    Callback = function(value)
-        flying = value
-        if flying then
-            local character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
-            local humanoid = character:WaitForChild("Humanoid")
-            humanoid.PlatformStand = true  -- Disable falling
-            RunService.RenderStepped:Connect(function()
-                if flying then
-                    local camera = Workspace.CurrentCamera
-                    local direction = camera.CFrame.LookVector * flySpeed
-                    character:Move(direction, true)
-                end
-            end)
-        else
-            local character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
-            local humanoid = character:WaitForChild("Humanoid")
-            humanoid.PlatformStand = false  -- Re-enable falling
-        end
-    end,
-})
 
 TeleportTab:AddDropdown({
     Name = "Teleport to Player",
