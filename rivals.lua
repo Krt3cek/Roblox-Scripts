@@ -239,7 +239,6 @@ local function DisableNoClip()
     end
 end
 
--- Function to populate the Teleport dropdown
 local function UpdateTeleportOptions()
     local options = {}
     for _, player in pairs(Players:GetPlayers()) do
