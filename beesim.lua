@@ -8,14 +8,15 @@ local pollenLimit = 100 -- Default, can be changed in menu
 local autoFarmEnabled = false
 local autoCollectTokensEnabled = false -- New variable for token collection
 local autoQuestEnabled = false -- New variable for auto quests
+local autoBuyEnabled = false -- New variable for auto-buy
 local selectedFields = {"SunflowerField"} -- Default field
 local bindKey = Enum.KeyCode.F -- Key for toggling the menu
 
 -- Create the GUI
 local screenGui = Instance.new("ScreenGui", player.PlayerGui)
 local frame = Instance.new("Frame", screenGui)
-frame.Size = UDim2.new(0, 300, 0, 500) -- Increased height for quests
-frame.Position = UDim2.new(0.5, -150, 0.5, -250)
+frame.Size = UDim2.new(0, 300, 0, 550) -- Increased height for additional buttons
+frame.Position = UDim2.new(0.5, -150, 0.5, -275)
 frame.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
 frame.BorderSizePixel = 0
 frame.Visible = false -- Start hidden
@@ -79,11 +80,27 @@ toggleQuests.MouseButton1Click:Connect(function()
     toggleQuests.Text = "Auto Quests: " .. (autoQuestEnabled and "ON" or "OFF")
 end)
 
+-- Toggle Auto Buy
+local toggleBuy = Instance.new("TextButton", frame)
+toggleBuy.Text = "Auto Buy: OFF"
+toggleBuy.Size = UDim2.new(1, 0, 0, 50)
+toggleBuy.Position = UDim2.new(0, 0, 0, 240)
+toggleBuy.BackgroundColor3 = Color3.fromRGB(75, 75, 75)
+toggleBuy.TextColor3 = Color3.fromRGB(255, 255, 255)
+toggleBuy.Font = Enum.Font.Gotham
+toggleBuy.TextScaled = true
+toggleBuy.TextStrokeTransparency = 0.5
+
+toggleBuy.MouseButton1Click:Connect(function()
+    autoBuyEnabled = not autoBuyEnabled
+    toggleBuy.Text = "Auto Buy: " .. (autoBuyEnabled and "ON" or "OFF")
+end)
+
 -- Select fields
 local fieldLabel = Instance.new("TextLabel", frame)
 fieldLabel.Text = "Select Field:"
 fieldLabel.Size = UDim2.new(1, 0, 0, 40)
-fieldLabel.Position = UDim2.new(0, 0, 0, 240)
+fieldLabel.Position = UDim2.new(0, 0, 0, 300)
 fieldLabel.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
 fieldLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
 fieldLabel.Font = Enum.Font.Gotham
@@ -93,7 +110,7 @@ fieldLabel.TextStrokeTransparency = 0.5
 local dropdown = Instance.new("TextButton", frame)
 dropdown.Text = "SunflowerField"
 dropdown.Size = UDim2.new(1, 0, 0, 40)
-dropdown.Position = UDim2.new(0, 0, 0, 280)
+dropdown.Position = UDim2.new(0, 0, 0, 340)
 dropdown.BackgroundColor3 = Color3.fromRGB(75, 75, 75)
 dropdown.TextColor3 = Color3.fromRGB(255, 255, 255)
 dropdown.Font = Enum.Font.Gotham
@@ -156,24 +173,13 @@ local function collectTokens()
                 if character and character:FindFirstChild("HumanoidRootPart") then
                     -- Teleport to token
                     character.HumanoidRootPart.CFrame = token.CFrame * CFrame.new(0, 3, 0) -- Adjust height as needed
-                    wait(0.1) -- Give time for teleportation
-                    fireclickdetector(token:FindFirstChild("ClickDetector"))
+                    wait(0.1) -- Small wait before collecting
+                    fireclickdetector(token.ClickDetector)
                     wait(math.random(0.5, 1.5)) -- Random delay to mimic human behavior
                 end
             end
         end
-        wait(1) -- Delay before searching for tokens again
-    end
-end
-
--- Function to auto farm selected fields
-local function autoFarm()
-    while autoFarmEnabled do
-        for _, field in pairs(selectedFields) do
-            collectPollen(field)
-            makeHoney()
-            wait(math.random(5, 10)) -- Random delay for safety
-        end
+        wait(5) -- Delay before checking for tokens again
     end
 end
 
@@ -181,19 +187,33 @@ end
 local function autoCompleteQuests()
     while autoQuestEnabled do
         for _, quest in pairs(workspace.Quests:GetChildren()) do
-            if quest:IsA("Quest") and quest:FindFirstChild("QuestGiver") then
-                local questGiver = quest.QuestGiver
-                if questGiver:FindFirstChild("Talk") then
-                    fireclickdetector(questGiver.Talk.ClickDetector) -- Simulate talking to the quest giver
-                    wait(math.random(1, 2)) -- Wait for interaction
-                end
-                if quest:FindFirstChild("Complete") and quest.Complete.Value then
-                    fireclickdetector(quest.Complete.ClickDetector) -- Complete the quest
-                    wait(math.random(1, 2)) -- Wait for completion
-                end
+            if quest:FindFirstChild("Complete") and quest.Complete.Value then
+                fireclickdetector(quest.Complete.ClickDetector) -- Complete the quest
+                wait(math.random(1, 2)) -- Wait for completion
             end
         end
         wait(5) -- Delay before checking quests again
+    end
+end
+
+-- Function to auto-buy better equipment
+local function autoBuy()
+    while autoBuyEnabled do
+        local playerMoney = player.Data.Money.Value -- Adjust based on your game's player money structure
+        local shop = workspace.Shop -- Adjust based on the actual shop location in your game
+        if shop then
+            for _, item in pairs(shop:GetChildren()) do
+                if item:IsA("Tool") and item.Price.Value <= playerMoney then -- Check if player can afford item
+                    -- Teleport player to the shop
+                    player.Character.HumanoidRootPart.CFrame = shop.CFrame * CFrame.new(0, 3, 0) -- Adjust height as needed
+                    wait(0.5) -- Wait for teleportation
+                    fireclickdetector(item.ClickDetector) -- Simulate buying the item
+                    wait(math.random(1, 2)) -- Wait for purchase
+                    break -- Exit loop after buying the first affordable item
+                end
+            end
+        end
+        wait(5) -- Delay before checking again
     end
 end
 
@@ -206,14 +226,17 @@ uis.InputBegan:Connect(function(input)
             autoFarmEnabled = false
             autoCollectTokensEnabled = false
             autoQuestEnabled = false
+            autoBuyEnabled = false
             toggleFarm.Text = "Auto Farm: OFF"
             toggleTokens.Text = "Auto Collect Tokens: OFF"
             toggleQuests.Text = "Auto Quests: OFF"
+            toggleBuy.Text = "Auto Buy: OFF"
         end
     end
 end)
 
--- Start auto farm and questing in separate threads
+-- Start auto farm, token collection, questing, and auto-buy in separate threads
 coroutine.wrap(autoFarm)()
 coroutine.wrap(collectTokens)()
 coroutine.wrap(autoCompleteQuests)()
+coroutine.wrap(autoBuy)()
