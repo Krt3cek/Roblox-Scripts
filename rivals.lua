@@ -15,6 +15,7 @@ local Window = OrionLib:MakeWindow({
 local Players = game:GetService("Players")
 local UserInputService = game:GetService("UserInputService")
 local RunService = game:GetService("RunService")
+local Workspace = game:GetService("Workspace")
 
 -- Variables
 local LocalPlayer = Players.LocalPlayer
@@ -91,6 +92,74 @@ local function AimAtNearestEnemy()
     end
 end
 
+-- Function to create a view line
+local function DrawViewLine()
+    for _, Player in pairs(Players:GetPlayers()) do
+        if Player ~= LocalPlayer and Player.Character and Player.Character:FindFirstChild("Head") then
+            local line = Instance.new("LineHandleAdornment")
+            line.Adornee = Player.Character.Head
+            line.Length = 100
+            line.Color3 = Color3.new(0, 0, 255) -- Blue color
+            line.Thickness = 0.1
+            line.Parent = Player.Character.Head
+
+            -- Clean up the line when the player is no longer alive
+            Player.Character.Humanoid.Died:Connect(function()
+                line:Destroy()
+            end)
+        end
+    end
+end
+
+-- Function to toggle skeleton visualization
+local function ToggleSkeleton(Player)
+    local Character = Player.Character or Player.CharacterAdded:Wait()
+    local Humanoid = Character:WaitForChild("Humanoid")
+
+    -- Create parts for skeleton visualization
+    local function CreateSkeletonPart(part)
+        local skeletonPart = Instance.new("Part")
+        skeletonPart.Size = Vector3.new(0.2, 0.2, 0.2)
+        skeletonPart.Color = Color3.fromRGB(0, 255, 0) -- Green color
+        skeletonPart.Anchored = true
+        skeletonPart.CanCollide = false
+        skeletonPart.Parent = Workspace
+
+        local weld = Instance.new("WeldConstraint")
+        weld.Part0 = skeletonPart
+        weld.Part1 = part
+        weld.Parent = skeletonPart
+
+        return skeletonPart
+    end
+
+    local HeadSkeleton = CreateSkeletonPart(Character:WaitForChild("Head"))
+    local TorsoSkeleton = CreateSkeletonPart(Character:WaitForChild("HumanoidRootPart"))
+
+    -- Create skeleton parts for limbs
+    local function CreateLimbSkeleton()
+        for _, limbName in pairs({"Left Arm", "Right Arm", "Left Leg", "Right Leg"}) do
+            local limb = Character:FindFirstChild(limbName)
+            if limb then
+                CreateSkeletonPart(limb)
+            end
+        end
+    end
+
+    CreateLimbSkeleton()
+
+    -- Clean up skeleton parts when the player dies
+    Humanoid.Died:Connect(function()
+        HeadSkeleton:Destroy()
+        TorsoSkeleton:Destroy()
+        for _, part in pairs(Workspace:GetChildren()) do
+            if part:IsA("Part") and part.Name == "SkeletonPart" then
+                part:Destroy()
+            end
+        end
+    end)
+end
+
 -- Create Main Tab
 local MainTab = Window:MakeTab({
     Name = "Main",
@@ -121,7 +190,13 @@ MainTab:AddToggle({
     Default = false,
     Callback = function(Value)
         skeletonEnabled = Value
-        -- TODO: Implement skeleton visualization logic here
+        for _, Player in pairs(Players:GetPlayers()) do
+            if Player ~= LocalPlayer and Player.Character then
+                if skeletonEnabled then
+                    ToggleSkeleton(Player)
+                end
+            end
+        end
     end,
 })
 
@@ -131,7 +206,9 @@ MainTab:AddToggle({
     Default = false,
     Callback = function(Value)
         viewLineEnabled = Value
-        -- TODO: Implement view line logic here
+        if viewLineEnabled then
+            DrawViewLine()
+        end
     end,
 })
 
@@ -153,12 +230,6 @@ UserInputService.InputBegan:Connect(function(input, gameProcessed)
         -- Toggle the Orion window with 'F'
         if input.KeyCode == Enum.KeyCode.F then
             Window:Toggle()  -- Toggle Orion window
-        end
-
-        -- Toggle ESP with 'E'
-        if input.KeyCode == Enum.KeyCode.E then
-            ESPEnabled = not ESPEnabled
-            ToggleESP()  -- Update ESP state
         end
 
         -- Activate aimbot when it's enabled
