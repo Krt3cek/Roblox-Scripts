@@ -16,24 +16,21 @@ local Players = game:GetService("Players")
 local UserInputService = game:GetService("UserInputService")
 local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
-local LocalPlayer = Players.LocalPlayer
 
 -- Variables
+local LocalPlayer = Players.LocalPlayer
 local ESPEnabled = false  -- Set to false initially
 local ChamsEnabled = false  -- Set to false initially
 local highlightColor = Color3.fromRGB(255, 48, 51)
 local isAimbotActive = false  -- Set to false initially
-local skeletonEnabled = false  -- Set to false initially
-local viewLineEnabled = false  -- Set to false initially
-local healthBarVisible = true  -- Player health display
-local distanceIndicatorVisible = true  -- Player distance indicator
-local espBoxSize = Vector3.new(2, 2, 2)  -- Size for ESP boxes
-local espBoxTransparency = 0.5  -- Transparency for ESP boxes
+local aimLock = false  -- Set to false initially
+local smoothAiming = false  -- Set to false initially
+local aimSmoothness = 0.5  -- Default smoothness
+local aimFOV = 70  -- Default FOV for aiming
 local playerSpeed = 16  -- Default player speed
-local defaultFOV = 70  -- Default Field of View
-local currentFOV = defaultFOV  -- Current Field of View
+local currentFOV = 70  -- Current Field of View
 
--- Functions for ESP, Chams, and other functionalities
+-- Function to create a highlight for a player
 local function ApplyChams(Player)
     local Character = Player.Character or Player.CharacterAdded:Wait()
     
@@ -44,7 +41,7 @@ local function ApplyChams(Player)
 
     -- Function to update highlight based on health
     local function OnHealthChanged()
-        if Character and Humanoid.Health <= 0 then
+        if Character and Character:FindFirstChild("Humanoid") and Character.Humanoid.Health <= 0 then
             Highlighter:Destroy()
         end
     end
@@ -56,64 +53,31 @@ local function ApplyChams(Player)
     return Highlighter
 end
 
-local function CreateHealthBar(Player)
-    local Character = Player.Character or Player.CharacterAdded:Wait()
-    local Humanoid = Character:WaitForChild("Humanoid")
-
-    local healthBar = Instance.new("BillboardGui")
-    healthBar.Size = UDim2.new(0, 100, 0, 10)
-    healthBar.StudsOffset = Vector3.new(0, 3, 0)
-    healthBar.AlwaysOnTop = true
-    healthBar.Parent = Character:FindFirstChild("Head")
-
-    local healthBarFrame = Instance.new("Frame")
-    healthBarFrame.Size = UDim2.new(1, 0, 1, 0)
-    healthBarFrame.BackgroundColor3 = Color3.new(0, 1, 0)
-    healthBarFrame.Parent = healthBar
-
-    -- Update health bar as health changes
-    Humanoid:GetPropertyChangedSignal("Health"):Connect(function()
-        local healthRatio = Humanoid.Health / Humanoid.MaxHealth
-        healthBarFrame.Size = UDim2.new(healthRatio, 0, 1, 0)
-        healthBarFrame.BackgroundColor3 = healthRatio > 0.5 and Color3.new(0, 1, 0) or healthRatio > 0.25 and Color3.new(1, 1, 0) or Color3.new(1, 0, 0)
-    end)
-
-    return healthBar
+-- Function to toggle highlights for all players
+local function ToggleChams()
+    for _, Player in pairs(Players:GetPlayers()) do
+        if Player ~= LocalPlayer and Player.Character then
+            local highlight = Player.Character:FindFirstChildOfClass("Highlight")
+            if highlight then
+                highlight.Enabled = ChamsEnabled
+            else
+                ApplyChams(Player)
+            end
+        end
+    end
 end
 
-local function CreateDistanceIndicator(Player)
-    local Character = Player.Character or Player.CharacterAdded:Wait()
-
-    local distanceLabel = Instance.new("BillboardGui")
-    distanceLabel.Size = UDim2.new(0, 100, 0, 50)
-    distanceLabel.StudsOffset = Vector3.new(0, 3, 0)
-    distanceLabel.AlwaysOnTop = true
-    distanceLabel.Parent = Character:FindFirstChild("Head")
-
-    local distanceText = Instance.new("TextLabel")
-    distanceText.Size = UDim2.new(1, 0, 1, 0)
-    distanceText.BackgroundTransparency = 1
-    distanceText.TextColor3 = Color3.new(1, 1, 1)
-    distanceText.Parent = distanceLabel
-
-    return distanceText
-end
-
-local function UpdateDistanceIndicator(distanceText, Player)
-    local distance = (LocalPlayer.Character.HumanoidRootPart.Position - Player.Character.HumanoidRootPart.Position).magnitude
-    distanceText.Text = math.floor(distance) .. " studs"
-end
-
+-- Function to create a box around the player
 local function CreateESPBox(Player)
     local Character = Player.Character or Player.CharacterAdded:Wait()
     local Head = Character:WaitForChild("Head")
     
     -- Create a box part for ESP
     local espBox = Instance.new("BoxHandleAdornment")
-    espBox.Size = espBoxSize
+    espBox.Size = Character:GetExtentsSize()
     espBox.Adornee = Character
     espBox.Color3 = highlightColor
-    espBox.Transparency = espBoxTransparency
+    espBox.Transparency = 0.5
     espBox.ZIndex = 10
     espBox.Parent = Character
 
@@ -125,26 +89,16 @@ local function CreateESPBox(Player)
     return espBox
 end
 
+-- Function to toggle ESP boxes for all players
 local function ToggleESP()
     for _, Player in pairs(Players:GetPlayers()) do
         if Player ~= LocalPlayer and Player.Character then
             CreateESPBox(Player)
-
-            -- Create health bar and distance indicator if enabled
-            if healthBarVisible then
-                CreateHealthBar(Player)
-            end
-            if distanceIndicatorVisible then
-                local distanceText = CreateDistanceIndicator(Player)
-                -- Update the distance every frame
-                RunService.RenderStepped:Connect(function()
-                    UpdateDistanceIndicator(distanceText, Player)
-                end)
-            end
         end
     end
 end
 
+-- Aimbot function to aim at the nearest enemy's head
 local function AimAtNearestEnemy()
     local mouse = LocalPlayer:GetMouse()
     local closestPlayer = nil
@@ -154,11 +108,9 @@ local function AimAtNearestEnemy()
         if Player ~= LocalPlayer and Player.Character and Player.Character:FindFirstChild("Humanoid") and Player.Character.Humanoid.Health > 0 then
             local head = Player.Character:FindFirstChild("Head")
             if head then
-                local screenPoint = workspace.CurrentCamera:WorldToScreenPoint(head.Position)
-                local mouseDistance = (Vector2.new(mouse.X, mouse.Y) - Vector2.new(screenPoint.X, screenPoint.Y)).Magnitude
-
-                if mouseDistance < closestDistance then
-                    closestDistance = mouseDistance
+                local distance = (LocalPlayer.Character.HumanoidRootPart.Position - head.Position).magnitude
+                if distance <= aimFOV and distance < closestDistance then
+                    closestDistance = distance
                     closestPlayer = head
                 end
             end
@@ -166,14 +118,22 @@ local function AimAtNearestEnemy()
     end
 
     if closestPlayer then
-        -- Move the mouse to the closest enemy's head
-        UserInputService.MouseBehavior = Enum.MouseBehavior.LockCenter  -- Lock mouse to center
+        -- Move the mouse to the closest enemy's head smoothly
         local targetPosition = workspace.CurrentCamera:WorldToScreenPoint(closestPlayer.Position)
         local newMousePosition = Vector2.new(targetPosition.X, targetPosition.Y)
-        UserInputService:SetMouseLocation(newMousePosition.X, newMousePosition.Y)
+
+        if smoothAiming then
+            local mousePosition = Vector2.new(mouse.X, mouse.Y)
+            local step = aimSmoothness
+            mousePosition = mousePosition:Lerp(newMousePosition, step)  -- Smoothly interpolate
+            UserInputService:SetMouseLocation(mousePosition.X, mousePosition.Y)
+        else
+            UserInputService:SetMouseLocation(newMousePosition.X, newMousePosition.Y)
+        end
     end
 end
 
+-- Function to create a view line
 local function DrawViewLine()
     for _, Player in pairs(Players:GetPlayers()) do
         if Player ~= LocalPlayer and Player.Character and Player.Character:FindFirstChild("Head") then
@@ -192,6 +152,7 @@ local function DrawViewLine()
     end
 end
 
+-- Function to create skeleton visualization
 local function ToggleSkeleton(Player)
     local Character = Player.Character or Player.CharacterAdded:Wait()
     local Humanoid = Character:WaitForChild("Humanoid")
@@ -205,30 +166,33 @@ local function ToggleSkeleton(Player)
         skeletonPart.CanCollide = false
         skeletonPart.Parent = Workspace
 
-        -- Attach skeleton part to the original part
-        skeletonPart.CFrame = part.CFrame
-        part:GetPropertyChangedSignal("CFrame"):Connect(function()
-            skeletonPart.CFrame = part.CFrame
-        end)
+        local weld = Instance.new("WeldConstraint")
+        weld.Part0 = skeletonPart
+        weld.Part1 = part
+        weld.Parent = skeletonPart
 
         return skeletonPart
     end
 
-    -- Create skeleton parts for body parts
-    local function CreateSkeletonBody()
-        local bodyParts = {"Head", "Torso", "Left Arm", "Right Arm", "Left Leg", "Right Leg"}
-        for _, partName in pairs(bodyParts) do
-            local part = Character:FindFirstChild(partName)
-            if part then
-                CreateSkeletonPart(part)
+    local HeadSkeleton = CreateSkeletonPart(Character:WaitForChild("Head"))
+    local TorsoSkeleton = CreateSkeletonPart(Character:WaitForChild("HumanoidRootPart"))
+
+    -- Create skeleton parts for limbs
+    local function CreateLimbSkeleton()
+        for _, limbName in pairs({"Left Arm", "Right Arm", "Left Leg", "Right Leg"}) do
+            local limb = Character:FindFirstChild(limbName)
+            if limb then
+                CreateSkeletonPart(limb)
             end
         end
     end
 
-    CreateSkeletonBody()
+    CreateLimbSkeleton()
 
     -- Clean up skeleton parts when the player dies
     Humanoid.Died:Connect(function()
+        HeadSkeleton:Destroy()
+        TorsoSkeleton:Destroy()
         for _, part in pairs(Workspace:GetChildren()) do
             if part:IsA("Part") and part.Name == "SkeletonPart" then
                 part:Destroy()
@@ -253,12 +217,17 @@ local MiscTab = Window:MakeTab({
     Icon = "rbxassetid://10472045394",
 })
 
-local TeleportTab = Window:MakeTab({
-    Name = "Teleport",
-    Icon = "rbxassetid://10472045394",
+-- Visuals Tab: Toggle Chams button
+VisualsTab:AddToggle({
+    Name = "Toggle Chams",
+    Default = false,
+    Callback = function(Value)
+        ChamsEnabled = Value
+        ToggleChams()  -- Update Chams state
+    end,
 })
 
--- Toggle ESP Boxes button
+-- Visuals Tab: Toggle ESP button
 VisualsTab:AddToggle({
     Name = "Toggle ESP Boxes",
     Default = false,
@@ -270,32 +239,13 @@ VisualsTab:AddToggle({
     end,
 })
 
--- Toggle Health Bar button
-VisualsTab:AddToggle({
-    Name = "Toggle Health Bar",
-    Default = true,
-    Callback = function(Value)
-        healthBarVisible = Value
-        ToggleESP()  -- Reapply ESP to update health bar visibility
-    end,
-})
-
--- Toggle Distance Indicator button
-VisualsTab:AddToggle({
-    Name = "Toggle Distance Indicator",
-    Default = true,
-    Callback = function(Value)
-        distanceIndicatorVisible = Value
-        ToggleESP()  -- Reapply ESP to update distance indicator visibility
-    end,
-})
-
--- Change Highlight Color button with color picker
+-- Visuals Tab: Change Highlight Color button with color picker
 VisualsTab:AddColorPicker({
     Name = "Chams Highlight Color",
     Default = highlightColor,
     Callback = function(color)
         highlightColor = color
+        ToggleChams()  -- Update Chams color
         for _, Player in pairs(Players:GetPlayers()) do
             if Player ~= LocalPlayer and Player.Character then
                 local highlight = Player.Character:FindFirstChildOfClass("Highlight")
@@ -307,36 +257,67 @@ VisualsTab:AddColorPicker({
     end,
 })
 
--- Player Speed Adjustment slider
-VisualsTab:AddSlider({
-    Name = "Adjust Player Speed",
-    Min = 16,
-    Max = 100,
-    Default = playerSpeed,
-    Increment = 1,
+-- Visuals Tab: Toggle Skeleton button
+VisualsTab:AddToggle({
+    Name = "Toggle Skeleton",
+    Default = false,
     Callback = function(Value)
-        playerSpeed = Value
-        LocalPlayer.Character.Humanoid.WalkSpeed = playerSpeed
-    end,
-})
-
--- Teleport to Selected Player button
-AimTab:AddButton({
-    Name = "Teleport to Selected Player",
-    Callback = function()
-        local targetPlayer = Players:GetPlayers()[1]  -- Select the first player as an example
-        if targetPlayer and targetPlayer.Character and targetPlayer.Character:FindFirstChild("HumanoidRootPart") then
-            LocalPlayer.Character.HumanoidRootPart.CFrame = targetPlayer.Character.HumanoidRootPart.CFrame
+        for _, Player in pairs(Players:GetPlayers()) do
+            if Player ~= LocalPlayer and Value then
+                ToggleSkeleton(Player)
+            end
         end
     end,
 })
 
--- Aimbot button
+-- Aimbot Tab: Toggle Aimbot
 AimTab:AddToggle({
     Name = "Toggle Aimbot",
     Default = false,
     Callback = function(Value)
         isAimbotActive = Value
+    end,
+})
+
+-- Aimbot Tab: Aim Lock Toggle
+AimTab:AddToggle({
+    Name = "Toggle Aim Lock",
+    Default = false,
+    Callback = function(Value)
+        aimLock = Value
+    end,
+})
+
+-- Aimbot Tab: Smooth Aiming Toggle
+AimTab:AddToggle({
+    Name = "Enable Smooth Aiming",
+    Default = false,
+    Callback = function(Value)
+        smoothAiming = Value
+    end,
+})
+
+-- Aimbot Tab: Aim Smoothness Slider
+AimTab:AddSlider({
+    Name = "Aim Smoothness",
+    Min = 0,
+    Max = 1,
+    Default = aimSmoothness,
+    Increment = 0.01,
+    Callback = function(Value)
+        aimSmoothness = Value
+    end,
+})
+
+-- Aimbot Tab: Aim FOV Slider
+AimTab:AddSlider({
+    Name = "Aim FOV",
+    Min = 0,
+    Max = 200,
+    Default = aimFOV,
+    Increment = 1,
+    Callback = function(Value)
+        aimFOV = Value
     end,
 })
 
@@ -358,7 +339,7 @@ MiscTab:AddSlider({
     Name = "Adjust FOV",
     Min = 70,
     Max = 120,
-    Default = defaultFOV,
+    Default = currentFOV,
     Increment = 1,
     Callback = function(Value)
         currentFOV = Value
@@ -366,60 +347,36 @@ MiscTab:AddSlider({
     end,
 })
 
--- Misc Tab: Teleport to Player
-MiscTab:AddButton({
-    Name = "Teleport to Nearest Player",
-    Callback = function()
-        local closestPlayer = nil
-        local closestDistance = math.huge
-
-        for _, Player in pairs(Players:GetPlayers()) do
-            if Player ~= LocalPlayer and Player.Character and Player.Character:FindFirstChild("Humanoid") then
-                local distance = (LocalPlayer.Character.HumanoidRootPart.Position - Player.Character.HumanoidRootPart.Position).magnitude
-                if distance < closestDistance then
-                    closestDistance = distance
-                    closestPlayer = Player
-                end
-            end
-        end
-
-        if closestPlayer and closestPlayer.Character then
-            LocalPlayer.Character.HumanoidRootPart.CFrame = closestPlayer.Character.HumanoidRootPart.CFrame
-        end
-    end,
-})
-
--- Teleport Tab: Teleport to Specific Player
-TeleportTab:AddDropdown({
+-- Teleport Tab: Teleport to Player dropdown
+local teleportDropdown = TeleportTab:AddDropdown({
     Name = "Select Player to Teleport To",
-    Options = Players:GetPlayers(),
+    Options = {},
     Callback = function(selectedPlayer)
         for _, Player in pairs(Players:GetPlayers()) do
             if Player.Name == selectedPlayer then
                 LocalPlayer.Character.HumanoidRootPart.CFrame = Player.Character.HumanoidRootPart.CFrame
+                break
             end
         end
     end,
 })
 
--- Teleport Tab: Teleport to Random Player
+-- Populate the teleport dropdown with player names
+Players.PlayerAdded:Connect(function(Player)
+    teleportDropdown:Add(selectedPlayer.Name)
+end)
+
+for _, Player in pairs(Players:GetPlayers()) do
+    teleportDropdown:Add(Player.Name)
+end
+
+-- Teleport Tab: Button to teleport to local player
 TeleportTab:AddButton({
-    Name = "Teleport to Random Player",
+    Name = "Teleport to Me",
     Callback = function()
-        local allPlayers = Players:GetPlayers()
-        if #allPlayers > 1 then  -- Ensure there are other players to teleport to
-            local randomIndex = math.random(1, #allPlayers)
-            local targetPlayer = allPlayers[randomIndex]
-
-            if targetPlayer and targetPlayer.Character then
-                LocalPlayer.Character.HumanoidRootPart.CFrame = targetPlayer.Character.HumanoidRootPart.CFrame
-            end
-        end
+        LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(0, 50, 0) -- Adjust as needed
     end,
 })
-
--- Initial settings for players
-ToggleESP()  -- Apply initial ESP to all players
 
 -- Key bindings for menu toggling and ESP toggle
 UserInputService.InputBegan:Connect(function(input, gameProcessed)
@@ -430,7 +387,7 @@ UserInputService.InputBegan:Connect(function(input, gameProcessed)
         end
 
         -- Activate aimbot when it's enabled
-        if isAimbotActive then
+        if isAimbotActive and not aimLock then
             AimAtNearestEnemy()
         end
     end
@@ -441,4 +398,17 @@ RunService.RenderStepped:Connect(function()
     if isAimbotActive then
         AimAtNearestEnemy()
     end
+end)
+
+-- Initial settings for players
+for _, Player in pairs(Players:GetPlayers()) do
+    if Player ~= LocalPlayer then
+        ApplyChams(Player)
+    end
+end
+
+Players.PlayerAdded:Connect(function(Player)
+    Player.CharacterAdded:Connect(function()
+        ApplyChams(Player)
+    end)
 end)
