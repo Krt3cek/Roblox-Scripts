@@ -11,8 +11,8 @@ local ESPEnabled = true
 local highlightColor = Color3.fromRGB(255, 48, 51)
 local skeletonColor = Color3.fromRGB(0, 255, 0)
 local viewLineColor = Color3.fromRGB(0, 0, 255)
-local toggleKey = Enum.KeyCode.M
-local aimKey = Enum.KeyCode.E
+local toggleKey = Enum.KeyCode.M  -- Key for toggling the menu
+local aimKey = Enum.KeyCode.E      -- Key for aimbot
 local isAimbotActive = false
 local aimTarget = nil
 local skeletonEnabled = false
@@ -69,6 +69,7 @@ local function createToggleGUI()
     Frame.BackgroundTransparency = 0.5
     Frame.Active = true
     Frame.Draggable = true
+    Frame.Visible = false  -- Start with the menu hidden
 
     local TitleLabel = Instance.new("TextLabel", Frame)
     TitleLabel.Size = UDim2.new(1, 0, 0, 50)
@@ -141,20 +142,20 @@ local function createToggleGUI()
     createToggleButton(ContentFrame, "Toggle Skeleton", UDim2.new(0, 0, 0, 100), function()
         skeletonEnabled = not skeletonEnabled
         if skeletonEnabled then
-            -- Create skeleton visualization (implementation omitted for brevity)
+            -- Implement skeleton visualization logic here
         else
-            -- Remove skeletons (implementation omitted for brevity)
+            -- Remove skeletons logic here
         end
     end)
 
     createToggleButton(ContentFrame, "Toggle Aimbot", UDim2.new(0, 0, 0, 150), function()
         isAimbotActive = not isAimbotActive
-        -- Aimbot functionality (implementation omitted for brevity)
+        -- Implement aimbot logic here
     end)
 
     createToggleButton(ContentFrame, "Toggle View Line", UDim2.new(0, 0, 0, 200), function()
         viewLineEnabled = not viewLineEnabled
-        -- View line functionality (implementation omitted for brevity)
+        -- Implement view line logic here
     end)
 
     -- Tab switching
@@ -184,8 +185,10 @@ for _, Player in pairs(Players:GetPlayers()) do
 end
 
 -- Key bindings for menu toggling
-UserInputService.InputBegan:Connect(function(input)
-    if input.KeyCode == toggleKey then
-        Frame.Visible = not Frame.Visible
+UserInputService.InputBegan:Connect(function(input, gameProcessed)
+    if not gameProcessed then  -- Only process if the game is not handling the input
+        if input.KeyCode == toggleKey then
+            Frame.Visible = not Frame.Visible
+        end
     end
 end)
