@@ -1,5 +1,5 @@
 -- Load OrionLib
-OrionLib = loadstring(game:HttpGet(('https://raw.githubusercontent.com/shlexware/Orion/main/source')))()
+local OrionLib = loadstring(game:HttpGet('https://raw.githubusercontent.com/shlexware/Orion/main/source'))()
 local Window = OrionLib:MakeWindow({
     Name = "Krt Hub",
     HidePremium = false,
@@ -17,7 +17,6 @@ local UserInputService = game:GetService("UserInputService")
 local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
 
-
 -- Variables
 local LocalPlayer = Players.LocalPlayer
 local ESPEnabled = false
@@ -34,9 +33,7 @@ local espBoxes = {}
 local chamsHighlights = {}
 local espThread, chamsThread
 local noclipEnabled = false
-local aimbotKey = Enum.KeyCode.E  -- Example: Aimbot will activate when holding "E"
-local teleportDropdown = {} -- Replace with your actual dropdown object
-local TeleportTab = {} -- Replace with your actual teleport tab object
+local aimbotKey = Enum.KeyCode.E  -- Aimbot activation key
 local holdingKey = false
 
 -- Function to create a highlight for a player (Chams)
@@ -62,8 +59,6 @@ local function ApplyChams(Player)
     -- Connect health change
     local Humanoid = Character:WaitForChild("Humanoid")
     Humanoid:GetPropertyChangedSignal("Health"):Connect(OnHealthChanged)
-
-    return Highlighter
 end
 
 -- Function to create ESP box for a player
@@ -89,8 +84,6 @@ local function CreateESPBox(Player)
             espBoxes[Player] = nil
         end
     end)
-
-    return espBox
 end
 
 -- Function to update Chams for all players
@@ -155,7 +148,7 @@ local function StartESPThread()
     end)
 end
 
--- Function to aim at the nearest enemy (as per your original script)
+-- Aimbot function to aim at the nearest enemy
 local function AimAtNearestEnemy()
     local mouse = LocalPlayer:GetMouse()
     local closestPlayer = nil
@@ -190,34 +183,31 @@ local function AimAtNearestEnemy()
         end
     end
 end
+
 -- Aimbot activation using key press
 UserInputService.InputBegan:Connect(function(input, gameProcessed)
-    if not gameProcessed and input.UserInputType == Enum.UserInputType.Keyboard and input.KeyCode == aimbotKey then
+    if not gameProcessed and input.KeyCode == aimbotKey then
         isAimbotActive = true
     end
 end)
 
 UserInputService.InputEnded:Connect(function(input, gameProcessed)
-    if not gameProcessed and input.UserInputType == Enum.UserInputType.Keyboard and input.KeyCode == aimbotKey then
+    if not gameProcessed and input.KeyCode == aimbotKey then
         isAimbotActive = false
     end
 end)
 
 -- Continuous aiming when aimbot is active
-while true do
+RunService.RenderStepped:Connect(function()
     if isAimbotActive then
         AimAtNearestEnemy()
     end
+end)
 
-    if aimLock then
-        local mouse = LocalPlayer:GetMouse()
-    end
-end
-
-function EnableNoClip()
-    noclipLoop = game:GetService("RunService").Stepped:Connect(function()
+-- Function to enable No-Clip
+local function EnableNoClip()
+    noclipLoop = RunService.Stepped:Connect(function()
         if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Humanoid") then
-            -- Set all parts in the character to CanCollide = false to pass through objects
             for _, part in pairs(LocalPlayer.Character:GetDescendants()) do
                 if part:IsA("BasePart") then
                     part.CanCollide = false
@@ -227,13 +217,12 @@ function EnableNoClip()
     end)
 end
 
--- Function to disable No-clip
-function DisableNoClip()
+-- Function to disable No-Clip
+local function DisableNoClip()
     if noclipLoop then
         noclipLoop:Disconnect()  -- Stop the No-clip loop
     end
 
-    -- Reset character parts to CanCollide = true to restore normal collisions
     if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Humanoid") then
         for _, part in pairs(LocalPlayer.Character:GetDescendants()) do
             if part:IsA("BasePart") then
@@ -241,32 +230,6 @@ function DisableNoClip()
             end
         end
     end
-end
-
-
--- Function to bind the key for aimbot activation
-function BindAimbotKey()
-    -- Detect key press and release for enabling/disabling aimbot
-    UserInputService.InputBegan:Connect(function(input, gameProcessed)
-        if input.KeyCode == aimbotKey and not gameProcessed then
-            holdingKey = true
-            EnableAimbot()  -- Enable aimbot when holding the key
-        end
-    end)
-
-    UserInputService.InputEnded:Connect(function(input, gameProcessed)
-        if input.KeyCode == aimbotKey and not gameProcessed then
-            holdingKey = false
-            DisableAimbot()  -- Disable aimbot when the key is released
-        end
-    end)
-end
-
--- Function to unbind the aimbot key (cleanup)
-function UnbindAimbotKey()
-    -- Stop aimbot when disabled
-    holdingKey = false
-    DisableAimbot()
 end
 
 -- Function to update the dropdown options with current players
@@ -283,21 +246,17 @@ local function UpdateTeleportDropdown()
     })
 end
 
--- Initial population of the dropdown
-UpdateTeleportDropdown()
-
--- Update dropdown when a player joins
+-- Update dropdown when a player joins or leaves
 Players.PlayerAdded:Connect(function(Player)
     Player.CharacterAdded:Wait()  -- Wait for their character to load
     UpdateTeleportDropdown()
 end)
 
--- Update dropdown when a player leaves
 Players.PlayerRemoving:Connect(function(Player)
     UpdateTeleportDropdown()
 end)
 
--- Correctly creating the Visual, Aim, Misc, and Teleport tabs
+-- Correctly creating the Visuals, Aim, Misc, and Teleport tabs
 local VisualsTab = Window:MakeTab({
     Name = "Visuals",
     Icon = "rbxassetid://10472045394",
@@ -318,58 +277,39 @@ local TeleportTab = Window:MakeTab({
     Icon = "rbxassetid://10472045394",
 })
 
-
--- Ensure we add Chams toggle under the correct 'VisualsTab'
+-- Visuals Tab Options
 VisualsTab:AddToggle({
-    Name = "Toggle Chams",
+    Name = "Enable ESP",
     Default = false,
-    Callback = function(Value)
-        ChamsEnabled = Value
-        if ChamsEnabled then
-            StartChamsThread()  -- Start the thread to continuously update Chams
-        else
-            RemoveAllChams()  -- Clean up Chams when disabled
-        end
+    Callback = function(value)
+        ESPEnabled = value
+        StartESPThread()
     end,
 })
 
--- Ensure ESP is under 'VisualsTab'
 VisualsTab:AddToggle({
-    Name = "Toggle ESP Boxes",
+    Name = "Enable Chams",
     Default = false,
-    Callback = function(Value)
-        ESPEnabled = Value
-        if ESPEnabled then
-            StartESPThread()  -- Start the thread to continuously update ESP
-        else
-            RemoveAllESPBoxes()  -- Clean up ESP when disabled
-        end
+    Callback = function(value)
+        ChamsEnabled = value
+        StartChamsThread()
     end,
 })
 
-
-AimTab:AddDropdown({
-    Name = "Aimbot Key",
-    Default = "LeftAlt",
-    Options = {"E", "Q", "R", "F", "G", "H", "Z", "X", "C", "V", "LeftAlt", "RightAlt"},
-    Callback = function(selectedKey)
-        aimbotKey = Enum.KeyCode[selectedKey]  -- Set the aimbot key to the selected value
+-- Aim Tab Options
+AimTab:AddToggle({
+    Name = "Aimbot",
+    Default = false,
+    Callback = function(value)
+        isAimbotActive = value
     end,
 })
 
 AimTab:AddToggle({
-    Name = "Toggle Aim Lock",
+    Name = "Smooth Aiming",
     Default = false,
-    Callback = function(Value)
-        aimLock = Value
-    end,
-})
-
-AimTab:AddToggle({
-    Name = "Enable Smooth Aiming",
-    Default = false,
-    Callback = function(Value)
-        smoothAiming = Value
+    Callback = function(value)
+        smoothAiming = value
     end,
 })
 
@@ -377,104 +317,57 @@ AimTab:AddSlider({
     Name = "Aim Smoothness",
     Min = 0,
     Max = 1,
-    Default = aimSmoothness,
-    Increment = 0.01,
-    Callback = function(Value)
-        aimSmoothness = Value
+    Default = 0.5,
+    Increment = 0.1,
+    Callback = function(value)
+        aimSmoothness = value
     end,
 })
 
 AimTab:AddSlider({
     Name = "Aim FOV",
     Min = 0,
-    Max = 200,
-    Default = aimFOV,
-    Increment = 1,
-    Callback = function(Value)
-        aimFOV = Value
+    Max = 150,
+    Default = 70,
+    Increment = 5,
+    Callback = function(value)
+        aimFOV = value
     end,
 })
 
--- Miscellaneous settings under 'MiscTab'
-MiscTab:AddSlider({
-    Name = "Adjust Player Speed",
-    Min = 16,
-    Max = 100,
-    Default = playerSpeed,
-    Increment = 1,
-    Callback = function(Value)
-        playerSpeed = Value
-        LocalPlayer.Character.Humanoid.WalkSpeed = playerSpeed
-    end,
-})
-
-MiscTab:AddToggle({
-    Name = "No-clip",
-    Default = false,
-    Callback = function(Value)
-        noclipEnabled = Value
+-- Misc Tab Options
+MiscTab:AddButton({
+    Name = "Enable No-Clip",
+    Callback = function()
+        noclipEnabled = not noclipEnabled
         if noclipEnabled then
-            EnableNoClip()  -- Enable No-clip when the toggle is on
+            EnableNoClip()
         else
-            DisableNoClip()  -- Disable No-clip when the toggle is off
+            DisableNoClip()
         end
     end,
 })
 
-MiscTab:AddSlider({
-    Name = "Adjust FOV",
-    Min = 70,
-    Max = 120,
-    Default = currentFOV,
-    Increment = 1,
-    Callback = function(Value)
-        currentFOV = Value
-        workspace.CurrentCamera.FieldOfView = currentFOV  -- Update the camera FOV
-    end,
-})
-
-
+-- Teleport Tab Options
 TeleportTab:AddDropdown({
     Name = "Select Player to Teleport To",
-    Options = {},  -- Initially empty options
+    Options = {},  -- Options will be populated dynamically
     Callback = function(selectedPlayer)
-        for _, Player in pairs(Players:GetPlayers()) do
-            if Player.Name == selectedPlayer then
-                -- Ensure the player's character and HumanoidRootPart exist before teleporting
-                if Player.Character and Player.Character:FindFirstChild("HumanoidRootPart") then
-                    LocalPlayer.Character.HumanoidRootPart.CFrame = Player.Character.HumanoidRootPart.CFrame
-                end
-                break
-            end
+        local playerToTeleport = Players:FindFirstChild(selectedPlayer)
+        if playerToTeleport and playerToTeleport.Character then
+            LocalPlayer.Character.HumanoidRootPart.CFrame = playerToTeleport.Character.HumanoidRootPart.CFrame
         end
     end,
 })
--- Key bindings for menu toggling and ESP toggle
-UserInputService.InputBegan:Connect(function(input, gameProcessed)
-    if not gameProcessed then
-        -- Toggle the Orion window with 'F'
-        if input.KeyCode == Enum.KeyCode.F then
-            Window:Toggle()  -- Toggle Orion window
-        end
-    end
-end)
 
--- Aimbot loop to continuously aim at the nearest enemy
-RunService.RenderStepped:Connect(function()
-    if isAimbotActive then
-        AimAtNearestEnemy()
-    end
-end)
+-- Update the dropdown on script start
+UpdateTeleportDropdown()
 
--- Initial settings for players
-for _, Player in pairs(Players:GetPlayers()) do
-    if Player ~= LocalPlayer then
-        ApplyChams(Player)
-    end
-end
+-- Exit the script cleanly
+OrionLib:MakeNotification({
+    Name = "Krt Hub Loaded",
+    Content = "Welcome to Krt Hub!",
+    Duration = 5,
+    Image = "rbxassetid://10472045394"
+})
 
-Players.PlayerAdded:Connect(function(Player)
-    Player.CharacterAdded:Connect(function()
-        ApplyChams(Player)
-    end)
-end)
