@@ -33,7 +33,7 @@ local espBoxes = {}
 local chamsHighlights = {}
 local espThread, chamsThread
 local noclipEnabled = false
-local aimbotKey = Enum.KeyCode.RightAlt  -- Example: Aimbot will activate when holding "E"
+local aimbotKey = Enum.KeyCode.E  -- Example: Aimbot will activate when holding "E"
 local isAimbotActive = false
 local holdingKey = false
 
@@ -187,6 +187,23 @@ local function AimAtNearestEnemy()
         end
     end
 end
+
+-- Aimbot activation using key press
+UserInputService.InputBegan:Connect(function(input, gameProcessed)
+    if not gameProcessed and input.UserInputType == Enum.UserInputType.Keyboard then
+        if input.KeyCode == aimbotKey then
+            isAimbotActive = true
+        end
+    end
+end)
+
+UserInputService.InputEnded:Connect(function(input, gameProcessed)
+    if not gameProcessed and input.UserInputType == Enum.UserInputType.Keyboard then
+        if input.KeyCode == aimbotKey then
+            isAimbotActive = false
+        end
+    end
+end)
 
 function EnableNoClip()
     noclipLoop = game:GetService("RunService").Stepped:Connect(function()
