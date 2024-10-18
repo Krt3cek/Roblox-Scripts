@@ -29,6 +29,7 @@ local aimSmoothness = 0.5  -- Default smoothness
 local aimFOV = 70  -- Default FOV for aiming
 local playerSpeed = 16  -- Default player speed
 local currentFOV = 70  -- Current Field of View
+local espBoxes = {}
 
 -- Function to create a highlight for a player
 local function ApplyChams(Player)
@@ -67,7 +68,6 @@ local function ToggleChams()
     end
 end
 
--- Function to create a box around the player
 local function CreateESPBox(Player)
     local Character = Player.Character or Player.CharacterAdded:Wait()
     local Head = Character:WaitForChild("Head")
@@ -81,9 +81,15 @@ local function CreateESPBox(Player)
     espBox.ZIndex = 10
     espBox.Parent = Character
 
+    -- Store the box in the espBoxes table for later removal
+    espBoxes[Player] = espBox
+
     -- Clean up the box when the player dies
     Character.Humanoid.Died:Connect(function()
-        espBox:Destroy()
+        if espBoxes[Player] then
+            espBoxes[Player]:Destroy()
+            espBoxes[Player] = nil
+        end
     end)
 
     return espBox
@@ -91,12 +97,25 @@ end
 
 -- Function to toggle ESP boxes for all players
 local function ToggleESP()
-    for _, Player in pairs(Players:GetPlayers()) do
-        if Player ~= LocalPlayer and Player.Character then
-            CreateESPBox(Player)
+    if ESPEnabled then
+        -- Create ESP boxes for all players if ESP is enabled
+        for _, Player in pairs(Players:GetPlayers()) do
+            if Player ~= LocalPlayer and Player.Character and not espBoxes[Player] then
+                CreateESPBox(Player)
+            end
         end
+    else
+        -- Remove all ESP boxes if ESP is disabled
+        for _, espBox in pairs(espBoxes) do
+            if espBox then
+                espBox:Destroy()
+            end
+        end
+        -- Clear the espBoxes table
+        espBoxes = {}
     end
 end
+
 
 -- Aimbot function to aim at the nearest enemy's head
 local function AimAtNearestEnemy()
