@@ -20,16 +20,16 @@ local Workspace = game:GetService("Workspace")
 -- Variables
 local LocalPlayer = Players.LocalPlayer
 local ESPEnabled = true
+local ChamsEnabled = true
 local highlightColor = Color3.fromRGB(255, 48, 51)
 local isAimbotActive = false
 local skeletonEnabled = false
 local viewLineEnabled = false
 
 -- Function to create a highlight for a player
-local function ApplyHighlight(Player)
+local function ApplyChams(Player)
     local Character = Player.Character or Player.CharacterAdded:Wait()
-    local Humanoid = Character:WaitForChild("Humanoid")
-
+    
     -- Create a Highlight instance
     local Highlighter = Instance.new("Highlight")
     Highlighter.FillColor = highlightColor
@@ -37,27 +37,59 @@ local function ApplyHighlight(Player)
 
     -- Function to update highlight based on health
     local function OnHealthChanged()
-        if Humanoid.Health <= 0 then
+        if Character and Humanoid.Health <= 0 then
             Highlighter:Destroy()
         end
     end
 
     -- Connect health change
+    local Humanoid = Character:WaitForChild("Humanoid")
     Humanoid:GetPropertyChangedSignal("Health"):Connect(OnHealthChanged)
 
     return Highlighter
 end
 
 -- Function to toggle highlights for all players
-local function ToggleESP()
+local function ToggleChams()
     for _, Player in pairs(Players:GetPlayers()) do
         if Player ~= LocalPlayer and Player.Character then
             local highlight = Player.Character:FindFirstChildOfClass("Highlight")
             if highlight then
-                highlight.Enabled = ESPEnabled
+                highlight.Enabled = ChamsEnabled
             else
-                ApplyHighlight(Player)
+                ApplyChams(Player)
             end
+        end
+    end
+end
+
+-- Function to create a box around the player
+local function CreateESPBox(Player)
+    local Character = Player.Character or Player.CharacterAdded:Wait()
+    local Head = Character:WaitForChild("Head")
+    
+    -- Create a box part for ESP
+    local espBox = Instance.new("BoxHandleAdornment")
+    espBox.Size = Character:GetExtentsSize()
+    espBox.Adornee = Character
+    espBox.Color3 = highlightColor
+    espBox.Transparency = 0.5
+    espBox.ZIndex = 10
+    espBox.Parent = Character
+
+    -- Clean up the box when the player dies
+    Character.Humanoid.Died:Connect(function()
+        espBox:Destroy()
+    end)
+
+    return espBox
+end
+
+-- Function to toggle ESP boxes for all players
+local function ToggleESP()
+    for _, Player in pairs(Players:GetPlayers()) do
+        if Player ~= LocalPlayer and Player.Character then
+            CreateESPBox(Player)
         end
     end
 end
@@ -166,22 +198,35 @@ local MainTab = Window:MakeTab({
     Icon = "rbxassetid://10472045394",
 })
 
+-- Toggle Chams button
+MainTab:AddToggle({
+    Name = "Toggle Chams",
+    Default = true,
+    Callback = function(Value)
+        ChamsEnabled = Value
+        ToggleChams()  -- Update Chams state
+    end,
+})
+
 -- Toggle ESP button
-MainTab:AddButton({
-    Name = "Toggle ESP",
-    Callback = function()
-        ESPEnabled = not ESPEnabled
-        ToggleESP()  -- Update ESP state
+MainTab:AddToggle({
+    Name = "Toggle ESP Boxes",
+    Default = true,
+    Callback = function(Value)
+        ESPEnabled = Value
+        if ESPEnabled then
+            ToggleESP()  -- Apply ESP to players
+        end
     end,
 })
 
 -- Change Highlight Color button with color picker
 MainTab:AddColorPicker({
-    Name = "ESP Highlight Color",
+    Name = "Chams Highlight Color",
     Default = highlightColor,
     Callback = function(color)
         highlightColor = color
-        ToggleESP()  -- Update highlight color
+        ToggleChams()  -- Update Chams color
         for _, Player in pairs(Players:GetPlayers()) do
             if Player ~= LocalPlayer and Player.Character then
                 local highlight = Player.Character:FindFirstChildOfClass("Highlight")
@@ -231,7 +276,8 @@ MainTab:AddToggle({
 })
 
 -- Initial settings for players
-ToggleESP()  -- Apply initial highlights to all players
+ToggleChams()  -- Apply initial Chams to all players
+ToggleESP()  -- Apply initial ESP to all players
 
 -- Key bindings for menu toggling and ESP toggle
 UserInputService.InputBegan:Connect(function(input, gameProcessed)
