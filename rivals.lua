@@ -152,11 +152,9 @@ local function AimAtNearestEnemy()
         if Player ~= LocalPlayer and Player.Character and Player.Character:FindFirstChild("Humanoid") and Player.Character.Humanoid.Health > 0 then
             local head = Player.Character:FindFirstChild("Head")
             if head then
-                local screenPoint = workspace.CurrentCamera:WorldToScreenPoint(head.Position)
-                local mouseDistance = (Vector2.new(mouse.X, mouse.Y) - Vector2.new(screenPoint.X, screenPoint.Y)).Magnitude
-
-                if mouseDistance < closestDistance then
-                    closestDistance = mouseDistance
+                local distance = (LocalPlayer.Character.HumanoidRootPart.Position - head.Position).magnitude
+                if distance <= aimFOV and distance < closestDistance then
+                    closestDistance = distance
                     closestPlayer = head
                 end
             end
@@ -164,11 +162,18 @@ local function AimAtNearestEnemy()
     end
 
     if closestPlayer then
-        -- Move the mouse to the closest enemy's head
-        UserInputService.MouseBehavior = Enum.MouseBehavior.LockCenter  -- Lock mouse to center
+        -- Move the mouse to the closest enemy's head smoothly
         local targetPosition = workspace.CurrentCamera:WorldToScreenPoint(closestPlayer.Position)
         local newMousePosition = Vector2.new(targetPosition.X, targetPosition.Y)
-        UserInputService:SetMouseLocation(newMousePosition.X, newMousePosition.Y)
+
+        if smoothAiming then
+            local mousePosition = Vector2.new(mouse.X, mouse.Y)
+            local step = aimSmoothness
+            mousePosition = mousePosition:Lerp(newMousePosition, step)  -- Smoothly interpolate
+            UserInputService:SetMouseLocation(mousePosition.X, mousePosition.Y)
+        else
+            UserInputService:SetMouseLocation(newMousePosition.X, newMousePosition.Y)
+        end
     end
 end
 
