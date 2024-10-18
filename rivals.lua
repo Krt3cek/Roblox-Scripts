@@ -201,20 +201,28 @@ local function ToggleSkeleton(Player)
     end)
 end
 
--- Create Main Tabs
 local VisualsTab = Window:MakeTab({
     Name = "Visuals",
     Icon = "rbxassetid://10472045394",
+    PremiumOnly = false
 })
 
 local AimTab = Window:MakeTab({
     Name = "Aim",
     Icon = "rbxassetid://10472045394",
+    PremiumOnly = false
 })
 
 local MiscTab = Window:MakeTab({
     Name = "Misc",
     Icon = "rbxassetid://10472045394",
+    PremiumOnly = false
+})
+
+local TeleportTab = Window:MakeTab({
+    Name = "Teleport",
+    Icon = "rbxassetid://10472045394",
+    PremiumOnly = false
 })
 
 -- Visuals Tab: Toggle Chams button
