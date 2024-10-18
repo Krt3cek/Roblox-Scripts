@@ -37,8 +37,8 @@ ESP.ShowSkeletons = false;
 loadstring(game:HttpGet(("https://raw.githubusercontent.com/REDzHUB/LibraryV2/main/redzLib")))()
 MakeWindow({
   Hub = {
-    Title = "Esp",
-    Animation = "by thaibao7444"
+    Title = "Krt Hub",
+    Animation = "by Krtecek"
   },
   Key = {
     KeySystem = false,
