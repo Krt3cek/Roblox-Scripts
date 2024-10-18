@@ -15,15 +15,20 @@ local screenGui = Instance.new("ScreenGui", player.PlayerGui)
 local frame = Instance.new("Frame", screenGui)
 frame.Size = UDim2.new(0, 300, 0, 400)
 frame.Position = UDim2.new(0.5, -150, 0.5, -200)
-frame.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
+frame.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+frame.BorderSizePixel = 0
 frame.Visible = false -- Start hidden
+frame.Active = true
+frame.Draggable = true -- Make frame draggable
 
 local title = Instance.new("TextLabel", frame)
 title.Text = "Bee Swarm Simulator Script"
 title.Size = UDim2.new(1, 0, 0, 50)
-title.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
-title.TextColor3 = Color3.fromRGB(255, 255, 255)
+title.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+title.TextColor3 = Color3.fromRGB(255, 215, 0) -- Gold color
 title.TextScaled = true
+title.Font = Enum.Font.GothamBold
+title.TextStrokeTransparency = 0.5
 
 -- Toggle Auto Farm
 local toggleFarm = Instance.new("TextButton", frame)
@@ -32,6 +37,9 @@ toggleFarm.Size = UDim2.new(1, 0, 0, 50)
 toggleFarm.Position = UDim2.new(0, 0, 0, 60)
 toggleFarm.BackgroundColor3 = Color3.fromRGB(75, 75, 75)
 toggleFarm.TextColor3 = Color3.fromRGB(255, 255, 255)
+toggleFarm.Font = Enum.Font.Gotham
+toggleFarm.TextScaled = true
+toggleFarm.TextStrokeTransparency = 0.5
 
 toggleFarm.MouseButton1Click:Connect(function()
     autoFarmEnabled = not autoFarmEnabled
@@ -45,6 +53,9 @@ toggleTokens.Size = UDim2.new(1, 0, 0, 50)
 toggleTokens.Position = UDim2.new(0, 0, 0, 120)
 toggleTokens.BackgroundColor3 = Color3.fromRGB(75, 75, 75)
 toggleTokens.TextColor3 = Color3.fromRGB(255, 255, 255)
+toggleTokens.Font = Enum.Font.Gotham
+toggleTokens.TextScaled = true
+toggleTokens.TextStrokeTransparency = 0.5
 
 toggleTokens.MouseButton1Click:Connect(function()
     autoCollectTokensEnabled = not autoCollectTokensEnabled
@@ -56,8 +67,11 @@ local fieldLabel = Instance.new("TextLabel", frame)
 fieldLabel.Text = "Select Field:"
 fieldLabel.Size = UDim2.new(1, 0, 0, 40)
 fieldLabel.Position = UDim2.new(0, 0, 0, 180)
-fieldLabel.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+fieldLabel.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
 fieldLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+fieldLabel.Font = Enum.Font.Gotham
+fieldLabel.TextScaled = true
+fieldLabel.TextStrokeTransparency = 0.5
 
 local dropdown = Instance.new("TextButton", frame)
 dropdown.Text = "SunflowerField"
@@ -65,6 +79,9 @@ dropdown.Size = UDim2.new(1, 0, 0, 40)
 dropdown.Position = UDim2.new(0, 0, 0, 220)
 dropdown.BackgroundColor3 = Color3.fromRGB(75, 75, 75)
 dropdown.TextColor3 = Color3.fromRGB(255, 255, 255)
+dropdown.Font = Enum.Font.Gotham
+dropdown.TextScaled = true
+dropdown.TextStrokeTransparency = 0.5
 
 dropdown.MouseButton1Click:Connect(function()
     if dropdown.Text == "SunflowerField" then
@@ -84,8 +101,11 @@ local keyLabel = Instance.new("TextLabel", frame)
 keyLabel.Text = "Press a key to bind:"
 keyLabel.Size = UDim2.new(1, 0, 0, 40)
 keyLabel.Position = UDim2.new(0, 0, 0, 280)
-keyLabel.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+keyLabel.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
 keyLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+keyLabel.Font = Enum.Font.Gotham
+keyLabel.TextScaled = true
+keyLabel.TextStrokeTransparency = 0.5
 
 local bindButton = Instance.new("TextButton", frame)
 bindButton.Text = "Current: F"
@@ -93,6 +113,9 @@ bindButton.Size = UDim2.new(1, 0, 0, 40)
 bindButton.Position = UDim2.new(0, 0, 0, 320)
 bindButton.BackgroundColor3 = Color3.fromRGB(75, 75, 75)
 bindButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+bindButton.Font = Enum.Font.Gotham
+bindButton.TextScaled = true
+bindButton.TextStrokeTransparency = 0.5
 
 bindButton.MouseButton1Click:Connect(function()
     bindButton.Text = "Press any key..."
