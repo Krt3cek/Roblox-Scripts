@@ -16,6 +16,7 @@ local Players = game:GetService("Players")
 local UserInputService = game:GetService("UserInputService")
 local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
+local VirtualUser = game:GetService("VirtualUser")
 
 -- Variables
 local LocalPlayer = Players.LocalPlayer
@@ -26,6 +27,7 @@ local isAimbotActive = false
 local aimSmoothness = 0.1
 local aimFOV = 70
 local aimbotKey = Enum.KeyCode.E  -- Aimbot activation key
+local autoClickerEnabled = false
 local espBoxes = {}
 local chamsHighlights = {}
 local espThread, chamsThread
@@ -168,17 +170,43 @@ RunService.RenderStepped:Connect(function()
     end
 end)
 
+-- Function to check if the mouse is over an enemy player
+local function IsMouseOverEnemy()
+    local mouse = UserInputService:GetMouseLocation()
+    for _, player in pairs(Players:GetPlayers()) do
+        if player ~= LocalPlayer and player.Character and player.Character:FindFirstChild("Head") then
+            local headPos = player.Character.Head.Position
+            local screenPos = Workspace.CurrentCamera:WorldToScreenPoint(headPos)
+            -- Check if the mouse is within a small range of the head
+            if (Vector2.new(screenPos.X, screenPos.Y) - mouse).Magnitude < 30 then
+                return true
+            end
+        end
+    end
+    return false
+end
+
+-- Function to spam the left mouse button
+local function AutoClick()
+    while autoClickerEnabled do
+        VirtualUser:ClickButton1(Vector2.new(0, 0)) -- Simulate left mouse button click
+        wait(0.1) -- Delay between clicks; adjust as necessary
+    end
+end
+
 -- Toggle Aimbot using key press
 UserInputService.InputBegan:Connect(function(input, gameProcessed)
-    if not gameProcessed and input.KeyCode == aimbotKey then
-        isAimbotActive = not isAimbotActive
-        local notificationMessage = isAimbotActive and "Aimbot Activated!" or "Aimbot Deactivated!"
-        OrionLib:MakeNotification({
-            Name = "Aimbot Status",
-            Content = notificationMessage,
-            Duration = 3,
-            Image = "rbxassetid://10472045394"
-        })
+    if not gameProcessed then
+        if input.KeyCode == aimbotKey then
+            isAimbotActive = not isAimbotActive
+            local notificationMessage = isAimbotActive and "Aimbot Activated!" or "Aimbot Deactivated!"
+            OrionLib:MakeNotification({
+                Name = "Aimbot Status",
+                Content = notificationMessage,
+                Duration = 3,
+                Image = "rbxassetid://10472045394"
+            })
+        end
     end
 end)
 
@@ -204,7 +232,7 @@ TeleportTab:AddButton({
     Name = "Refresh Players",
     Callback = function()
         UpdateTeleportDropdown()  -- Update the dropdown options
-    end,
+    end
 })
 
 -- GUI for ESP
@@ -244,48 +272,81 @@ ChamsTab:AddToggle({
         else
             RemoveAllChams()
         end
-    end,
+    end
 })
 
--- GUI for No-Clip
-local NoClipTab = Window:MakeTab({
-    Name = "No-Clip",
+-- GUI for Aimbot
+local AimbotTab = Window:MakeTab({
+    Name = "Aimbot",
     Icon = "rbxassetid://10472045394",
     PremiumOnly = false,
 })
 
-NoClipTab:AddToggle({
-    Name = "Enable No-Clip",
+AimbotTab:AddToggle({
+    Name = "Enable Aimbot",
     Default = false,
     Callback = function(value)
-        noclipEnabled = value
+        isAimbotActive = value
+    end,
+})
+
+AimbotTab:AddSlider({
+    Name = "Aimbot Smoothness",
+    Min = 0,
+    Max = 1,
+    Default = 0.1,
+    Increment = 0.01,
+    Callback = function(value)
+        aimSmoothness = value
+    end,
+})
+
+AimbotTab:AddSlider({
+    Name = "Aimbot FOV",
+    Min = 0,
+    Max = 200,
+    Default = 70,
+    Increment = 1,
+    Callback = function(value)
+        aimFOV = value
+    end,
+})
+
+-- New Auto-Clicker Tab
+local AutoClickerTab = Window:MakeTab({
+    Name = "Auto-Clicker",
+    Icon = "rbxassetid://10472045394",
+    PremiumOnly = false,
+})
+
+AutoClickerTab:AddToggle({
+    Name = "Enable Auto-Clicker",
+    Default = false,
+    Callback = function(value)
+        autoClickerEnabled = value
         if value then
-            EnableNoClip()
-        else
-            DisableNoClip()
+            RunService.RenderStepped:Connect(function()
+                if autoClickerEnabled then
+                    if IsMouseOverEnemy() or (UserInputService:GetMouseLocation() - Workspace.CurrentCamera.CFrame.Position).Magnitude < 30 then
+                        VirtualUser:ClickButton1(Vector2.new(0, 0)) -- Simulate left mouse button click
+                    end
+                end
+            end)
+            AutoClick()  -- Start the auto-clicking loop
         end
     end,
 })
 
--- Cleanup on exit
-game.Players.PlayerRemoving:Connect(function(player)
-    if player == LocalPlayer then
-        RemoveAllESPBoxes()
-        RemoveAllChams()
-        DisableNoClip()
-    end
-end)
-
--- Update the dropdown options with current players for teleportation
+-- Function to update the Teleport dropdown options
 local function UpdateTeleportDropdown()
     local playerNames = {}
-    for _, Player in pairs(Players:GetPlayers()) do
-        if Player ~= LocalPlayer then  -- Exclude local player
-            table.insert(playerNames, Player.Name)
+    for _, player in pairs(Players:GetPlayers()) do
+        if player ~= LocalPlayer then
+            table.insert(playerNames, player.Name)
         end
     end
     TeleportTab:UpdateDropdown({
-        Name = "Select Player to Teleport To",
+        Name = "Teleport to Player",
         Options = playerNames,
     })
 end
