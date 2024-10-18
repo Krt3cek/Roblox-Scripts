@@ -236,15 +236,12 @@ MainTab:AddToggle({
     end,
 })
 
--- Visuals Tab: Toggle ESP button
 MainTab:AddToggle({
     Name = "Toggle ESP Boxes",
     Default = false,
     Callback = function(Value)
         ESPEnabled = Value
-        if ESPEnabled then
-            ToggleESP()  -- Apply ESP to players
-        end
+        ToggleESP()  -- Apply or remove ESP based on the toggle state
     end,
 })
 
